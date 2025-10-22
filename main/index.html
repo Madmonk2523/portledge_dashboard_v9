@@ -1074,8 +1074,14 @@ function signOut(){
   localStorage.removeItem(ROLE_KEY);
   location.reload();
 }
-if ($('#signOutStudent')) $('#signOutStudent').onclick = signOut;
 
+// Attach sign out button after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const signOutBtn = document.getElementById('signOutStudent');
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', signOut);
+  }
+});
 
 
 function handleLogin() {

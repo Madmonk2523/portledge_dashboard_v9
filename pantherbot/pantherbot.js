@@ -174,8 +174,13 @@ async function handleSend() {
     // Abort if request takes too long
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
-    // Call Python server on port 3000 for API (works with Live Server!)
-    const res = await fetch("/api/chat", {
+    
+    // Use Vercel serverless function if deployed, otherwise localhost
+    const apiUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000/api/chat'
+      : '/api/chat';
+    
+    const res = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

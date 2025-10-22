@@ -1,0 +1,8 @@
+# Ignore secret files
+pantherbot/apiKey.js
+apiKey.js
+.env
+.env.local
+
+# Vercel
+.vercel
