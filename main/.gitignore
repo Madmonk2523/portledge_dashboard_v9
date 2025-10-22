@@ -1,0 +1,3 @@
+# Ignore secret files
+pantherbot/apiKey.js
+.env

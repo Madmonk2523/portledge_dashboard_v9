@@ -1,0 +1,1799 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Portledge Dashboard — v11 (Role-Based)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<meta name="theme-color" content="#003366"/>
+
+
+<style>
+
+.clock-wrap {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #4A90E2; /* Blue clock */
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+/* Compact Status + Progress Bar */
+.status-bar {
+  margin: 6px auto 12px;
+  max-width: 700px;
+  text-align: center;
+  font-weight: 700;
+  color: #0b2249;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-progress {
+  width: 100%;
+  height: 10px;
+  background: #dbe4f5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+#s_progressFill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#2b6ccf,#5a8dff);
+  transition: width .4s ease;
+}
+
+
+.p-done {
+  background:linear-gradient(90deg,#4A90E2,#6AB0FF) !important; /* Blue progress fill */
+}
+
+:root{
+  --navy:#003366; --navy-2:#0b3f7a; --blue:#2b6ccf;
+  --ink:#162133; --muted:#6c768b; --rail:#e0e6f0; --panel:#fff; --bg:#f3f6fb;
+  --good:#1fa86a; --info:#4f87c7; --done:#9aa6bf; --free:#d0d7e6;
+  --radius:14px; --shadow:0 10px 28px rgba(10,20,40,.08); --ease:cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;font:15.5px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+:focus-visible{outline:3px solid #94b0ff; outline-offset:3px; border-radius:8px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+/* Performance optimizations */
+.page,.timeline,.slot,.tab,.panel{will-change:auto;contain:layout style}
+.now-indicator,.p-done{will-change:transform,top,width}
+
+/* ===== Dark mode (toggle) ===== */
+body.theme-dark{
+  --bg:#0b1424;
+  --ink:#e8eefc;
+  --panel:#0f1b33;
+  --rail:#1e2a45;
+  --navy:#0b3f7a; --navy-2:#052b5d;
+  --muted:#a9b4cc;
+  --blue:#4f87c7;
+  --done:#6c7a96; --info:#6aa3ff; --good:#34d399; --free:#2a3550;
+  color-scheme: dark;
+}
+
+/* Dark-mode component overrides for better contrast and consistency */
+body.theme-dark .nav{background:#0f1b33; border-bottom:1px solid var(--rail)}
+body.theme-dark .tab{background:#0f1b33; color:var(--ink); border-color:#2a3550}
+body.theme-dark .tab:hover{background:#0c1630}
+body.theme-dark .panel{background:var(--panel); border-color:#2a3550; box-shadow:0 10px 28px rgba(0,0,0,.25)}
+body.theme-dark .legend .lg{color:var(--muted)}
+body.theme-dark .rail{background:#22314f}
+body.theme-dark .timeline .slot{background:#0f1b33; border-color:#2a3550; box-shadow:0 8px 20px rgba(0,0,0,.25)}
+body.theme-dark .status-bar{color:var(--ink)}
+body.theme-dark .status-progress{background:#1a2846}
+body.theme-dark #s_progressFill{background:linear-gradient(90deg,#3267d9,#6aa3ff)}
+body.theme-dark .badge.now{background:#0b2a22; color:#34d399; border-color:#1d5b4b}
+body.theme-dark .badge.up{background:#0b1d33; color:#6aa3ff; border-color:#274a80}
+body.theme-dark .badge.done{background:#0f1524; color:#a9b4cc; border-color:#2a3550}
+body.theme-dark .chip{background:#0f1b33; color:var(--ink); border-color:#2a3550; box-shadow:0 6px 14px rgba(0,0,0,.25)}
+body.theme-dark .chip-next{background:linear-gradient(#101b33,#0c1630); border-color:#2a3550}
+body.theme-dark .input, body.theme-dark select{background:#0c1630; color:var(--ink); border-color:#2a3550}
+body.theme-dark .card, body.theme-dark .gcard, body.theme-dark .gpa, body.theme-dark .person{background:#0f1b33; border-color:#2a3550; box-shadow:0 10px 28px rgba(0,0,0,.25)}
+body.theme-dark .gpa-badge{background:#0c1630; color:#cfe0ff; border-color:#2a3550}
+body.theme-dark .login-card{background:#0f1b33; box-shadow:0 30px 60px rgba(0,0,0,.4)}
+body.theme-dark ::selection{background:#1e335f; color:#eaf0ff}
+body.theme-dark ::-webkit-scrollbar{width:10px; height:10px}
+body.theme-dark ::-webkit-scrollbar-track{background:#0c1630}
+body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999px}
+
+/* Theme toggle button */
+.theme-toggle{border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:#fff; padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer}
+/* ===== Shared top bar ===== */
+.topbar{
+  position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:linear-gradient(90deg,var(--navy),#07386c 60%,var(--navy)); color:#fff; padding:10px 14px; box-shadow:0 2px 0 rgba(0,0,0,.06)
+}
+.brand{display:flex; align-items:center; gap:10px}
+.brand h1{margin:0; font-weight:900; letter-spacing:.2px; line-height:1.05}
+.pillars-line{margin:2px 0 0 0; font-size:12px; color:#e6e9f5; letter-spacing:.08em}
+.brandstack{display:flex; flex-direction:column}
+.logo{width:34px; height:34px; border-radius:8px; background:#ffffff10; display:grid; place-items:center; overflow:hidden}
+.logo img{width:100%; height:100%; object-fit:contain}
+.top-actions{display:flex; gap:8px; align-items:center}
+.signout{border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:#fff; padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer}
+
+/* ===== Tabs ===== */
+.nav{position:sticky; top:58px; z-index:95; display:flex; gap:8px; padding:8px 12px; background:#fff; border-bottom:1px solid var(--rail)}
+.tab{padding:8px 12px; border-radius:999px; border:1px solid var(--rail); background:#fff; cursor:pointer; font-weight:800; color:#0b2249}
+.tab:hover{background:#f5f7fb}
+.tab.active{background:linear-gradient(90deg,var(--navy),var(--navy-2)); color:#fff; border-color:transparent}
+
+/* ===== Pages ===== */
+.page{min-height:calc(100dvh - 120px); padding:18px 12px 18px; display:none}
+.page.active{display:block}
+.hero{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin:0 auto 12px; max-width:1200px}
+.hero h2{margin:0; font-size:1.7rem}
+.hero .meta{color:var(--muted); font-size:.95rem}
+.container{max-width:1200px; margin:0 auto}
+
+/* ===== Panels ===== */
+.panel{background:var(--panel); border:1px solid var(--rail); border-radius:var(--radius); box-shadow:var(--shadow)}
+.p-body{padding:12px 14px}
+
+/* ===== Schedule (shared style) ===== */
+.schedule-wrap{max-width:1100px; margin:0 auto}
+.summary{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.progress{flex:1; height:10px; background:#ecf1fb; border-radius:999px; overflow:hidden; position:relative; box-shadow:inset 0 1px 2px rgba(2,18,43,.06)}
+.progress > b{display:block; height:100%; background:linear-gradient(90deg,#4a90e2,#6ab0ff)}
+/* Segmented progress: green fill for done, blue marker for now */
+.p-done{position:absolute; left:0; top:0; background:linear-gradient(90deg,#2b6ccf,#6aa3ff); width:0%}
+.p-now{position:absolute; top:0; width:4px; background:#34d399; border-radius:2px; box-shadow:0 0 0 2px #fff inset, 0 0 10px rgba(52,211,153,.6)}
+.legend{display:flex; gap:8px; flex-wrap:wrap}
+.lg{display:flex; align-items:center; gap:6px; font-size:12px; color:#47536a}
+.sw{width:10px; height:10px; border-radius:3px; display:inline-block}
+.sw.now{background:var(--good)} .sw.up{background:var(--info)} .sw.done{background:var(--done)} .sw.free{background:var(--free)}
+
+.timeline{position:relative; padding:6px 0 0; overflow:clip}
+.rail{position:absolute; left:20px; top:0; bottom:0; width:3px; background:#e6edf9}
+.now-indicator{position:absolute; left:10px; width:20px; height:20px; border-radius:50%; transform:translateY(-10px); box-shadow:0 6px 20px rgba(31,168,106,.35); background:radial-gradient(circle at 30% 30%, #34d399 0, #1fa86a 60%, #138a56 100%)}
+.timeline .slot{position:relative; padding-left:54px; margin:10px 0; border:1px solid var(--rail); background:#fff; border-radius:12px; box-shadow:var(--shadow)}
+.slot:last-child{border-bottom:0}
+.slot::before{content:""; position:absolute; left:0; top:0; bottom:0; width:6px; border-radius:12px}
+.slot.now::before{background:var(--good)} .slot.up::before{background:var(--info)} .slot.done::before{background:var(--done)} .slot.free::before{background:var(--free)}
+.dot{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:10px; height:10px; border-radius:50%; background:#c8d3e6}
+.slot.now .dot{background:var(--good)} .slot.up .dot{background:var(--info)} .slot.done .dot{background:var(--done)}
+.slot-inner{display:grid; grid-template-columns:140px 1fr 1.1fr; gap:12px; align-items:center; padding:12px 14px}
+.time{font-size:.95rem; color:#51607a; font-weight:700}
+.cls{font-weight:900; color:#0b2249}
+.meta{color:#5f6c86; font-size:.92rem}
+.badge{display:inline-block; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:900; border:1px solid}
+.badge.now{background:#eafff4; color:#0f7a56; border-color:#bfe7cf}
+.badge.up{background:#eef5ff; color:#17497f; border-color:#cfe0ff}
+.badge.done{background:#f7f8fb; color:#4b5568; border-color:#e4e9f3}
+.weekend{text-align:center; padding:40px 16px; color:#4a5672}
+.weekend h3{margin:0 0 8px 0; font-size:1.3rem}
+.weekend .sub{color:#6a7690}
+
+/* Big date + day navigation */
+.bigdate{font-weight:900; font-size:1.5rem; text-align:center; margin:6px 0}
+.daynav{display:flex; justify-content:center; align-items:center; gap:10px; margin:8px 0}
+.daybtn{border:1px solid #d5dcf0; background:linear-gradient(#fff,#f6f8ff); color:#0b2249; border-radius:12px; padding:8px 12px; cursor:pointer; font-weight:800}
+.daybtn:hover{background:#f6f8ff}
+
+/* Day-change animations disabled for performance */
+
+/* ===== Student-only modules ===== */
+.toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+.input, select{border:1px solid var(--rail); border-radius:12px; padding:8px 10px; background:#fff; font:inherit}
+.btn{border:1px solid #d5dcf0; background:linear-gradient(#fff,#f6f8ff); border-radius:12px; padding:8px 12px; font-weight:800; cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--navy),var(--navy-2)); color:#fff; border-color:transparent}
+.board{display:grid; gap:10px}
+.card{border:1px solid var(--rail); background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:10px; display:grid; grid-template-columns:1fr 120px 110px 80px; gap:10px; align-items:center}
+@media(max-width:900px){.card{grid-template-columns:1fr 110px 100px}}
+@media(max-width:640px){.card{grid-template-columns:1fr}}
+.card .h{font-weight:900}
+.card .sub{color:var(--muted); font-size:.92rem}
+.tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.78rem; font-weight:900; border:1px solid}
+.tag.open{background:#fff5f5;color:#9b1c1c;border-color:#f0caca}
+.tag.doing{background:#fffceb;color:#8a6d00;border-color:#f0e3a4}
+.tag.done{background:#f0fff6;color:#12704a;border-color:#bfe7cf}
+
+.gpa{display:flex; align-items:center; gap:12px; border:1px solid var(--rail); background:#fff; border-radius:14px; box-shadow:var(--shadow); padding:12px; margin-bottom:10px}
+.gpa-badge{min-width:76px; text-align:center; font-weight:900; color:#0c3a7a; background:#eef3ff; border:1px solid #d7e8ff; border-radius:10px; padding:8px}
+.gpa-track{flex:1; height:12px; background:#eef2f8; border-radius:999px; overflow:hidden}
+.gpa-fill{height:100%; width:0%; background:linear-gradient(90deg,#2b6ccf,#6aa3ff); border-radius:999px; transition:width .7s var(--ease)}
+.gpa-meta{font-size:.92rem; color:#5b6480; min-width:150px; text-align:right}
+
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+@media(max-width:900px){.grid3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.grid3{grid-template-columns:1fr}}
+.gcard{border:1px solid var(--rail); background:#fff; border-radius:14px; box-shadow:var(--shadow); padding:12px}
+.gheader{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.gtitle{margin:0; font-weight:900}
+.ggrade{font-weight:900; color:var(--blue)}
+.bar-wrap{height:8px; background:#eef2f8; border-radius:999px; overflow:hidden; margin:8px 0}
+.bar{height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#24b277,#1fa86a); transition:width .7s var(--ease)}
+.gsub{color:#5b6aa6; font-size:.92rem}
+.gbtn{margin-top:8px; padding:8px 10px; border-radius:10px; border:1px solid #dbe3f6; background:#fff; cursor:pointer; font-weight:800}
+
+/* ===== Directory ===== */
+.dir-tabs{display:flex; gap:8px; margin-bottom:8px}
+.dir-tabs .btn.active{background:linear-gradient(90deg,var(--navy),var(--navy-2));color:#fff;border-color:transparent}
+.dir-tools{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px}
+.dir-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+@media(max-width:900px){.dir-grid{grid-template-columns:1fr}}
+.person{border:1px solid var(--rail); background:#fff; border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow)}
+.person .name{font-weight:900} .person .meta{color:#6c768b}
+.mail{padding:8px 10px; border-radius:999px; background:#2b6ccf; color:#fff; text-decoration:none}
+.pager{display:flex; gap:8px; justify-content:flex-end; margin-top:8px}
+
+/* ===== Modals (grade/settings) ===== */
+.modal{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.35); z-index:1200}
+.modal.hidden{display:none}
+.modal .modal-content{width:min(560px,92vw); background:#fff; border-radius:14px; box-shadow:0 30px 60px rgba(0,0,0,.35); padding:16px}
+.modal .close-btn{float:right; border:1px solid #d5dcf0; background:#fff; border-radius:10px; padding:6px 10px; cursor:pointer; font-weight:800}
+
+
+/* ===== Login Overlay ===== */
+#login{position:fixed; inset:0; display:grid; place-items:center; background:linear-gradient(120deg,#0b3f7a 0%, #001f3f 100%); z-index:1000}
+.login-card{width:min(480px,92vw); background:#fff; border-radius:18px; box-shadow:0 30px 60px rgba(0,0,0,.25); padding:20px}
+.login-head{display:flex; align-items:center; gap:12px; margin-bottom:6px}
+.login-logo{width:52px; height:52px; border-radius:12px; background:#f2f6ff; display:grid; place-items:center; overflow:hidden}
+.login-logo img{width:100%; height:100%; object-fit:contain}
+.login-title{margin:0; font-size:1.5rem; font-weight:900}
+.login-sub{margin:0; color:#5d6a86}
+.login-form{display:grid; gap:10px; margin-top:14px}
+.role-input{border:1px solid #d9e2f6; border-radius:12px; padding:12px 14px; font:inherit}
+.login-btn{border:0; border-radius:12px; padding:12px 14px; font-weight:900; color:#fff; background:linear-gradient(90deg,#003366,#0b3f7a); cursor:pointer}
+.hint{font-size:.9rem; color:#6b7692}
+.shake{animation:shake .25s linear}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* ===== Hide/Show helpers ===== */
+.hidden{display:none !important}
+
+/* ===== Small UI chips (reusable) ===== */
+.chip{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--rail); background:#fff; color:#0b2249; font-weight:800; font-size:.85rem; box-shadow:var(--shadow)}
+.chip .dot{width:8px; height:8px; border-radius:50%}
+.chip-next{background:linear-gradient(#ffffff,#f6f9ff); border-color:#dbe3f6}
+
+/* PantherBot suggestions row */
+.pb-suggestions{display:flex; flex-wrap:wrap; gap:8px; margin:10px auto 8px; max-width:850px}
+.pb-suggestions .chip{cursor:pointer}
+
+/* Back to top button */
+#backToTop{position:fixed; right:16px; bottom:16px; z-index:1100; border:0; border-radius:999px; padding:10px 12px; font-weight:900; background:linear-gradient(90deg,var(--navy),var(--navy-2)); color:#fff; box-shadow:0 10px 30px rgba(0,0,0,.25); cursor:pointer; display:none}
+
+/* PantherBot Chat Layout */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  background: linear-gradient(135deg, #ffffff 0%, #f5f8ff 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 51, 102, 0.12);
+  overflow: hidden;
+  max-width: 850px;
+  margin: 0 auto;
+  border: 1px solid rgba(0, 51, 102, 0.08);
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: linear-gradient(to bottom, #f9fbff 0%, #ffffff 100%);
+  scroll-behavior: smooth;
+  /* Make messages stack like a chat without floats */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.chat-message {
+  margin-bottom: 0; /* handled by gap on container */
+  line-height: 1.6;
+  animation: fadeSlideIn 0.3s ease-out;
+  display: inline-block;
+  max-width: 75%;
+  overflow-wrap: anywhere;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-message.user {
+  color: #003366;
+  font-weight: 600;
+  background: linear-gradient(135deg, #e8f0ff 0%, #d4e4ff 100%);
+  padding: 12px 18px;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 2px 8px rgba(0, 51, 102, 0.1);
+  text-align: left;
+  align-self: flex-end;
+}
+
+.chat-message.bot {
+  color: #1a2332;
+  background: white;
+  padding: 12px 18px;
+  border-radius: 18px 18px 18px 4px;
+  border: 1px solid rgba(0, 51, 102, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  text-align: left;
+  align-self: flex-start;
+}
+
+.chat-input {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid rgba(0, 51, 102, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 14px 18px;
+  border: 2px solid rgba(0, 51, 102, 0.12);
+  border-radius: 24px;
+  outline: none;
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  background: #f9fbff;
+  transition: all 0.2s ease;
+}
+
+.chat-input input:focus {
+  border-color: #003366;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.08);
+}
+
+.chat-input button {
+  background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 24px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.25);
+}
+
+.chat-input button:hover {
+  background: linear-gradient(135deg, #004d99 0%, #0066cc 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 51, 102, 0.35);
+}
+
+.chat-input button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .chat-container {
+    height: 500px;
+    border-radius: 12px;
+    margin: 0 8px;
+  }
+  
+  .chat-message.user,
+  .chat-message.bot {
+    max-width: 90%;
+  }
+}
+
+
+
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN OVERLAY ===== -->
+<section id="login" aria-label="Login">
+  <div class="login-card" id="loginCard">
+    <div class="login-head">
+      <div class="login-logo">
+        <img src="portledge_crest.png" alt="Portledge crest" onerror="this.closest('.login-logo').innerHTML='<span style=&quot;font-weight:900;color:#0b3f7a&quot;>P</span>'">
+      </div>
+      <div>
+        <h2 class="login-title">Portledge Dashboard</h2>
+        <p class="login-sub">Sign in to continue</p>
+      </div>
+    </div>
+    <div class="login-form">
+        <label for="role" class="hint">Enter your Portledge email to sign in:</label>
+        <input id="role" class="role-input" placeholder="Your email here" autocomplete="off" />
+      <button id="loginBtn" class="login-btn">Continue</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STUDENT DASHBOARD ===== -->
+<header id="top-student" class="topbar hidden" role="banner">
+  <div class="brand">
+    <div class="logo"><img src="portledge_crest.png" alt="Portledge crest" onerror="this.remove()"></div>
+    <div class="brandstack">
+      <h1>Portledge Dashboard — Student</h1>
+      <div class="pillars-line">Kindness • Honor • Purpose • Respect</div>
+    </div>
+  </div>
+  <div class="top-actions">
+  <button class="signout" id="signOutStudent">Sign Out</button>
+  <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-pressed="false">Dark Mode</button>
+</div>
+
+
+</header>
+<nav id="nav-student" class="nav hidden" role="tablist" aria-label="Student">
+  <button class="tab active" data-page="s-schedule" aria-selected="true">Schedule</button>
+  <button class="tab" data-page="s-assign" aria-selected="false">Assignments</button>
+  <button class="tab" data-page="s-grades" aria-selected="false">Grades</button>
+  <button class="tab" data-page="s-directory" aria-selected="false">Directory</button>
+  <button class="tab" data-page="s-pantherbot" aria-selected="false">PantherBot</button>
+
+
+  
+</nav>
+<main id="dashboard-student" class="hidden">
+  <!-- SCHEDULE -->
+  <section id="page-s-schedule" class="page active">
+    <div class="hero container">
+      <div>
+        <h2>My Day</h2>
+        <div class="meta" id="s_todayMeta">—</div>
+      </div>
+      <div class="meta" id="s_daySummary">—</div>
+    </div>
+    <div class="schedule-wrap">
+      <section class="panel">
+        <div class="p-body">
+          <div class="summary">
+                <div class="day-progress-area" style="display:flex;align-items:center;gap:10px;flex:1">
+                  <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
+                    <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
+                    <!-- Blank space for future content -->
+                  </div>
+                  <div id="nextUp" class="chip chip-next hidden">
+                    <span class="dot" style="background: var(--info)"></span>
+                    <span id="nextUpText">Next: —</span>
+                  </div>
+                  <div class="legend" style="margin-left:auto;">
+                    <span class="lg"><i class="sw now"></i> Now</span>
+                    <span class="lg"><i class="sw up"></i> Upcoming</span>
+                    <span class="lg"><i class="sw done"></i> Done</span>
+                    <span class="lg"><i class="sw free"></i> Free</span>
+                  </div>
+                </div>
+          </div>
+        </div>
+        <div class="bigdate" id="s_bigDate">—</div>
+        <div class="daynav">
+          <button id="s_prev" class="daybtn" aria-label="Previous day">◀</button>
+          <button id="s_today" class="daybtn" aria-label="Today">Today</button>
+          <button id="s_next" class="daybtn" aria-label="Next day">▶</button>
+        </div>
+        <div id="s_status" class="status-bar">
+          <span id="s_currentLabel">—</span>
+          <div class="status-progress">
+            <div id="s_progressFill"></div>
+          </div>
+        </div>
+
+        <div class="timeline" id="s_timeline">
+          <div class="rail"></div>
+          <div id="s_nowDot" class="now-indicator" style="top:-9999px"></div>
+          <div id="s_slots"></div>
+        </div>
+        <div id="s_weekend" class="weekend" style="display:none">
+          <h3>🏫 School Closed — No Classes Scheduled</h3>
+          <div class="sub">Use ◀ / ▶ to navigate to a weekday.</div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ASSIGNMENTS -->
+  <section id="page-s-assign" class="page">
+    <div class="hero container">
+      <div>
+        <h2>Assignments Overview</h2>
+        <div class="meta" id="assMeta">—</div>
+      </div>
+      <div class="meta" id="assSummary">—</div>
+    </div>
+    <div class="container">
+      <div class="toolbar">
+        <input id="assSearch" class="input" placeholder="Search assignments…"/>
+        <select id="assCourse"><option value="">All courses</option></select>
+        <select id="assStatus">
+          <option value="">All status</option>
+          <option value="open">Open</option>
+          <option value="doing">Doing</option>
+          <option value="done">Done</option>
+        </select>
+        <button id="assSort" class="btn">Sort by due ↑</button>
+        <div style="flex:1"></div>
+        <input id="newTitle" class="input" placeholder="New assignment title"/>
+        <input id="newDue" type="datetime-local" class="input"/>
+        <select id="newCourse" class="input"></select>
+        <button id="addAss" class="btn primary">Add</button>
+      </div>
+      <div id="assList" class="board"></div>
+    </div>
+  </section>
+
+  <!-- GRADES -->
+  <section id="page-s-grades" class="page">
+    <div class="hero container">
+      <div>
+        <h2>Grades</h2>
+        <div class="meta">Quarter snapshot & trends</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="gpa">
+        <div class="gpa-badge" id="gpaBadge">GPA —</div>
+        <div class="gpa-track"><div class="gpa-fill" id="gpaFill"></div></div>
+        <div class="gpa-meta" id="gpaMeta">Across 0 courses</div>
+      </div>
+  <div class="grid3" id="gradesGrid"></div>
+  </div>
+</section>
+
+  <!-- DIRECTORY -->
+  <section id="page-s-directory" class="page">
+    <div class="hero container">
+      <div>
+        <h2>Directory</h2>
+        <div class="meta">Search & browse</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="dir-tabs">
+        <button id="btnStud" class="btn active" data-kind="students">Students</button>
+        <button id="btnTeach" class="btn" data-kind="teachers">Teachers</button>
+      </div>
+      <div class="dir-tools">
+        <input id="dirSearch" class="input" placeholder="Search name, subject, email…"/>
+        <select id="dirGrade" class="input">
+          <option value="9">Grade 9</option>
+          <option value="10" selected>Grade 10</option>
+          <option value="11">Grade 11</option>
+          <option value="12">Grade 12</option>
+        </select>
+      </div>
+      <div id="dirGrid" class="dir-grid"></div>
+      <div class="pager">
+        <button id="prevPage" class="btn">Prev</button>
+        <span id="pageInfo" class="meta"></span>
+        <button id="nextPage" class="btn">Next</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section id="page-s-pantherbot" class="page">
+  <div class="container" style="padding-top: 20px;">
+    <div class="hero" style="margin-bottom: 12px;">
+      <div>
+        <h2>🐾 PantherBot</h2>
+        <div class="meta">Your AI-powered handbook assistant</div>
+      </div>
+    </div>
+    <div class="pb-suggestions">
+      <button class="chip" data-q="Dress code policy">Dress code</button>
+      <button class="chip" data-q="Attendance and lateness policy">Attendance</button>
+      <button class="chip" data-q="Phone and device rules">Phones</button>
+      <button class="chip" data-q="Academic integrity policy">Academic integrity</button>
+      <button class="chip" data-q="What time does school start and end?">School hours</button>
+    </div>
+    <div class="chat-container">
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-message bot">
+        👋 Hi, I’m <b>PantherBot</b> — your Portledge assistant. Ask me anything about school rules, dress code, or policies!
+      </div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Ask about the handbook..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+  </div>
+</section>
+
+
+<!-- Teacher dashboard removed -->
+
+<!-- ===== Modal (reused by student grades if needed) ===== -->
+<div id="gradeModal" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="mTitle">
+  <div class="modal-content">
+    <button id="closeModal" class="close-btn">Close</button>
+    <h3 id="mTitle">Course Details</h3>
+    <div id="mBody" class="meta">—</div>
+  </div>
+</div>
+
+
+
+<script>
+
+// === STATIC WEEKLY SCHEDULE ===
+// Each entry: start, end in "HH:MM" 24h format, name, teacher (optional)
+// === STATIC WEEKLY SCHEDULE (clean, non-overlapping, 12-hour times) ===
+// Rule: “Free Period” only if the gap is >= 30 min. Lunches that overlap a class are removed.
+const weeklySchedule = {
+  Monday: [
+    { start: "8:20 AM", end: "9:00 AM", name: "History 10: Modern European History - 1", teacher: "Robert Liberto — Commons C306" },
+    { start: "9:00 AM", end: "9:46 AM", name: "Free Period" },
+
+    { start: "9:46 AM", end: "9:56 AM", name: "Upper School Advisor - 26", teacher: "Jessica Schulteisz — Upper School 1D" },
+    { start: "9:59 AM", end: "10:39 AM", name: "Chemistry - 1", teacher: "Roger LaFlair — Upper School 11" },
+    { start: "10:42 AM", end: "11:17 AM", name: "Upper School Conference Time - 1", teacher: "Melissa Damm — N/A" },
+    { start: "11:17 AM", end: "12:03 PM", name: "Free Period" },
+
+    { start: "12:03 PM", end: "12:43 PM", name: "Advanced English 10 - 1", teacher: "Ruth Ashby — Upper School 7" },
+    // Lunch 1 removed (overlapped by Spanish)
+    { start: "12:45 PM", end: "1:25 PM", name: "Spanish 3 - 2", teacher: "Eleni Stefanopoulos — Commons C307" },
+    { start: "1:25 PM", end: "2:07 PM", name: "Upper School Lunch — Monday 2", teacher: "Robert Liberto — Commons C-DH" },
+    { start: "2:07 PM", end: "2:47 PM", name: "Algebra 2 - 2", teacher: "Holliday Harrigan — Upper School 16" },
+    { start: "2:50 PM", end: "3:30 PM", name: "Computer Science Principles - 1", teacher: "Danny Nelson — Athletics & Wellness Center 204" },
+  ],
+
+  Tuesday: [
+    { start: "8:20 AM", end: "9:13 AM", name: "Free Period" },
+    { start: "9:13 AM", end: "10:23 AM", name: "Chemistry - 1", teacher: "Roger LaFlair — Upper School 11" },
+    { start: "10:26 AM", end: "10:36 AM", name: "Upper School Advisor - 26", teacher: "Jessica Schulteisz — Upper School 1D" },
+    { start: "10:39 AM", end: "11:29 AM", name: "Physical Education - 4", teacher: "Joseph Cavallaro — Athletics & Wellness Center FC" },
+    { start: "11:31 AM", end: "12:01 PM", name: "Upper School Conference Time - 1", teacher: "Melissa Damm — N/A" },
+    // Lunch 1 removed (overlaps English)
+    { start: "12:04 PM", end: "12:54 PM", name: "Advanced English 10 - 1", teacher: "Ruth Ashby — Upper School 7" },
+    { start: "12:54 PM", end: "1:27 PM", name: "Upper School Lunch — Tuesday 2", teacher: "Robert Liberto — Commons C-DH" },
+    { start: "1:27 PM", end: "2:37 PM", name: "Spanish 3 - 2", teacher: "Eleni Stefanopoulos — Commons C307" },
+    { start: "2:40 PM", end: "3:30 PM", name: "Algebra 2 - 2", teacher: "Holliday Harrigan — Upper School 16" },
+  ],
+
+  // Default: Conference Time (we’ll layer clubs every other week later)
+  Wednesday: [
+    { start: "8:20 AM", end: "9:10 AM", name: "Computer Science Principles - 1", teacher: "Danny Nelson — Athletics & Wellness Center 204" },
+    { start: "9:13 AM", end: "10:23 AM", name: "History 10: Modern European History - 1", teacher: "Robert Liberto — Commons C306" },
+    { start: "10:26 AM", end: "10:36 AM", name: "Upper School Advisor - 26", teacher: "Jessica Schulteisz — Upper School 1D" },
+    { start: "10:36 AM", end: "11:31 AM", name: "Free Period" },
+    { start: "11:31 AM", end: "12:01 PM", name: "Upper School Conference Time - 1", teacher: "Melissa Damm — N/A" },
+    { start: "12:01 PM", end: "12:34 PM", name: "Upper School Lunch — Wednesday 1", teacher: "Robert Liberto — Commons C-DH" },
+    { start: "12:34 PM", end: "1:24 PM", name: "Chemistry - 1", teacher: "Roger LaFlair — Upper School 11" },
+    // Lunch 2 overlaps Chemistry → removed
+    { start: "1:27 PM", end: "2:37 PM", name: "Physical Education - 4", teacher: "Joseph Cavallaro — Athletics & Wellness Center FC" },
+    { start: "2:40 PM", end: "3:30 PM", name: "Advanced English 10 - 1", teacher: "Ruth Ashby — Upper School 7" },
+  ],
+
+  Thursday: [
+    { start: "8:20 AM", end: "9:10 AM", name: "Spanish 3 - 2", teacher: "Eleni Stefanopoulos — Commons C307" },
+    { start: "9:13 AM", end: "10:23 AM", name: "Algebra 2 - 2", teacher: "Holliday Harrigan — Upper School 16" },
+    { start: "10:26 AM", end: "10:36 AM", name: "Upper School Advisor - 26", teacher: "Jessica Schulteisz — Upper School 1D" },
+    { start: "10:39 AM", end: "11:29 AM", name: "Computer Science Principles - 1", teacher: "Danny Nelson — Athletics & Wellness Center 204" },
+    { start: "11:31 AM", end: "12:01 PM", name: "Upper School Conference Time - 1", teacher: "Melissa Damm — N/A" },
+    { start: "12:01 PM", end: "12:34 PM", name: "Upper School Lunch — Thursday 1", teacher: "Robert Liberto — Commons C-DH" },
+    { start: "12:34 PM", end: "1:24 PM", name: "History 10: Modern European History - 1", teacher: "Robert Liberto — Commons C306" },
+    // Lunch 2 overlaps History → removed
+    { start: "1:24 PM", end: "2:40 PM", name: "Free Period" },
+    { start: "2:40 PM", end: "3:30 PM", name: "Chemistry - 1", teacher: "Roger LaFlair — Upper School 11" },
+  ],
+
+  Friday: [
+    { start: "8:20 AM", end: "9:13 AM", name: "Free Period" },
+    { start: "9:13 AM", end: "9:43 AM", name: "Town Meeting — Upper School Town Meeting - 1", teacher: "Eden White — Commons C-DH" },
+    { start: "9:46 AM", end: "10:56 AM", name: "Advanced English 10 - 1", teacher: "Ruth Ashby — Upper School 7" },
+    { start: "10:58 AM", end: "11:08 AM", name: "Upper School Advisor - 26", teacher: "Jessica Schulteisz — Upper School 1D" },
+    { start: "11:11 AM", end: "12:01 PM", name: "Spanish 3 - 2", teacher: "Eleni Stefanopoulos — Commons C307" },
+    // Lunch 1 (12:01–12:34) overlaps Algebra → removed
+    { start: "12:04 PM", end: "12:54 PM", name: "Algebra 2 - 2", teacher: "Holliday Harrigan — Upper School 16" },
+    { start: "12:54 PM", end: "1:27 PM", name: "Upper School Lunch — Friday 2", teacher: "Robert Liberto — Commons C-DH" },
+    { start: "1:27 PM", end: "2:37 PM", name: "Computer Science Principles - 1", teacher: "Danny Nelson — Athletics & Wellness Center 204" },
+    { start: "2:40 PM", end: "3:30 PM", name: "History 10: Modern European History - 1", teacher: "Robert Liberto — Commons C306" },
+  ],
+};
+
+
+
+
+
+// === RENDER SCHEDULE (NO ICS, FALLBACK ONLY) ===
+// =====================
+// STATIC RENDER SCHEDULE
+// =====================
+
+
+
+let offset = 0;
+
+
+
+// ===== Holidays (federal + selected religious) =====
+const holidayOverrides = new Map([
+   //✨ Add exact one-day or multi-day closures here as needed:
+   ["2025-10-02", "Rosh Hashanah"], ["2025-10-03", "Rosh Hashanah"],
+   ["2025-10-12", "Yom Kippur"],
+   ["2025-10-20", "Diwali"],
+]);
+
+function toISODate(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0,10); }
+function isSameDate(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function getNthWeekdayOfMonth(year, monthIndex, weekday, n){
+  // weekday: 0=Sun...6=Sat, monthIndex: 0=Jan...11=Dec, n: 1..5 or -1 for last
+  if(n === -1){
+    const lastDay = new Date(year, monthIndex+1, 0);
+    const diff = (lastDay.getDay() - weekday + 7) % 7;
+    return new Date(year, monthIndex+1, 0 - diff);
+  }
+  const first = new Date(year, monthIndex, 1);
+  const offset = (7 + weekday - first.getDay()) % 7;
+  return new Date(year, monthIndex, 1 + offset + 7*(n-1));
+}
+
+function getHolidayName(date){
+  const y = date.getFullYear();
+  const iso = toISODate(date);
+
+  // Manual overrides (religious & district-specific)
+  if (holidayOverrides.has(iso)) return holidayOverrides.get(iso);
+
+  // Fixed-date closures
+  const fixed = {
+    "01-01": "New Year’s Day",
+    "06-19": "Juneteenth",
+    "07-04": "Independence Day",
+    "11-11": "Veterans Day",
+  };
+  const mmdd = iso.slice(5);
+  if (fixed[mmdd]) return fixed[mmdd];
+
+  // Floating federal-style closures common to US public schools
+  const mlk = getNthWeekdayOfMonth(y, 0, 1, 3);           // Jan, Mon, 3rd
+  const presidents = getNthWeekdayOfMonth(y, 1, 1, 3);    // Feb, Mon, 3rd
+  const memorial = getNthWeekdayOfMonth(y, 4, 1, -1);     // May, Mon, last
+  const labor = getNthWeekdayOfMonth(y, 8, 1, 1);         // Sep, Mon, 1st
+  const indigenous = getNthWeekdayOfMonth(y, 9, 1, 2);    // Oct, Mon, 2nd
+  const thanksgivingThu = getNthWeekdayOfMonth(y, 10, 4, 4); // Nov, Thu, 4th
+  const thanksgivingFri = new Date(thanksgivingThu); thanksgivingFri.setDate(thanksgivingThu.getDate()+1);
+
+  if (isSameDate(date, mlk)) return "Martin Luther King Jr. Day";
+  if (isSameDate(date, presidents)) return "Presidents’ Day";
+  if (isSameDate(date, memorial)) return "Memorial Day";
+  if (isSameDate(date, labor)) return "Labor Day";
+  if (isSameDate(date, indigenous)) return "Indigenous Peoples’ Day";
+  if (isSameDate(date, thanksgivingThu)) return "Thanksgiving Day";
+  if (isSameDate(date, thanksgivingFri)) return "Thanksgiving Break";
+
+  // Winter Break (typical): Dec 23 – Jan 1 inclusive
+  const dec23 = new Date(y, 11, 23), dec31 = new Date(y, 11, 31), jan1 = new Date(y+1, 0, 1);
+  if (date >= dec23 && date <= dec31) return "Winter Break";
+  if (isSameDate(date, jan1)) return "Winter Break";
+
+  // Religious holidays (set via overrides for exact school-year dates)
+  // Add to holidayOverrides as district calendars are published:
+  // e.g., holidayOverrides.set("2025-09-22","Rosh Hashanah");
+
+  return null;
+}
+
+// === CLUB ROTATION SWITCH ===
+// Even weeks = Clubs, Odd weeks = Conference
+function getClubWeekFlag(date) {
+  // Example rule: Week number of the year (ISO)
+  const firstJan = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date - firstJan) / 86400000);
+  const weekNum = Math.ceil((days + firstJan.getDay() + 1) / 7);
+  return weekNum % 2 === 0; // ✅ EVEN weeks = Club Week
+}
+
+
+function renderSchedule() {
+  // Use override "now" if set so Temp Settings affects the schedule day/time
+  const baseNow = getNow();
+  const date = new Date(baseNow);
+  date.setDate(date.getDate() + offset);
+
+  const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
+  const container = document.getElementById("s_slots");
+  const bigDate = document.getElementById("s_bigDate");
+  const todayMeta = document.getElementById("s_todayMeta");
+  const daySummary = document.getElementById("s_daySummary");
+  const weekend = document.getElementById("s_weekend");
+
+  bigDate.textContent = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  todayMeta.textContent = (offset === 0) ? "Today" : "";
+  daySummary.textContent = "";
+  container.innerHTML = "";
+
+  let entries = weeklySchedule[dayName] || [];
+
+  // ✅ Detect club/conference status
+  const isClubWeek = getClubWeekFlag(date);
+
+  // ✅ Wednesday swap
+  if (dayName === "Wednesday" && entries.length > 0) {
+    entries = entries.map(entry => {
+      if (entry.name.includes("Upper School Conference Time")) {
+        return {
+          ...entry,
+          name: isClubWeek ? "Upper School Clubs" : "Upper School Conference Time - 1",
+          teacher: isClubWeek ? "Eden White — N/A" : "Melissa Damm — N/A"
+        };
+      }
+      return entry;
+    });
+  }
+
+  // ✅ Holiday / Weekend check
+  const holiday = getHolidayName(date);
+  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+
+  if (holiday || isWeekend) {
+    weekend.style.display = "block";
+    weekend.innerHTML = `<h3>🏫 School Closed — ${holiday || "Weekend"}</h3>`;
+    // Hide any progress UI on closed days
+    const progWrap = document.querySelector('.day-progress-wrap');
+    if(progWrap) progWrap.style.display = 'none';
+    const smallStatus = document.getElementById('s_status');
+    if(smallStatus) smallStatus.classList.add('hidden');
+    return;
+  }
+
+  weekend.style.display = "none";
+  // Ensure status/progress are visible (JS will toggle detailed percent depending on open hours)
+  const smallStatus = document.getElementById('s_status');
+  if(smallStatus) smallStatus.classList.remove('hidden');
+
+  // ❗️ If no entries, display fallback
+  if (!entries || entries.length === 0) {
+    container.innerHTML = `<div class="slot"><div class="slot-inner"><div class="cls">No Schedule Found</div></div></div>`;
+    return;
+  }
+
+  // For today, use override time; for other days, do not show progress or 'now:'
+  let now;
+  let showProgress = offset === 0;
+  if(showProgress){
+    now = getNow();
+  } else {
+    now = null;
+    // Hide progress bar and status for non-today
+    const progWrap = document.querySelector('.day-progress-wrap');
+    if(progWrap) progWrap.style.display = 'none';
+    const smallStatus = document.getElementById('s_status');
+    if(smallStatus) smallStatus.classList.add('hidden');
+  }
+
+  let nowAssigned = false;
+  const fragment = document.createDocumentFragment(); // Use fragment for batch DOM insert
+  entries.forEach(event => {
+    const slot = document.createElement("div");
+    const startD = parseTimeToDate(date, event.start);
+    const endD = parseTimeToDate(date, event.end);
+    let cls = '';
+    if(showProgress && now){
+      if (now >= endD) cls = 'done';
+      else if (!nowAssigned && now >= startD && now < endD) { cls = 'now'; nowAssigned = true; }
+      else if (now < startD) cls = 'up';
+    } else {
+      const isFree = (event.name||'').toLowerCase().includes('free');
+      if (offset > 0) cls = isFree ? 'free' : 'up';
+      else cls = isFree ? 'free' : 'done';
+    }
+    if ((event.name||'').toLowerCase().includes('free')) cls = 'free';
+
+    slot.className = `slot ${cls}`;
+    slot.innerHTML = `
+      <div class="dot"></div>
+      <div class="slot-inner">
+        <div class="time">${event.start} - ${event.end}</div>
+        <div class="cls">${event.name}</div>
+        <div class="meta">${event.teacher || ""}</div>
+      </div>
+    `;
+    fragment.appendChild(slot);
+  });
+  container.appendChild(fragment); // Single DOM operation instead of multiple
+  // update the small progress / now indicator only for today
+  if(showProgress && now) updateProgressBar(entries, now);
+
+  // Animation removed for performance
+}
+
+function updateProgressBar(entries, nowArg){
+  const now = nowArg || getNow();
+
+  let current = null, currentIdx = -1;
+  entries.forEach((ev, i) => {
+    const startD = parseTimeToDate(now, ev.start);
+    const endD = parseTimeToDate(now, ev.end);
+    if (now >= startD && now < endD) { current = ev; currentIdx = i; }
+  });
+
+  const fill = document.getElementById("s_progressFill");
+  const label = document.getElementById("s_currentLabel");
+
+  if (current) {
+    const startD = parseTimeToDate(now, current.start);
+    const endD = parseTimeToDate(now, current.end);
+    const pct = Math.round(((now - startD) / (endD - startD)) * 100);
+    fill.style.width = pct + "%";
+    label.textContent = `Now: ${current.name} — Ends at ${current.end}`;
+  } else {
+    fill.style.width = "0%";
+    label.textContent = '';
+  }
+}
+
+
+  function startClockAndProgress(startTime = "08:20", endTime = "15:30") {
+    const clockEl = document.getElementById("liveClock");
+    const progEl = document.querySelector('.day-progress > i');
+    const pctText = document.querySelector('.day-percent');
+
+    function nowFromOverride(){
+      const o = localStorage.getItem('pd_time_override');
+      if(!o) return new Date();
+      const t = new Date(o);
+      return isNaN(t.getTime())? new Date(): t;
+    }
+
+    function updateClock() {
+      const now = nowFromOverride();
+      // We no longer show the clock; percent-of-day will be displayed instead next to the progress bar
+      if(clockEl) { clockEl.textContent = ''; clockEl.style.display = 'none'; }
+
+      const [sH, sM] = startTime.split(':').map(Number);
+      const [eH, eM] = endTime.split(':').map(Number);
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sH, sM, 0, 0);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eH, eM, 0, 0);
+      const isOpen = now >= start && now <= end && !weekend(now);
+      const wrapper = document.querySelector('.day-progress-wrap');
+      if(wrapper) wrapper.style.display = isOpen? 'flex':'none';
+      if(isOpen && progEl){
+        const percent = Math.round(Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100)));
+        progEl.style.width = percent + '%';
+        if(pctText) pctText.textContent = percent + '%';
+      } else if(progEl){
+        progEl.style.width = '0%'; if(pctText) pctText.textContent = '';
+      }
+    }
+
+    updateClock();
+    setInterval(updateClock, 120000); // Reduced from 60s to 120s
+  }
+
+  // Temporary settings button (removable) — allows setting override date/time for testing
+  (function(){
+    const btn = document.createElement('button');
+    btn.textContent = 'Temp Settings'; btn.id='tempSettingsBtn'; btn.className='btn';
+    btn.style.position='fixed'; btn.style.right='14px'; btn.style.bottom='14px'; btn.style.zIndex=2000;
+    document.body.appendChild(btn);
+    const modal = document.createElement('div'); modal.className='modal hidden'; modal.id='tempSettingsModal';
+    modal.innerHTML = `<div class="modal-content"><button id="closeTempSettings" class="close-btn">Close</button><h3>Time Override</h3>
+      <div style="margin-top:8px">Set current date/time for testing:</div>
+      <input id="overrideDt" type="datetime-local" class="input" style="width:100%;margin-top:8px" />
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="saveOverride" class="btn primary">Save</button><button id="clearOverride" class="btn">Clear</button></div>
+    </div>`;
+    document.body.appendChild(modal);
+    btn.onclick = ()=>{ modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); };
+    document.getElementById('closeTempSettings').onclick = ()=>{ modal.classList.add('hidden'); modal.setAttribute('aria-hidden','true'); };
+    document.getElementById('saveOverride').onclick = ()=>{
+      const v = document.getElementById('overrideDt').value; if(!v) return alert('Set datetime');
+      try{ localStorage.setItem('pd_time_override', new Date(v).toISOString()); alert('Saved override'); modal.classList.add('hidden'); renderSchedule(); startClockAndProgress("08:20","15:30"); }catch(e){alert('Failed');}
+    };
+    document.getElementById('clearOverride').onclick = ()=>{ localStorage.removeItem('pd_time_override'); alert('Cleared'); renderSchedule(); startClockAndProgress("08:20","15:30"); };
+  })();
+
+
+/* ===== Helpers ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmtHM = new Intl.DateTimeFormat([], {hour:'numeric', minute:'2-digit'});
+const fmtFull = new Intl.DateTimeFormat([], {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+const fmtClockT = new Intl.DateTimeFormat([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+// Return effective "now" considering temp override
+function getNow(){
+  const o = localStorage.getItem('pd_time_override');
+  if(!o) return new Date();
+  const t = new Date(o);
+  return isNaN(t.getTime())? new Date(): t;
+}
+
+// Parse a "HH:MM AM/PM" or "HH:MM" into a Date on the provided baseDate
+function parseTimeToDate(baseDate, hm){
+  // normalize eg "8:20 AM" or "08:20" to a Date matching baseDate
+  const str = (hm||'').trim();
+  if(!str) return new Date(baseDate);
+  // Try Date.parse with a composed string
+  const ampm = /am|pm/i.test(str);
+  let d;
+  if(ampm){
+    d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), 0,0,0,0);
+    // use Date.parse for locale-aware parsing
+    const tmp = new Date(baseDate.toDateString() + ' ' + str);
+    if(!isNaN(tmp.getTime())) return tmp;
+  }
+  // fallback: split HH:MM and guess 24h
+  const m = str.match(/(\d{1,2}):(\d{2})/);
+  if(m){
+    const hh = Number(m[1]); const mm = Number(m[2]);
+    const out = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hh, mm, 0, 0);
+    return out;
+  }
+  return new Date(baseDate);
+}
+
+
+/* ===== Login Routing ===== */
+const ROLE_KEY='pd_role_v11';
+const savedRole = localStorage.getItem(ROLE_KEY) || 'student';
+localStorage.setItem(ROLE_KEY, savedRole); // Auto-set to student if not set
+if (savedRole === 'student') {
+  route('student');
+  initStudent();
+  renderSchedule();
+  startClockAndProgress("08:20", "15:30");
+}
+
+function showSection(id, show=true){ const el=$(id); if(!el) return; el.classList.toggle('hidden', !show); }
+function route(role){
+  // hide login
+  showSection('#login', false);
+  if(role==='student'){
+    showSection('#top-student', true); showSection('#nav-student', true); showSection('#dashboard-student', true);
+    // Ensure student pages render
+    const pages=['s-schedule','s-assign','s-grades','s-directory'];
+    pages.forEach(id=>{
+      const el=document.getElementById('page-'+id);
+      if(!el) return;
+      const on = (id==='s-schedule');
+      el.classList.toggle('active', on);
+      el.style.display = on? 'block':'none';
+    });
+    const tabs=$$('#nav-student .tab');
+    tabs.forEach(t=>{ const on=t.dataset.page==='s-schedule'; t.classList.toggle('active',on); t.setAttribute('aria-selected',on); });
+  }
+}
+function signOut(){
+  localStorage.removeItem(ROLE_KEY);
+  location.reload();
+}
+if ($('#signOutStudent')) $('#signOutStudent').onclick = signOut;
+
+
+
+function handleLogin() {
+  const val = ($('#role').value||'').trim();
+  const required = 'cmallor.2028@portledge.org';
+
+  console.log("Entered email:", val);
+
+  if (val === required) {
+    console.log("✅ Login success — setting role to student");
+    localStorage.setItem(ROLE_KEY, 'student');
+    route('student');
+    initStudent();
+    renderSchedule();  // ✅ Force schedule refresh right after login
+  } else {
+    console.warn("❌ Invalid login");
+    $('#loginCard').classList.remove('shake');
+    void $('#loginCard').offsetWidth;
+    $('#loginCard').classList.add('shake');
+  }
+}
+
+
+// Attach login button event
+document.getElementById("loginBtn").addEventListener("click", handleLogin);
+
+// Allow pressing Enter in the input to trigger login
+document.getElementById("role").addEventListener("keydown", e => {
+  if (e.key === "Enter") handleLogin();
+});
+
+/* ===== STUDENT DASHBOARD LOGIC ===== */
+function initStudent(){
+  // Tabs
+  // Fail-safe: ensure student UI is visible
+  showSection('#top-student', true);
+  showSection('#nav-student', true);
+  showSection('#dashboard-student', true);
+  // Hook up with animated transitions
+  const animateDaySwitch = (dir, changeFn) => {
+    const tl = document.getElementById('s_timeline');
+    const outClass = dir==='next' ? 'anim-out-left' : dir==='prev' ? 'anim-out-right' : 'anim-out-fade';
+    const inClass  = dir==='next' ? 'anim-in-right'  : dir==='prev' ? 'anim-in-left'  : 'anim-in-fade';
+    if (tl){
+      tl.classList.remove(outClass, inClass);
+      void tl.offsetWidth;
+      tl.classList.add(outClass);
+      setTimeout(()=>{
+        tl.classList.remove(outClass);
+        changeFn();
+        renderSchedule();
+        tl.classList.add(inClass);
+        setTimeout(()=> tl.classList.remove(inClass), 220);
+      }, 180);
+    } else {
+      changeFn();
+      renderSchedule();
+    }
+  };
+
+  document.getElementById('s_prev').onclick = () => animateDaySwitch('prev', ()=>{ offset--; });
+  document.getElementById('s_next').onclick = () => animateDaySwitch('next', ()=>{ offset++; });
+  document.getElementById('s_today').onclick = () => animateDaySwitch('today', ()=>{ offset = 0; });
+}
+
+
+  $$('#nav-student .tab').forEach(t=> t.addEventListener('click', ()=>{
+    const id=t.dataset.page;
+    $$('#nav-student .tab').forEach(x=>{const on=x===t; x.classList.toggle('active',on); x.setAttribute('aria-selected',on);});
+    $$('#dashboard-student .page').forEach(p=> {
+      const on = p.id===`page-${id}`;
+      p.classList.toggle('active', on);
+      // hard fallback to ensure visibility
+      p.style.display = on? 'block':'none';
+    });
+  }));
+
+  // Demo data — student schedule
+
+  
+  function asDate(hm,off){const[dH,dM]=hm.split(':').map(Number); const d=new Date(); d.setDate(d.getDate()+off); d.setHours(dH,dM,0,0); return d;}
+function weekend(d){const n=d.getDay(); return n===0||n===6;}
+
+// Return a weekday-specific base schedule so changing days updates content
+
+
+
+  // Student tabs wires
+  $$('#nav-student .tab').forEach(btn=>{
+    btn.addEventListener('click',()=> window.scrollTo({top:0,behavior:'smooth'}));
+  });
+
+  // Student day nav (use arrows in header? For prototype, arrow keys)
+  // Day Navigation Buttons (with animation)
+  if (!window.__pdDayNavBound){
+    window.__pdDayNavBound = true;
+    const animateDaySwitch = (dir, changeFn) => {
+      const tl = document.getElementById('s_timeline');
+      const outClass = dir==='next' ? 'anim-out-left' : dir==='prev' ? 'anim-out-right' : 'anim-out-fade';
+      const inClass  = dir==='next' ? 'anim-in-right'  : dir==='prev' ? 'anim-in-left'  : 'anim-in-fade';
+      if (tl){
+        tl.classList.remove(outClass, inClass);
+        void tl.offsetWidth;
+        tl.classList.add(outClass);
+        setTimeout(()=>{
+          tl.classList.remove(outClass);
+          changeFn();
+          renderSchedule();
+          tl.classList.add(inClass);
+          setTimeout(()=> tl.classList.remove(inClass), 220);
+        }, 180);
+      } else {
+        changeFn();
+        renderSchedule();
+      }
+    };
+
+    document.getElementById("s_prev").onclick = () => animateDaySwitch('prev', ()=>{ offset--; });
+    document.getElementById("s_next").onclick = () => animateDaySwitch('next', ()=>{ offset++; });
+    document.getElementById("s_today").onclick = () => animateDaySwitch('today', ()=>{ offset = 0; });
+  }
+
+
+  // Assignments
+  const courses=['Algebra II','Chemistry','English','European History','Spanish 3','PE','Advisor'];
+  const ASS_KEY='pd_assignments_v11';
+  let assignments = loadAssignments();
+  function loadAssignments(){
+    const seed=[
+      {id:1,title:'English — Essay Draft',due:Date.now()+3*864e5,course:'English',status:'open'},
+      {id:2,title:'Algebra II — Problem Set 5',due:Date.now()+864e5,course:'Algebra II',status:'doing'},
+      {id:3,title:'Chemistry — Lab Report',due:Date.now()+2*864e5,course:'Chemistry',status:'open'},
+    ];
+    try{const s=JSON.parse(localStorage.getItem(ASS_KEY)||'[]'); return Array.isArray(s)&&s.length?s:seed;}catch{ return seed; }
+  }
+  function saveAssignments(){ localStorage.setItem(ASS_KEY, JSON.stringify(assignments)); }
+  function fillCourseSelectors(){
+    $('#assCourse').innerHTML='<option value="">All courses</option>'+courses.map(c=>`<option>${c}</option>`).join('');
+    $('#newCourse').innerHTML=courses.map(c=>`<option>${c}</option>`).join('');
+  }
+
+
+  fillCourseSelectors();
+
+  let sortAsc=true;
+  function renderAssignments(){
+    const q=$('#assSearch').value.toLowerCase().trim();
+    const course=$('#assCourse').value; const status=$('#assStatus').value;
+    let list=assignments.slice().filter(a=>(!q||a.title.toLowerCase().includes(q))&&(!course||a.course===course)&&(!status||a.status===status));
+    const done=assignments.filter(a=>a.status==='done').length;
+    $('#assMeta').textContent=`${list.length} shown`;
+    $('#assSummary').textContent=`${assignments.length} total • ${done} done (${Math.round(done/Math.max(1,assignments.length)*100)}%)`;
+
+    $('#assList').innerHTML=list.map(a=>`
+      <div class="card">
+        <div>
+          <div class="h">${a.title}</div>
+          <div class="sub">${a.course} • Due ${new Date(a.due).toLocaleString()}</div>
+        </div>
+        <div><span class="tag ${a.status}">${a.status[0].toUpperCase()+a.status.slice(1)}</span></div>
+        <div>
+          <select class="input ass-status" data-id="${a.id}">
+            <option value="open" ${a.status==='open'?'selected':''}>Open</option>
+            <option value="doing" ${a.status==='doing'?'selected':''}>Doing</option>
+            <option value="done" ${a.status==='done'?'selected':''}>Done</option>
+          </select>
+        </div>
+        <div><button class="btn" data-del="${a.id}">Delete</button></div>
+      </div>`).join('');
+
+    $$('.ass-status').forEach(s=> s.onchange=e=>{
+      const id=+e.target.dataset.id;
+      assignments=assignments.map(x=>x.id===id?{...x,status:e.target.value}:x);
+      saveAssignments(); renderAssignments();
+    });
+    $$('button[data-del]').forEach(b=> b.onclick=e=>{
+      const id=+e.target.dataset.del; assignments=assignments.filter(x=>x.id!==id);
+      saveAssignments(); renderAssignments();
+    });
+  }
+  renderAssignments();
+  $('#assSearch').oninput=renderAssignments; $('#assCourse').onchange=renderAssignments; $('#assStatus').onchange=renderAssignments;
+  $('#assSort').onclick=()=>{assignments.sort((a,b)=>sortAsc?(a.due-b.due):(b.due-a.due)); sortAsc=!sortAsc; $('#assSort').textContent=`Sort by due ${sortAsc?'↑':'↓'}`; saveAssignments(); renderAssignments();};
+  $('#addAss').onclick=()=>{
+    const t=$('#newTitle').value.trim(), d=$('#newDue').value, c=$('#newCourse').value;
+    if(!t||!d||!c) return alert('Enter title, due date/time, and course');
+    const id=Math.max(0,...assignments.map(a=>a.id))+1;
+    assignments.push({id,title:t,due:+new Date(d),course:c,status:'open'});
+    saveAssignments(); $('#newTitle').value=''; $('#newDue').value=''; renderAssignments();
+  };
+
+  // Grades (student)
+  const grades=[
+    {course:'Algebra II', grade:92, letter:'A-', details:['Quiz Avg: 90%','HW Avg: 94%','Test 1: 88%','Project: 95%']},
+    {course:'European History', grade:88, letter:'B+', details:['Essay 1: 86%','Map Quiz: 92%','Presentation: 85%']},
+    {course:'Chemistry', grade:90, letter:'A-', details:['Lab Avg: 93%','Quiz Avg: 88%','Test 1: 89%']},
+    {course:'English', grade:93, letter:'A', details:['Essay Avg: 92%','Reading Checks: 95%']},
+    {course:'Spanish 3', grade:91, letter:'A-', details:['Vocab Quizzes: 94%','Oral: 88%']},
+  ];
+  function letterGrad(letter){
+    if(letter.startsWith('A')) return 'linear-gradient(90deg,#24b277,#1fa86a)';
+    if(letter.startsWith('B')) return 'linear-gradient(90deg,#2b6ccf,#6aa3ff)';
+    if(letter.startsWith('C')) return 'linear-gradient(90deg,#efb400,#ffd35a)';
+    return 'linear-gradient(90deg,#cc3d3d,#ff7878)';
+  }
+  function toGpa(p){ if(p>=93)return 4; if(p>=90)return 3.7; if(p>=87)return 3.3; if(p>=83)return 3; if(p>=80)return 2.7; if(p>=77)return 2.3; if(p>=73)return 2; if(p>=70)return 1.7; if(p>=67)return 1.3; if(p>=65)return 1; return 0;}
+  function renderGrades(){
+    const avgPct=Math.round(grades.reduce((s,g)=>s+g.grade,0)/grades.length);
+    const avgGPA=(grades.reduce((s,g)=>s+toGpa(g.grade),0)/grades.length).toFixed(2);
+    $('#gpaBadge').textContent=`GPA ${avgGPA}`;
+    $('#gpaFill').style.width=`${avgPct}%`;
+    $('#gpaMeta').textContent=`Average ${avgPct}% across ${grades.length} courses`;
+    $('#gradesGrid').innerHTML=grades.map((g,i)=>`
+      <div class="gcard">
+        <div class="gheader">
+          <h3 class="gtitle">${g.course}</h3>
+          <div class="ggrade">${g.letter} • ${g.grade}%</div>
+        </div>
+        <div class="bar-wrap"><div class="bar" id="bar-${i}" style="background:${letterGrad(g.letter)}"></div></div>
+        <div class="gsub">Recent: ${g.details.slice(0,2).join(' • ')}</div>
+        <button class="gbtn" data-course="${g.course}">View details</button>
+      </div>`).join('');
+    grades.forEach((g,i)=> { const el = $('#bar-'+i); if(el) el.style.width=`${g.grade}%`; });
+    $$('.gbtn').forEach(btn=> btn.onclick=()=>{
+      $('#mTitle').textContent=`${btn.dataset.course} — Details`;
+      $('#mBody').innerHTML=`<div><b>Current:</b> ${grades.find(x=>x.course===btn.dataset.course).grade}%</div>`;
+      openModal();
+    });
+  }
+  renderGrades();
+
+  // Directory (student)
+  setTimeout(() => {
+  initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
+}, 50);
+
+
+
+/* ===== TEACHER DASHBOARD LOGIC ===== */
+// initTeacher removed
+
+/* ===== Directory (shared impl) ===== */
+const teachers=[
+  {name:'Roger LaFlair', subject:'Chemistry', email:'rlaflair@portledge.org'},
+  {name:'Jessica Schulteisz', subject:'Advisor', email:'jschulteisz@portledge.org'},
+  {name:'Joseph Cavallaro', subject:'Physical Education', email:'jcavallaro@portledge.org'},
+  {name:'Melissa Damm', subject:'Conference Time', email:'mdamm@portledge.org'},
+  {name:'Robert Liberto', subject:'Lunch/Commons', email:'rliberto@portledge.org'},
+  {name:'Ruth Ashby', subject:'English', email:'rashby@portledge.org'},
+  {name:'Eleni Stefanopoulos', subject:'Spanish 3', email:'estefanopoulos@portledge.org'},
+  {name:'Holliday Harrigan', subject:'Algebra II', email:'hharrigan@portledge.org'},
+];
+const studentsAll = [
+  {name:"Humairah Ajibade-Taofeeq", gradeLevel:10, email:"hajibadetaofeeq.2028@portledge.org"},
+  {name:"Parker Austin", gradeLevel:10, email:"PAustin.2028@portledge.org"},
+  {name:"Amelie Baghdassarian", gradeLevel:10, email:"abaghdassarian.2028@portledge.org"},
+  {name:"Hope Barnett", gradeLevel:10, email:"HBarnett.2028@portledge.org"},
+  {name:"Ted Bei", gradeLevel:10, email:"ybei.2028@portledge.org"},
+  {name:"Alexis Bernard", gradeLevel:10, email:"ABernard.2028@portledge.org"},
+  {name:"Blake Berntsson", gradeLevel:10, email:"bberntsson.2028@portledge.org"},
+  {name:"Belinda Beyer", gradeLevel:10, email:"bbeyer.2028@portledge.org"},
+  {name:"Clare Byers", gradeLevel:10, email:"cbyers.2028@portledge.org"},
+  {name:"Jacob Carlin", gradeLevel:10, email:"jcarlin.2028@portledge.org"},
+  {name:"Frankie Coyne", gradeLevel:10, email:"fcoyne.2028@portledge.org"},
+  {name:"Olivia Douyon", gradeLevel:10, email:"ODouyon.2028@portledge.org"},
+  {name:"Nick Einzig", gradeLevel:10, email:"neinzig.2028@portledge.org"},
+  {name:"Gunnar Franson", gradeLevel:10, email:"GFranson.2028@portledge.org"},
+  {name:"Grace Gao", gradeLevel:10, email:"RGao.2028@portledge.org"},
+  {name:"Andy Gao", gradeLevel:10, email:"YGao.2028@portledge.org"},
+  {name:"Ava Gross", gradeLevel:10, email:"agross.2028@portledge.org"},
+  {name:"Josie Hansen", gradeLevel:10, email:"JHansen.2028@portledge.org"},
+  {name:"Robert Hare", gradeLevel:10, email:"rhare.2028@portledge.org"},
+  {name:"Rifka Carlota Hart", gradeLevel:10, email:"rhart.2028@portledge.org"},
+  {name:"Dylan Hatami", gradeLevel:10, email:"dhatami.2028@portledge.org"},
+  {name:"Elijah Hewlett", gradeLevel:10, email:"ehewlett.2028@portledge.org"},
+  {name:"Jax Horlick", gradeLevel:10, email:"jhorlick.2028@portledge.org"},
+  {name:"Chase Hsu", gradeLevel:10, email:"chsu.2028@portledge.org"},
+  {name:"McKayla Jelloe", gradeLevel:10, email:"mjelloe.2028@portledge.org"},
+  {name:"Lily Rae Kern", gradeLevel:10, email:"lkern.2028@portledge.org"},
+  {name:"Alex Klonsky", gradeLevel:10, email:"aklonsky.2028@portledge.org"},
+  {name:"Ruby Krainman", gradeLevel:10, email:"rkrainman.2028@portledge.org"},
+  {name:"Gianna Lazarus", gradeLevel:10, email:"glazarus.2028@portledge.org"},
+  {name:"Andi Lefkowitz", gradeLevel:10, email:"alefkowitz.2028@portledge.org"},
+  {name:"Eliza Li", gradeLevel:10, email:"eli.2028@portledge.org"},
+  {name:"Alex Liang", gradeLevel:10, email:"cliang.2028@portledge.org"},
+  {name:"Haoran Liu", gradeLevel:10, email:"hliu.2028@portledge.org"},
+  {name:"Sofia Malatos", gradeLevel:10, email:"smalatos.2028@portledge.org"},
+  {name:"Iliana Malevitis", gradeLevel:10, email:"imalevitis.2028@portledge.org"},
+  {name:"Mustafa Malik", gradeLevel:10, email:"mmalik.2028@portledge.org"},
+  {name:"Chase Rubin Mallor", gradeLevel:10, email:"cmallor.2028@portledge.org"},
+  {name:"Julie McCabe", gradeLevel:10, email:"jmccabe.2028@portledge.org"},
+  {name:"Justin Meirowitz", gradeLevel:10, email:"jmeirowitz.2028@portledge.org"},
+  {name:"Mila Misk", gradeLevel:10, email:"MMisk.2028@portledge.org"},
+  {name:"Makayla Montero", gradeLevel:10, email:"mmontero.2028@portledge.org"},
+  {name:"Isa Murthy", gradeLevel:10, email:"imurthy.2028@portledge.org"},
+  {name:"Sam Okoronkwo", gradeLevel:10, email:"SOkoronkwo.2028@portledge.org"},
+  {name:"Liam O'Sullivan", gradeLevel:10, email:"losullivan.2028@portledge.org"},
+  {name:"Brielle Palagonia", gradeLevel:10, email:"BPalagonia.2028@portledge.org"},
+  {name:"Theo Pasztor", gradeLevel:10, email:"tpasztor.2028@portledge.org"},
+  {name:"Trinity Pata", gradeLevel:10, email:"TPata.2028@portledge.org"},
+  {name:"Olivia Potter", gradeLevel:10, email:"OPotter.2028@portledge.org"},
+  {name:"Eleni Pritsinevelos", gradeLevel:10, email:"epritsinevelos.2028@portledge.org"},
+  {name:"Carson Reynolds", gradeLevel:10, email:"creynolds.2028@portledge.org"},
+  {name:"Paulina Rucz", gradeLevel:10, email:"prucz.2028@portledge.org"},
+  {name:"Micah Sass", gradeLevel:10, email:"MSass.2028@portledge.org"},
+  {name:"Lillian Scarpa", gradeLevel:10, email:"lscarpa.2028@portledge.org"},
+  {name:"Callie Shao", gradeLevel:10, email:"cshao.2028@portledge.org"},
+  {name:"Max Sigler", gradeLevel:10, email:"msigler.2028@portledge.org"},
+  {name:"Elijah Silva", gradeLevel:10, email:"ESilva.2028@portledge.org"},
+  {name:"Shiloh Simeon", gradeLevel:10, email:"ssimeon.2028@portledge.org"},
+  {name:"Milo Strauss", gradeLevel:10, email:"mstrauss.2028@portledge.org"},
+  {name:"Josie Trust", gradeLevel:10, email:"jtrust.2028@portledge.org"},
+  {name:"David Vaynman", gradeLevel:10, email:"dvaynman.2028@portledge.org"},
+  {name:"Patrick Xu", gradeLevel:10, email:"pxu.2028@portledge.org"},
+  {name:"Homer Yin", gradeLevel:10, email:"hyin.2028@portledge.org"},
+  {name:"Charlie Alessio", gradeLevel:9, email:"calessio.2029@portledge.org"},
+  {name:"Aryan Aman", gradeLevel:9, email:"AAman.2029@portledge.org"},
+  {name:"Morgan Anderson", gradeLevel:9, email:"manderson.2029@portledge.org"},
+  {name:"Stefanos Balanos", gradeLevel:9, email:"sbalanos.2029@portledge.org"},
+  {name:"Malia Barnwell", gradeLevel:9, email:"MBarnwell.2029@portledge.org"},
+  {name:"Patrick Baynon", gradeLevel:9, email:"pbaynon.2029@portledge.org"},
+  {name:"Roxie Benoit", gradeLevel:9, email:"rbenoit.2029@portledge.org"},
+  {name:"Emma Bonilla", gradeLevel:9, email:"ebonilla.2029@portledge.org"},
+  {name:"Luke Brandt", gradeLevel:9, email:"lbrandt.2029@portledge.org"},
+  {name:"Thomas Brown", gradeLevel:9, email:"tbrown.2029@portledge.org"},
+  {name:"Cleo Bures", gradeLevel:9, email:"cbures.2029@portledge.org"},
+  {name:"Summer Burke", gradeLevel:9, email:"SBurke.2029@portledge.org"},
+  {name:"Ava Burton", gradeLevel:9, email:"aburton.2029@portledge.org"},
+  {name:"Alexandria Callen", gradeLevel:9, email:"acallen.2029@portledge.org"},
+  {name:"Gianna Calonita", gradeLevel:9, email:"gcalonita.2029@portledge.org"},
+  {name:"Angelina Chen", gradeLevel:9, email:"achen.2029@portledge.org"},
+  {name:"Nikki Chen", gradeLevel:9, email:"nchen.2029@portledge.org"},
+  {name:"Tripp Cirelli", gradeLevel:9, email:"acirelli.2029@portledge.org"},
+  {name:"Siena Mia Clift", gradeLevel:9, email:"sclift.2029@portledge.org"},
+  {name:"Isla Daher", gradeLevel:9, email:"idaher.2029@portledge.org"},
+  {name:"Lyric DeJesu", gradeLevel:9, email:"ldejesu.2029@portledge.org"},
+  {name:"Sabiha Dinani", gradeLevel:9, email:"sdinani.2029@portledge.org"},
+  {name:"Savi Douglas", gradeLevel:9, email:"SDouglas.2029@portledge.org"},
+  {name:"Farrah Eisbruck", gradeLevel:9, email:"feisbruck.2029@portledge.org"},
+  {name:"Valerie Eusebi", gradeLevel:9, email:"veusebi.2029@portledge.org"},
+  {name:"Christian Fanfair", gradeLevel:9, email:"cfanfair.2029@portledge.org"},
+  {name:"Robbie Fenn", gradeLevel:9, email:"rfenn.2029@portledge.org"},
+  {name:"Maddie Ferruggia", gradeLevel:9, email:"Mferruggia.2029@portledge.org"},
+  {name:"Blake Friedman", gradeLevel:9, email:"BFriedman.2029@portledge.org"},
+  {name:"Kenzie Gottlieb", gradeLevel:9, email:"mgottlieb.2029@portledge.org"},
+  {name:"James Grady", gradeLevel:9, email:"jgrady.2029@portledge.org"},
+  {name:"Max Gutow", gradeLevel:9, email:"mgutow.2029@portledge.org"},
+  {name:"Riley Hall", gradeLevel:9, email:"rhall.2029@portledge.org"},
+  {name:"Daisy Holt", gradeLevel:9, email:"Dholt.2029@portledge.org"},
+  {name:"Ali Khalfan", gradeLevel:9, email:"AKhalfan.2029@portledge.org"},
+  {name:"Charlotte Kraus", gradeLevel:9, email:"ckraus.2029@portledge.org"},
+  {name:"Michael LaPollo", gradeLevel:9, email:"mlapollo.2029@portledge.org"},
+  {name:"Logan Lee", gradeLevel:9, email:"LLee.2029@portledge.org"},
+  {name:"Connor Long", gradeLevel:9, email:"CLong.2029@portledge.org"},
+  {name:"Calder Lyon", gradeLevel:9, email:"clyon.2029@portledge.org"},
+  {name:"Danny Mahnken", gradeLevel:9, email:"dmahnken.2029@portledge.org"},
+  {name:"Chase Mahoney", gradeLevel:9, email:"cmahoney.2029@portledge.org"},
+  {name:"Yanni Malafis", gradeLevel:9, email:"imalafis.2029@portledge.org"},
+  {name:"Christina Malevitis", gradeLevel:9, email:"CMalevitis.2029@portledge.org"},
+  {name:"Chantal Marcos", gradeLevel:9, email:"Cmarcos.2029@portledge.org"},
+  {name:"Hayley Mohammed", gradeLevel:9, email:"hmohammed.2029@portledge.org"},
+  {name:"Alexa O'Keefe", gradeLevel:9, email:"aokeefe.2029@portledge.org"},
+  {name:"Alexa Olvet", gradeLevel:9, email:"aolvet.2029@portledge.org"},
+  {name:"Charlotte Parker", gradeLevel:9, email:"cparker.2029@portledge.org"},
+  {name:"Madison Perez", gradeLevel:9, email:"mperez.2029@portledge.org"},
+  {name:"Demetri Pritsinevelos", gradeLevel:9, email:"dpritsinevelos.2029@portledge.org"},
+  {name:"Ethan Qin", gradeLevel:9, email:"eqin.2029@portledge.org"},
+  {name:"Henry Raddock", gradeLevel:9, email:"hraddock.2029@portledge.org"},
+  {name:"Logan Rodabaugh", gradeLevel:9, email:"lrodabaugh.2029@portledge.org"},
+  {name:"Renita Rose", gradeLevel:9, email:"rrose.2029@portledge.org"},
+  {name:"Kaitlyn Rosen", gradeLevel:9, email:"KRosen.2029@portledge.org"},
+  {name:"Vivienne Shields", gradeLevel:9, email:"vshields.2029@portledge.org"},
+  {name:"Qsang Shim", gradeLevel:9, email:"qshim.2029@portledge.org"},
+  {name:"Ashton Spence", gradeLevel:9, email:"aspence.2029@portledge.org"},
+  {name:"Liana Stephens", gradeLevel:9, email:"lstephens.2029@portledge.org"},
+  {name:"Rowan Subbaiah", gradeLevel:9, email:"rsubbaiah.2029@portledge.org"},
+  {name:"Rafael Sukhov", gradeLevel:9, email:"RSukhov.2029@portledge.org"},
+  {name:"Brad Tomasheski", gradeLevel:9, email:"btomasheski.2029@portledge.org"},
+  {name:"Ariel Tripp", gradeLevel:9, email:"atripp.2029@portledge.org"},
+  {name:"Kennedy Tu", gradeLevel:9, email:"ktu.2029@portledge.org"},
+  {name:"Jayden Tully", gradeLevel:9, email:"jtully.2029@portledge.org"},
+  {name:"Adrian Vasilko", gradeLevel:9, email:"avasilko.2029@portledge.org"},
+  {name:"Nataly Wang", gradeLevel:9, email:"zwang.2029@portledge.org"},
+  {name:"William Weidinger", gradeLevel:9, email:"wweidinger.2029@portledge.org"},
+  {name:"Danica White", gradeLevel:9, email:"DWhite.2029@portledge.org"},
+  {name:"Isabel Xu", gradeLevel:9, email:"ixu.2029@portledge.org"},
+  {name:"Luca Yieh", gradeLevel:9, email:"eyieh.2029@portledge.org"},
+  {name:"Naseer Zahran", gradeLevel:9, email:"NZahran.2029@portledge.org"},
+  {name:"Lilianna Ziegler", gradeLevel:9, email:"lziegler.2029@portledge.org"},
+  {name:"Marina Zografos", gradeLevel:9, email:"mzografos.2029@portledge.org"},
+  // Grade 11 (Class of '27)
+  {name:"Stephanie Ahee", gradeLevel:11, email:"SAhee.2027@portledge.org"},
+  {name:"Alex Alessio", gradeLevel:11, email:"aalessio.2027@portledge.org"},
+  {name:"Jack Austin", gradeLevel:11, email:"JAustin.2027@portledge.org"},
+  {name:"Ethan Benun", gradeLevel:11, email:"ebenun.2027@portledge.org"},
+  {name:"Asa Bergman", gradeLevel:11, email:"abergman.2027@portledge.org"},
+  {name:"Nathalia Bettencourt", gradeLevel:11, email:"NBettencourt.2027@portledge.org"},
+  {name:"Keren Blumenfeld", gradeLevel:11, email:"kblumenfeld.2027@portledge.org"},
+  {name:"KK Bodian", gradeLevel:11, email:"kbodian.2027@portledge.org"},
+  {name:"Maddy Buhr", gradeLevel:11, email:"mbuhr.2027@portledge.org"},
+  {name:"Grace Butler", gradeLevel:11, email:"gbutler.2027@portledge.org"},
+  {name:"Morgan Butler", gradeLevel:11, email:"mbutler.2027@portledge.org"},
+  {name:"Soleil Can", gradeLevel:11, email:"scan.2027@portledge.org"},
+  {name:"Charles Chen", gradeLevel:11, email:"pchen.2027@portledge.org"},
+  {name:"Drew Cohen", gradeLevel:11, email:"dcohen.2027@portledge.org"},
+  {name:"Jordan Cooper", gradeLevel:11, email:"jcooper.2027@portledge.org"},
+  {name:"Henry Crofton", gradeLevel:11, email:"hcrofton.2027@portledge.org"},
+  {name:"Noah Daher", gradeLevel:11, email:"ndaher.2027@portledge.org"},
+  {name:"Thomas Dai", gradeLevel:11, email:"hdai.2027@portledge.org"},
+  {name:"Everleigh Daniels", gradeLevel:11, email:"EDaniels.2027@portledge.org"},
+  {name:"George Day", gradeLevel:11, email:"gday.2027@portledge.org"},
+  {name:"Tommy Dolan", gradeLevel:11, email:"TDolan.2027@portledge.org"},
+  {name:"Escher Doshi", gradeLevel:11, email:"edoshi.2027@portledge.org"},
+  {name:"Aidan Drummond", gradeLevel:11, email:"ADrummond.2027@portledge.org"},
+  {name:"Remi Elberg", gradeLevel:11, email:"relberg.2027@portledge.org"},
+  {name:"Bodhi Feldstein", gradeLevel:11, email:"BFeldstein.2027@portledge.org"},
+  {name:"Alexis Ferrillo", gradeLevel:11, email:"aferrillo.2027@portledge.org"},
+  {name:"Matthew Ferrillo", gradeLevel:11, email:"mferrillo.2027@portledge.org"},
+  {name:"Jack Gianatasio", gradeLevel:11, email:"jgianatasio.2027@portledge.org"},
+  {name:"Sebastian Halberg", gradeLevel:11, email:"shalberg.2027@portledge.org"},
+  {name:"Eliana Herskovitz", gradeLevel:11, email:"eherskovitz.2027@portledge.org"},
+  {name:"Ruby Holt", gradeLevel:11, email:"Rholt.2027@portledge.org"},
+  {name:"Alice Huangfu", gradeLevel:11, email:"xhuangfu.2027@portledge.org"},
+  {name:"Hugo Hyatt", gradeLevel:11, email:"hhyatt.2027@portledge.org"},
+  {name:"Elizabeth Kyung", gradeLevel:11, email:"ekyung.2027@portledge.org"},
+  {name:"Michael Leandrou", gradeLevel:11, email:"MLeandrou.2027@portledge.org"},
+  {name:"Joshua Lee", gradeLevel:11, email:"JLee.2027@portledge.org"},
+  {name:"Penelope Leonard", gradeLevel:11, email:"PLeonard.2027@portledge.org"},
+  {name:"Isabell Li", gradeLevel:11, email:"jli.2027@portledge.org"},
+  {name:"Gabe Littman", gradeLevel:11, email:"GLittman.2027@portledge.org"},
+  {name:"Valentina Lopez", gradeLevel:11, email:"vlopez.2027@portledge.org"},
+  {name:"Sena Manzone", gradeLevel:11, email:"smanzone.2027@portledge.org"},
+  {name:"Addy Martin", gradeLevel:11, email:"amartin.2027@portledge.org"},
+  {name:"Liam McCarthy", gradeLevel:11, email:"lmccarthy.2027@portledge.org"},
+  {name:"Eddie Mercier", gradeLevel:11, email:"emercier.2027@portledge.org"},
+  {name:"Dylan Michalik", gradeLevel:11, email:"dmichalik.2027@portledge.org"},
+  {name:"Salma Munoz", gradeLevel:11, email:"smunoz.2027@portledge.org"},
+  {name:"Aidan O'Rourke", gradeLevel:11, email:"AOrourke.2027@portledge.org"},
+  {name:"Sam Palagonia", gradeLevel:11, email:"SPalagonia.2027@portledge.org"},
+  {name:"Juliet Palatnik", gradeLevel:11, email:"jpalatnik.2027@portledge.org"},
+  {name:"Jack Pata", gradeLevel:11, email:"JPata.2027@portledge.org"},
+  {name:"Jamie Plunkett", gradeLevel:11, email:"jplunkett.2027@portledge.org"},
+  {name:"Sebastian Reale", gradeLevel:11, email:"sreale.2027@portledge.org"},
+  {name:"Maddie Rhoads", gradeLevel:11, email:"mrhoads.2027@portledge.org"},
+  {name:"Abigail Rigg", gradeLevel:11, email:"ARigg.2027@portledge.org"},
+  {name:"Simone Sadowski", gradeLevel:11, email:"SSadowski.2027@portledge.org"},
+  {name:"Mark Sandys", gradeLevel:11, email:"msandys.2027@portledge.org"},
+  {name:"Jaron Schachner", gradeLevel:11, email:"jschachner.2027@portledge.org"},
+  {name:"Finn Scott", gradeLevel:11, email:"FScott.2027@portledge.org"},
+  {name:"Guanlin Sheng", gradeLevel:11, email:"gsheng.2027@portledge.org"},
+  {name:"Raj Singh", gradeLevel:11, email:"rsingh.2027@portledge.org"},
+  {name:"Aarosh Srivastava", gradeLevel:11, email:"ASrivastava.2027@portledge.org"},
+  {name:"Zach Stennett", gradeLevel:11, email:"zstennett.2027@portledge.org"},
+  {name:"Brendan Sweeney", gradeLevel:11, email:"bsweeney.2027@portledge.org"},
+  {name:"Remy Terranova", gradeLevel:11, email:"RTerranova.2027@portledge.org"},
+  {name:"Madi Todd", gradeLevel:11, email:"mtodd.2027@portledge.org"},
+  {name:"Sami Todd", gradeLevel:11, email:"stodd.2027@portledge.org"},
+  {name:"John Tsamblakos", gradeLevel:11, email:"JTsamblakos.2027@portledge.org"},
+  {name:"Helen Uffelman", gradeLevel:11, email:"huffelman.2027@portledge.org"},
+  {name:"Ava Vetrano", gradeLevel:11, email:"avetrano.2027@portledge.org"},
+  {name:"Lachlan Vogel", gradeLevel:11, email:"lvogel.2027@portledge.org"},
+  {name:"Josiah Warfield", gradeLevel:11, email:"JWarfield.2027@portledge.org"},
+  {name:"Emily Wu", gradeLevel:11, email:"ywu.2027@portledge.org"},
+  {name:"Sloane Wyttenbach", gradeLevel:11, email:"swyttenbach.2027@portledge.org"},
+  {name:"Caden Yang", gradeLevel:11, email:"CYang.2027@portledge.org"},
+  {name:"Charlie Yang", gradeLevel:11, email:"xyang.2027@portledge.org"},
+  {name:"Jessica Zhao", gradeLevel:11, email:"ZZhao.2027@portledge.org"},
+  {name:"Sara Zimmerman", gradeLevel:11, email:"szimmerman.2027@portledge.org"},
+  // Grade 12 (Class of '26)
+  {name:"Kennedy Abrahams", gradeLevel:12, email:"kabrahams.2026@portledge.org"},
+  {name:"Ryder Alstodt", gradeLevel:12, email:"ralstodt.2026@portledge.org"},
+  {name:"Ella Amatulli", gradeLevel:12, email:"eamatuli.2026@portledge.org"},
+  {name:"Ethan Aymami", gradeLevel:12, email:"eaymami.2026@portledge.org"},
+  {name:"Nate Bahnik", gradeLevel:12, email:"NBahnik.2026@portledge.org"},
+  {name:"Jordana Binstock", gradeLevel:12, email:"jbinstock.2026@portledge.org"},
+  {name:"Sammy Brodsky", gradeLevel:12, email:"sbrodsky.2026@portledge.org"},
+  {name:"Carsyn Cammerer", gradeLevel:12, email:"ccammerer.2026@portledge.org"},
+  {name:"Griffin Cavrell", gradeLevel:12, email:"GCavrell.2026@portledge.org"},
+  {name:"Christopher Chen", gradeLevel:12, email:"cchen.2026@portledge.org"},
+  {name:"Delila Cody", gradeLevel:12, email:"DCody.2026@portledge.org"},
+  {name:"Ryan Coyne", gradeLevel:12, email:"rcoyne.2026@portledge.org"},
+  {name:"Dom DeCola", gradeLevel:12, email:"ddecola.2026@portledge.org"},
+  {name:"Charlie Dennehy", gradeLevel:12, email:"cdennehy.2026@portledge.org"},
+  {name:"Ryan Desmond", gradeLevel:12, email:"RDesmond.2026@portledge.org"},
+  {name:"Mackenzie DeVine", gradeLevel:12, email:"mcdevine.2026@portledge.org"},
+  {name:"Max DeVine", gradeLevel:12, email:"mtdevine.2026@portledge.org"},
+  {name:"Brendan Ding", gradeLevel:12, email:"yding.2026@portledge.org"},
+  {name:"Lily Faltischek", gradeLevel:12, email:"LFaltischek.2026@portledge.org"},
+  {name:"Jacob Friedberg", gradeLevel:12, email:"jfriedberg.2026@portledge.org"},
+  {name:"Sarah Friedberg", gradeLevel:12, email:"sfriedberg.2026@portledge.org"},
+  {name:"Skylar Friedman", gradeLevel:12, email:"SFriedman.2026@portledge.org"},
+  {name:"Maddie Fuld", gradeLevel:12, email:"mfuld.2026@portledge.org"},
+  {name:"Chloe Fuller", gradeLevel:12, email:"CFuller.2026@portledge.org"},
+  {name:"Arsh Ghanchi", gradeLevel:12, email:"aghanchi.2026@portledge.org"},
+  {name:"Matteo Giampetruzzi", gradeLevel:12, email:"mgiampetruzzi.2026@portledge.org"},
+  {name:"Jack Gillies", gradeLevel:12, email:"jgillies.2026@portledge.org"},
+  {name:"Autumn Glass", gradeLevel:12, email:"AGlass.2026@portledge.org"},
+  {name:"Jonah Goldman", gradeLevel:12, email:"JGoldman.2026@portledge.org"},
+  {name:"Dylón Gray-Cohen", gradeLevel:12, email:"DGray-Cohen.2026@portledge.org"},
+  {name:"Nia Green", gradeLevel:12, email:"ngreen.2026@portledge.org"},
+  {name:"Bo Wen He", gradeLevel:12, email:"bhe.2026@portledge.org"},
+  {name:"Sabrina Hemley", gradeLevel:12, email:"SHemley.2026@portledge.org"},
+  {name:"Zachary Ivezi", gradeLevel:12, email:"zivezi.2026@portledge.org"},
+  {name:"Prajna Jain", gradeLevel:12, email:"PJain.2026@portledge.org"},
+  {name:"Neela Jarmon", gradeLevel:12, email:"njarmon.2026@portledge.org"},
+  {name:"Avery Joshua-Tor", gradeLevel:12, email:"AJoshua-Tor.2026@portledge.org"},
+  {name:"Danny Kadirov", gradeLevel:12, email:"DKadirov.2026@portledge.org"},
+  {name:"Catherine Kasper", gradeLevel:12, email:"CKasper.2026@portledge.org"},
+  {name:"Goldie Kennedy", gradeLevel:12, email:"gkennedy.2026@portledge.org"},
+  {name:"Kyle Lee", gradeLevel:12, email:"klee.2026@portledge.org"},
+  {name:"Mason Lee", gradeLevel:12, email:"mlee.2026@portledge.org"},
+  {name:"Lucas Leman Bertrand", gradeLevel:12, email:"llemanbertrand.2026@portledge.org"},
+  {name:"Gavin Li", gradeLevel:12, email:"JLi.2026@portledge.org"},
+  {name:"Gavin Ligotti", gradeLevel:12, email:"GLigotti.2026@portledge.org"},
+  {name:"Jack Loeffler", gradeLevel:12, email:"jloeffler.2026@portledge.org"},
+  {name:"Aria Mannering", gradeLevel:12, email:"amannering.2026@portledge.org"},
+  {name:"Olga Markovic", gradeLevel:12, email:"OMarkovic.2026@portledge.org"},
+  {name:"Caroline McKeon", gradeLevel:12, email:"cmckeon.2026@portledge.org"},
+  {name:"Max Milano", gradeLevel:12, email:"MMilano.2026@portledge.org"},
+  {name:"Tori Mormando", gradeLevel:12, email:"vmormando.2026@portledge.org"},
+  {name:"Molly Murphy", gradeLevel:12, email:"mmurphy.2026@portledge.org"},
+  {name:"Joseph Pata", gradeLevel:12, email:"JPata.2026@portledge.org"},
+  {name:"Hope Peterson", gradeLevel:12, email:"hpeterson.2026@portledge.org"},
+  {name:"Madalena Peterson", gradeLevel:12, email:"mpeterson.2026@portledge.org"},
+  {name:"Damiano Petruccelli", gradeLevel:12, email:"dpetruccelli.2026@portledge.org"},
+  {name:"Matteo Pietronigro", gradeLevel:12, email:"MPietronigro.2026@portledge.org"},
+  {name:"Vihaan Pranav", gradeLevel:12, email:"vpranav.2026@portledge.org"},
+  {name:"Rondell Rabsatt", gradeLevel:12, email:"rrabsatt.2026@portledge.org"},
+  {name:"Zach Rahr", gradeLevel:12, email:"zrahr.2026@portledge.org"},
+  {name:"Will Rigg", gradeLevel:12, email:"WRigg.2026@portledge.org"},
+  {name:"Bobby Roth", gradeLevel:12, email:"rroth.2026@portledge.org"},
+  {name:"Cole Sanveren", gradeLevel:12, email:"CSanveren.2026@portledge.org"},
+  {name:"Shainil Shah", gradeLevel:12, email:"sshah.2026@portledge.org"},
+  {name:"Rowan Shenoy", gradeLevel:12, email:"rshenoy.2026@portledge.org"},
+  {name:"Avery Sklar", gradeLevel:12, email:"asklar.2026@portledge.org"},
+  {name:"Cody Strauss", gradeLevel:12, email:"cstrauss.2026@portledge.org"},
+  {name:"Kathy Sun", gradeLevel:12, email:"KSun.2026@portledge.org"},
+  {name:"Bill Sun", gradeLevel:12, email:"qsun.2026@portledge.org"},
+  {name:"Chelsea Tanguay", gradeLevel:12, email:"ctanguay.2026@portledge.org"},
+  {name:"Peyton Tenenbaum", gradeLevel:12, email:"PTenenbaum.2026@portledge.org"},
+  {name:"Tyler Wilson", gradeLevel:12, email:"TWilson.2026@portledge.org"},
+  {name:"Vicky Yahoves", gradeLevel:12, email:"wyahoves.2026@portledge.org"},
+  {name:"William Yarian", gradeLevel:12, email:"wyarian.2026@portledge.org"},
+  {name:"Melody Zhang", gradeLevel:12, email:"yzhang.2026@portledge.org"},
+  {name:"Niko Zografos", gradeLevel:12, email:"NZografos.2026@portledge.org"}
+];
+
+function initDirectory(inpSel, gridSel, infoSel, prevSel, nextSel, gradeSel){
+  const inp=$(inpSel), grid=$(gridSel), info=$(infoSel), prev=$(prevSel), next=$(nextSel);
+  const gradeEl = gradeSel ? $(gradeSel) : null;
+  let kind='students', page=1, perPage=8;
+
+  // Local buttons (resolve by container id prefix)
+  const isTeacher = gridSel.startsWith('#t_');
+  const tabTeach = isTeacher ? $('#t_btnTeach') : $('#btnTeach');
+  const tabStud  = isTeacher ? $('#t_btnStud')  : $('#btnStud');
+
+  function syncTabs(){ tabTeach.classList.toggle('active', kind==='teachers'); tabStud.classList.toggle('active', kind==='students'); }
+  function render(){
+    const q=(inp.value||'').toLowerCase().trim();
+    const hasTeach = typeof teachers !== 'undefined' && Array.isArray(teachers);
+    const hasStud = typeof studentsAll !== 'undefined' && Array.isArray(studentsAll);
+    const src= kind==='teachers' ? (hasTeach?teachers:[]) : (hasStud?studentsAll:[]);
+    if(kind==='students' && gradeEl){
+      const g = (gradeEl.value||'').trim();
+      if(!g){ grid.innerHTML=''; info.textContent='Select a grade to view students'; return; }
+    }
+    const list=src.filter(x=> (x.name+' '+(x.subject||'')+' '+(x.email||'')+(x.gradeLevel?' Grade '+x.gradeLevel:'')).toLowerCase().includes(q));
+    const filtered = (kind==='students' && gradeEl && gradeEl.value)
+      ? list.filter(x=> x.gradeLevel===Number(gradeEl.value))
+      : list;
+    const total=filtered.length, maxPage=Math.max(1,Math.ceil(total/perPage)); if(page>maxPage) page=maxPage;
+    const slice=filtered.slice((page-1)*perPage,(page-1)*perPage+perPage);
+    grid.innerHTML = slice.map(x=>`
+      <div class="person">
+        <div><div class="name">${x.name}</div><div class="meta">${kind==='teachers'?(x.subject||''):`Grade ${x.gradeLevel}`}</div></div>
+        <div>${x.email?`<a class="mail" href="mailto:${x.email}">Email</a>`:''}</div>
+      </div>`).join('');
+    info.textContent = `Page ${page} of ${maxPage} • ${total} ${kind}`;
+  }
+  tabTeach.onclick=()=>{ kind='teachers'; page=1; syncTabs(); render(); };
+  tabStud.onclick =()=>{ kind='students'; page=1; syncTabs(); render(); };
+  inp.oninput = ()=>{ page=1; render(); };
+  if(gradeEl) gradeEl.onchange = ()=>{ page=1; render(); };
+  prev.onclick = ()=>{ page=Math.max(1,page-1); render(); };
+  next.onclick = ()=>{ page=page+1; render(); };
+  syncTabs(); render();
+  // If data not yet loaded (due to script order), try a delayed re-render once
+  setTimeout(()=>{ render(); }, 50);
+}
+
+/* ===== Simple modal reuse ===== */
+function openModal(){ const m=$('#gradeModal'); m.classList.remove('hidden'); m.setAttribute('aria-hidden','false'); }
+$('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden'); m.setAttribute('aria-hidden','true'); };
+
+</script>
+
+<script>
+  // ---- Small UX enhancements ----
+  (function(){
+    // Theme toggle with persistence
+    const KEY = 'pd_theme_v11';
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'dark') {
+      document.body.classList.add('theme-dark');
+      if (btn) { btn.textContent = 'Light Mode'; btn.setAttribute('aria-pressed','true'); }
+    }
+    btn && btn.addEventListener('click', ()=>{
+      const dark = document.body.classList.toggle('theme-dark');
+      localStorage.setItem(KEY, dark ? 'dark' : 'light');
+      btn.textContent = dark ? 'Light Mode' : 'Dark Mode';
+      btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    });
+
+    // Keyboard shortcuts for tabs (1..5)
+    const TAB_KEYS = ['s-schedule','s-assign','s-grades','s-directory','s-pantherbot'];
+    document.addEventListener('keydown', (e)=>{
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const tag = (e.target && e.target.tagName) || '';
+      if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+      const idx = parseInt(e.key,10);
+      if (!isNaN(idx) && idx>=1 && idx<=TAB_KEYS.length){
+        const page = TAB_KEYS[idx-1];
+        const tab = document.querySelector(`#nav-student .tab[data-page='${page}']`);
+        tab && tab.click();
+      }
+    });
+
+    // Next-up chip (observe schedule DOM)
+    function parseStart(timeText){
+      // expects like "8:20 AM – 9:10 AM" or "08:20 – 09:10"
+      const part = (timeText||'').split('–')[0].trim();
+      return part;
+    }
+    function updateNextUp(){
+      const chip = document.getElementById('nextUp');
+      const chipText = document.getElementById('nextUpText');
+      if (!chip || !chipText) return;
+      // Only show Next/Now for TODAY. If viewing other days, hide.
+      try {
+        if (typeof offset !== 'undefined' && offset !== 0){ chip.classList.add('hidden'); return; }
+      } catch {}
+      const weekend = document.getElementById('s_weekend');
+      if (weekend && weekend.style.display !== 'none') { chip.classList.add('hidden'); return; }
+      const nowSlot = document.querySelector('#s_timeline .slot.now');
+      // Only consider true classes as next (ignore free periods which won't have .up)
+      const upSlot  = document.querySelector('#s_timeline .slot.up:not(.free)');
+      let label = '';
+      if (nowSlot){
+        const cls = nowSlot.querySelector('.cls')?.textContent || 'Now';
+        const tm  = nowSlot.querySelector('.time')?.textContent || '';
+        label = `Now: ${cls} (${tm})`;
+      } else if (upSlot){
+        const cls = upSlot.querySelector('.cls')?.textContent || 'Upcoming';
+        const tm  = upSlot.querySelector('.time')?.textContent || '';
+        label = `Next: ${cls} at ${parseStart(tm)}`;
+      }
+      if (label){
+        chip.classList.remove('hidden');
+        chipText.textContent = label;
+      } else {
+        chip.classList.add('hidden');
+      }
+    }
+    const slots = document.getElementById('s_slots');
+    if (slots){
+      updateNextUp();
+      setInterval(updateNextUp, 60000); // Reduced from 30s to 60s, removed expensive MutationObserver
+    }
+
+    // PantherBot suggested chips
+    document.querySelectorAll('.pb-suggestions .chip').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const q = btn.getAttribute('data-q') || btn.textContent;
+        const input = document.getElementById('userInput');
+        const send = document.getElementById('sendBtn');
+        if (!input || !send) return;
+        input.value = q;
+        send.click();
+      });
+    });
+
+    // Back to top button
+    const btt = document.getElementById('backToTop');
+    function syncBtt(){ btt && (btt.style.display = window.scrollY > 300 ? 'block' : 'none'); }
+    window.addEventListener('scroll', syncBtt, {passive:true});
+    btt && btt.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+    syncBtt();
+  })();
+</script>
+
+<script>
+  // ---- FIXED TAB SWITCHING (Final) ----
+  document.querySelectorAll("#nav-student .tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const id = tab.dataset.page;
+      document.querySelectorAll("#nav-student .tab").forEach(t => {
+        t.classList.toggle("active", t === tab);
+        t.setAttribute("aria-selected", t === tab);
+      });
+      document.querySelectorAll(".page").forEach(page => {
+        const show = page.id === `page-${id}`;
+        page.style.display = show ? "block" : "none";
+        page.classList.toggle("active", show);
+      });
+    });
+  });
+
+  // Show Schedule by default when page loads
+  window.addEventListener("DOMContentLoaded", () => {
+    document.querySelector("#nav-student .tab[data-page='s-schedule']").click();
+  });
+</script>
+
+<script type="module" src="../pantherbot/pantherbot.js"></script>
+
+<button id="backToTop" aria-label="Back to top">↑ Top</button>
+</body>
+</html>
+
