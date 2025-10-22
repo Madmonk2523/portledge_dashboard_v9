@@ -1,26 +1,3 @@
-// === PantherBot DOM initializer ===
-function initPantherBot() {
-  const sendBtn = document.getElementById("sendBtn");
-  const userInput = document.getElementById("userInput");
-  if (!sendBtn || !userInput) {
-    setTimeout(initPantherBot, 500);
-    return;
-  }
-  
-  sendBtn.onclick = handleSend;
-  userInput.onkeypress = e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-  // Preload handbook immediately for faster first response
-  loadHandbook().then(() => getChunks());
-}
-
-document.addEventListener("DOMContentLoaded", initPantherBot);
-// === PantherBot DOM initializer ===
-// ...existing code...
 // === PantherBot v3 — Fixed Send + Enter events ===
 import { OPENAI_API_KEY } from "./apiKey.js";
 
@@ -224,5 +201,24 @@ async function handleSend() {
 }
 
 
-// ✅ FIXED INITIALIZER — waits until the DOM is ready *and* PantherBot tab is opened
-// ...existing code...
+// === PantherBot DOM initializer ===
+function initPantherBot() {
+  const sendBtn = document.getElementById("sendBtn");
+  const userInput = document.getElementById("userInput");
+  if (!sendBtn || !userInput) {
+    setTimeout(initPantherBot, 500);
+    return;
+  }
+  
+  sendBtn.onclick = handleSend;
+  userInput.onkeypress = e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+  // Preload handbook immediately for faster first response
+  loadHandbook().then(() => getChunks());
+}
+
+document.addEventListener("DOMContentLoaded", initPantherBot);

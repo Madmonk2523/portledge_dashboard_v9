@@ -631,6 +631,10 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
 
 <script>
 
+// === Helper Functions (must be first!) ===
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
 // === STATIC WEEKLY SCHEDULE ===
 // Each entry: start, end in "HH:MM" 24h format, name, teacher (optional)
 // === STATIC WEEKLY SCHEDULE (clean, non-overlapping, 12-hour times) ===
@@ -1001,8 +1005,7 @@ function updateProgressBar(entries, nowArg){
 
 
 /* ===== Helpers ===== */
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
+// $ and $$ already defined at top of script
 const fmtHM = new Intl.DateTimeFormat([], {hour:'numeric', minute:'2-digit'});
 const fmtFull = new Intl.DateTimeFormat([], {weekday:'long', month:'long', day:'numeric', year:'numeric'});
 const fmtClockT = new Intl.DateTimeFormat([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
@@ -1042,8 +1045,7 @@ function parseTimeToDate(baseDate, hm){
 
 /* ===== Login Routing ===== */
 const ROLE_KEY='pd_role_v11';
-const savedRole = localStorage.getItem(ROLE_KEY) || 'student';
-localStorage.setItem(ROLE_KEY, savedRole); // Auto-set to student if not set
+const savedRole = localStorage.getItem(ROLE_KEY);
 if (savedRole === 'student') {
   route('student');
   initStudent();
@@ -1074,14 +1076,6 @@ function signOut(){
   localStorage.removeItem(ROLE_KEY);
   location.reload();
 }
-
-// Attach sign out button after DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  const signOutBtn = document.getElementById('signOutStudent');
-  if (signOutBtn) {
-    signOutBtn.addEventListener('click', signOut);
-  }
-});
 
 
 function handleLogin() {
@@ -1120,6 +1114,14 @@ function initStudent(){
   showSection('#top-student', true);
   showSection('#nav-student', true);
   showSection('#dashboard-student', true);
+  
+  // Attach sign out button
+  const signOutBtn = document.getElementById('signOutStudent');
+  if (signOutBtn && !signOutBtn.__bound) {
+    signOutBtn.addEventListener('click', signOut);
+    signOutBtn.__bound = true;
+  }
+  
   // Hook up with animated transitions
   const animateDaySwitch = (dir, changeFn) => {
     const tl = document.getElementById('s_timeline');
