@@ -175,7 +175,7 @@ async function handleSend() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
     // Call Python server on port 3000 for API (works with Live Server!)
-    const res = await fetch("http://localhost:3000/api/chat", {
+    const res = await fetch("/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -1,0 +1,9 @@
+{
+    "explorer.confirmDragAndDrop": false,
+    "editor.wordWrap": "on",
+    "files.autoSave": "afterDelay",
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "workbench.editor.empty.hint": "hidden",
+    "liveServer.settings.donotShowInfoMsg": true
+    
+}
