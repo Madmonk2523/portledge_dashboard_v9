@@ -173,6 +173,11 @@ async function handleSend() {
       signal: controller.signal
     });
     clearTimeout(timeout);
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("/api/chat HTTP", res.status, text);
+      throw new Error(`Server error ${res.status}: ${text}`);
+    }
     const data = await res.json();
 
     if (data.choices && data.choices[0].message && data.choices[0].message.content) {
@@ -181,9 +186,9 @@ async function handleSend() {
       addMessage("bot", "Sorry, I couldn't find that in the handbook.");
     }
   } catch (err) {
-    console.error("PantherBot error:", err);
+  console.error("PantherBot error:", err);
     const isAbort = (err && (err.name === 'AbortError' || err.message?.includes('aborted')));
-    addMessage("bot", isAbort ? "Request timed out. Please try again." : "⚠️ There was an error connecting to the server.");
+  addMessage("bot", isAbort ? "Request timed out. Please try again." : `⚠️ Server error. ${err.message?.slice(0,140)}`);
   }
   finally {
     handleSend.__pending = false;

@@ -15,7 +15,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, max_tokens, temperature } = req.body;
+    // Ensure JSON body is available (Vercel may not parse automatically)
+    let body = req.body;
+    if (!body) {
+      const chunks = [];
+      await new Promise((resolve, reject) => {
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => resolve());
+        req.on('error', reject);
+      });
+      try {
+        body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid JSON body' });
+      }
+    }
+
+    const { messages, max_tokens, temperature } = body || {};
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Missing or invalid messages array' });
+    }
 
     // Get API key from environment variable (set in Vercel dashboard)
     const apiKey = process.env.OPENAI_API_KEY;
@@ -25,6 +45,9 @@ export default async function handler(req, res) {
     }
 
     // Call OpenAI API
+    // Call OpenAI API with a timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -36,10 +59,14 @@ export default async function handler(req, res) {
         messages,
         max_tokens: max_tokens || 100,
         temperature: temperature || 0.1
-      })
+      }),
+      signal: controller.signal
     });
-
-    const data = await response.json();
+    clearTimeout(timeout);
+    
+    let data;
+    const text = await response.text();
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
     
     if (!response.ok) {
       console.error('OpenAI API error:', data);
@@ -49,7 +76,8 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
 
   } catch (error) {
+    const isAbort = error && (error.name === 'AbortError' || String(error.message || '').includes('aborted'));
     console.error('Server error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: isAbort ? 'Upstream timeout' : (error.message || 'Unknown server error') });
   }
 }
