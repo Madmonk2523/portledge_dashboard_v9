@@ -122,6 +122,18 @@ function addMessage(role, text) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+// Minimal typing indicator that we can replace with the final answer
+function showThinking() {
+  const chatMessages = document.getElementById("chatMessages");
+  if (!chatMessages) return null;
+  const el = document.createElement("div");
+  el.className = "chat-message bot typing";
+  el.textContent = "Thinking…"; // simple, lightweight indicator
+  chatMessages.appendChild(el);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return el;
+}
+
 async function handleSend() {
   const userInput = document.getElementById("userInput");
   const chatMessages = document.getElementById("chatMessages");
@@ -144,6 +156,8 @@ async function handleSend() {
   userInput.value = "";
 
   try {
+  // Show a temporary typing indicator and replace it later
+  const thinkingEl = showThinking();
   // Build a minimal context: short instruction + only relevant handbook excerpts
   const relevant = await getRelevantContext(userText);
   const context = `PantherBot. Answer in 1-2 sentences using handbook only.\n\n${relevant}`;
@@ -180,15 +194,32 @@ async function handleSend() {
     }
     const data = await res.json();
 
+    let reply = null;
     if (data.choices && data.choices[0].message && data.choices[0].message.content) {
-      addMessage("bot", data.choices[0].message.content.trim());
+      reply = data.choices[0].message.content.trim();
     } else {
-      addMessage("bot", "Sorry, I couldn't find that in the handbook.");
+      reply = "Sorry, I couldn't find that in the handbook.";
+    }
+
+    if (thinkingEl) {
+      thinkingEl.textContent = reply;
+      thinkingEl.classList.remove('typing');
+    } else {
+      addMessage("bot", reply);
     }
   } catch (err) {
   console.error("PantherBot error:", err);
     const isAbort = (err && (err.name === 'AbortError' || err.message?.includes('aborted')));
-  addMessage("bot", isAbort ? "Request timed out. Please try again." : `⚠️ Server error. ${err.message?.slice(0,140)}`);
+    const msg = isAbort ? "Request timed out. Please try again." : `⚠️ Server error. ${err.message?.slice(0,140)}`;
+    // If typing indicator exists, reuse it; else add a new message
+    const chatMessages = document.getElementById("chatMessages");
+    const lastTyping = chatMessages?.querySelector('.chat-message.bot.typing');
+    if (lastTyping) {
+      lastTyping.textContent = msg;
+      lastTyping.classList.remove('typing');
+    } else {
+      addMessage("bot", msg);
+    }
   }
   finally {
     handleSend.__pending = false;
