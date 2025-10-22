@@ -1,5 +1,5 @@
-// Vercel Serverless Function for OpenAI API
-export default async function handler(req, res) {
+// Vercel Serverless Function for OpenAI API (CommonJS export for max compatibility)
+module.exports = async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
