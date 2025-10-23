@@ -95,7 +95,7 @@ async function getRelevantContext(userText, maxChars = 900){
   const ranked = chunks
     .map((c, idx) => ({ idx, c, s: scoreChunk(qTokens, c) }))
     .sort((a, b) => b.s - a.s)
-    .slice(0, 2); // top 2 chunks for faster response
+    .slice(0, 4); // top 4 chunks for better coverage
 
   // Concatenate while staying under maxChars
   let out = "";
@@ -104,6 +104,46 @@ async function getRelevantContext(userText, maxChars = 900){
     out += (out ? "\n\n" : "") + r.c;
   }
   return out || "";
+}
+
+// ===== Lightweight chat memory (client-side) =====
+const HISTORY_KEY = 'pd_pb_history_v1';
+let chatHistory = [];
+
+function loadHistory(){
+  try { chatHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+  catch { chatHistory = []; }
+}
+
+function saveHistory(){
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory.slice(-40))); } catch{}
+}
+
+function addToHistory(role, content){
+  if (!content) return;
+  chatHistory.push({ role, content: String(content).slice(0, 2000) });
+  saveHistory();
+}
+
+function getRecentHistory(maxPairs = 3){
+  const msgs = [];
+  for (let i = chatHistory.length - 1; i >= 0 && msgs.length < maxPairs * 2; i--){
+    const m = chatHistory[i];
+    if (m.role === 'user' || m.role === 'assistant') msgs.unshift(m);
+  }
+  return msgs;
+}
+
+function resetPantherBot(){
+  chatHistory = [];
+  saveHistory();
+  const cm = document.getElementById('chatMessages');
+  if (cm) cm.innerHTML = '';
+}
+
+function getQueryText(current){
+  const lastUsers = chatHistory.filter(m=>m.role==='user').slice(-2).map(m=>m.content);
+  return [...lastUsers, current].join(' ');
 }
 
 function clampSentences(text, maxSentences = 3){
@@ -120,6 +160,9 @@ function addMessage(role, text) {
   el.textContent = text;
   chatMessages.appendChild(el);
   chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Track in-memory history
+  if (role === 'user') addToHistory('user', text);
+  if (role === 'bot') addToHistory('assistant', text);
 }
 
 // Minimal typing indicator that we can replace with the final answer
@@ -159,8 +202,13 @@ async function handleSend() {
   // Show a temporary typing indicator and replace it later
   const thinkingEl = showThinking();
   // Build a minimal context: short instruction + only relevant handbook excerpts
-  const relevant = await getRelevantContext(userText);
-  const context = `PantherBot. Answer in 1-2 sentences using handbook only.\n\n${relevant}`;
+  const relevant = await getRelevantContext(getQueryText(userText), 1500);
+  const context = [
+    "You are PantherBot, a helpful assistant for Portledge students.",
+    "Use ONLY the handbook excerpts below to answer. If the answer isn't in the excerpts, say you couldn't find it.",
+    "Be clear and concise (2-4 sentences).",
+    "\nHandbook excerpts:\n\n" + relevant
+  ].join(' ');
 
     // Abort if request takes too long
     const controller = new AbortController();
@@ -171,6 +219,9 @@ async function handleSend() {
       ? 'http://localhost:3000/api/chat'
       : '/api/chat';
     
+    // Build conversation with recent history for continuity
+    const historyMsgs = getRecentHistory(3).map(m=>({ role: m.role, content: clampSentences(m.content, 4) }));
+
     const res = await fetch(apiUrl, {
       method: "POST",
       headers: {
@@ -179,9 +230,10 @@ async function handleSend() {
       body: JSON.stringify({
         messages: [
           { role: "system", content: context },
+          ...historyMsgs,
           { role: "user", content: userText }
         ],
-        max_tokens: 80,
+        max_tokens: 180,
         temperature: 0
       }),
       signal: controller.signal
@@ -204,6 +256,7 @@ async function handleSend() {
     if (thinkingEl) {
       thinkingEl.textContent = reply;
       thinkingEl.classList.remove('typing');
+      addToHistory('assistant', reply);
     } else {
       addMessage("bot", reply);
     }
@@ -257,4 +310,4 @@ function initPantherBot() {
   loadHandbook().then(() => getChunks());
 }
 
-document.addEventListener("DOMContentLoaded", initPantherBot);
+document.addEventListener("DOMContentLoaded", () => { loadHistory(); initPantherBot(); });
