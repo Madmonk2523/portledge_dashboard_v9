@@ -203,6 +203,25 @@ body.theme-dark .card:hover, body.theme-dark .gcard:hover{
   box-shadow:0 20px 50px rgba(0,0,0,.6), 0 0 40px rgba(102, 126, 234, 0.2);
   transform:translateY(-5px);
 }
+body.theme-dark .timeline .slot{
+  background:rgba(15, 23, 41, 0.8);
+  backdrop-filter:blur(15px);
+  border:2px solid rgba(102, 126, 234, 0.2);
+  box-shadow:0 8px 24px rgba(0,0,0,.5), 0 0 20px rgba(102, 126, 234, 0.1);
+}
+body.theme-dark .timeline .slot:hover{
+  border-color:rgba(102, 126, 234, 0.4);
+  box-shadow:0 12px 36px rgba(0,0,0,.6), 0 0 30px rgba(102, 126, 234, 0.2);
+}
+body.theme-dark .cls{color:var(--ink)}
+body.theme-dark .time{color:#94a3b8}
+body.theme-dark .meta{color:#64748b}
+body.theme-dark .time-remaining{
+  background:linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25));
+  border-color:rgba(102,126,234,0.4);
+  color:#8b9cff;
+  box-shadow:0 0 20px rgba(102,126,234,0.3);
+}
 body.theme-dark .gpa-badge{
   background:rgba(12, 22, 48, 0.9); 
   color:#cfe0ff; 
@@ -345,16 +364,25 @@ body.theme-dark .theme-toggle{
 .timeline{position:relative; padding:6px 0 0; overflow:clip}
 .rail{position:absolute; left:20px; top:0; bottom:0; width:3px; background:#e6edf9}
 .now-indicator{position:absolute; left:10px; width:20px; height:20px; border-radius:50%; transform:translateY(-10px); box-shadow:0 6px 20px rgba(31,168,106,.35); background:radial-gradient(circle at 30% 30%, #34d399 0, #1fa86a 60%, #138a56 100%)}
-.timeline .slot{position:relative; padding-left:54px; margin:10px 0; border:1px solid var(--rail); background:#fff; border-radius:12px; box-shadow:var(--shadow)}
-.slot:last-child{border-bottom:0}
-.slot::before{content:""; position:absolute; left:0; top:0; bottom:0; width:6px; border-radius:12px}
-.slot.now::before{background:var(--good)} .slot.up::before{background:var(--info)} .slot.done::before{background:var(--done)} .slot.free::before{background:var(--free)}
-.dot{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:10px; height:10px; border-radius:50%; background:#c8d3e6}
-.slot.now .dot{background:var(--good)} .slot.up .dot{background:var(--info)} .slot.done .dot{background:var(--done)}
-.slot-inner{display:grid; grid-template-columns:140px 1fr 1.1fr; gap:12px; align-items:center; padding:12px 14px}
-.time{font-size:.95rem; color:#51607a; font-weight:700}
-.cls{font-weight:900; color:#0b2249}
-.meta{color:#5f6c86; font-size:.92rem}
+.timeline .slot{position:relative; padding-left:54px; margin:14px 0; border:2px solid var(--rail); background:#fff; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.08); transition:all 0.3s ease; overflow:hidden}
+.slot:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.slot:last-child{border-bottom:2px solid var(--rail)}
+.slot::before{content:""; position:absolute; left:0; top:0; bottom:0; width:8px; border-radius:16px 0 0 16px; transition:width 0.3s ease}
+.slot:hover::before{width:12px}
+.slot.now::before{background:linear-gradient(180deg, #34d399, #1fa86a)} 
+.slot.up::before{background:linear-gradient(180deg, #4a90e2, #2b6ccf)} 
+.slot.done::before{background:linear-gradient(180deg, #94a3b8, #64748b)} 
+.slot.free::before{background:linear-gradient(180deg, #fbbf24, #f59e0b)}
+.dot{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:12px; height:12px; border-radius:50%; background:#c8d3e6; box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.slot.now .dot{background:var(--good); animation:pulse 2s infinite} 
+.slot.up .dot{background:var(--info)} 
+.slot.done .dot{background:var(--done)}
+@keyframes pulse{0%,100%{box-shadow:0 2px 8px rgba(52,211,153,.4)}50%{box-shadow:0 2px 16px rgba(52,211,153,.8)}}
+.slot-inner{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center; padding:16px 20px}
+.time{font-size:1rem; color:#51607a; font-weight:700}
+.cls{font-weight:900; color:#0b2249; font-size:1.05rem}
+.meta{color:#5f6c86; font-size:.92rem; margin-top:4px}
+.time-remaining{font-size:0.9em; font-weight:700; margin-top:6px; padding:6px 12px; background:linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15)); border-radius:8px; display:inline-block; color:#667eea; border:1px solid rgba(102,126,234,0.3)}
 .badge{display:inline-block; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:900; border:1px solid}
 .badge.now{background:#eafff4; color:#0f7a56; border-color:#bfe7cf}
 .badge.up{background:#eef5ff; color:#17497f; border-color:#cfe0ff}
@@ -1138,6 +1166,7 @@ body.theme-dark .btn-secondary{
   <div class="top-actions">
   <button class="signout" id="signOutStudent">Sign Out</button>
   <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-pressed="false">Dark Mode</button>
+  <button id="customizeDashboardBtn" class="theme-toggle" title="Customize" style="margin-left:8px">⚙️ Customize</button>
 </div>
 
 
@@ -1608,18 +1637,41 @@ function renderSchedule() {
     }
     if ((event.name||'').toLowerCase().includes('free')) cls = 'free';
 
-    slot.className = `slot ${cls}`;
-    slot.setAttribute('data-end-time', event.end);
-    slot.innerHTML = `
-      <div class="dot"></div>
-      <div class="slot-inner">
-        <div class="time">${event.start} - ${event.end}</div>
-        <div class="cls">${event.name}</div>
-        <div class="meta">${event.teacher || ""}</div>
-        <div class="countdown" style="font-size:0.9em; font-weight:700; margin-top:6px; padding:4px 8px; background:rgba(102,126,234,0.15); border-radius:6px; display:inline-block;"></div>
-      </div>
-    `;
-    fragment.appendChild(slot);
+      // Calculate time remaining for current and upcoming classes
+      let timeRemainingHTML = '';
+      if (showProgress && now && !event.name.toLowerCase().includes('free')) {
+        if (cls === 'now') {
+          const diffMs = endD - now;
+          const minutes = Math.floor(diffMs / 60000);
+          if (minutes >= 0) {
+            timeRemainingHTML = `<div class="time-remaining">⏱️ ${minutes} minute${minutes !== 1 ? 's' : ''} left in ${event.name}</div>`;
+          }
+        } else if (cls === 'up') {
+          const diffMs = startD - now;
+          const minutes = Math.floor(diffMs / 60000);
+          if (minutes >= 0 && minutes <= 120) {
+            timeRemainingHTML = `<div class="time-remaining">📍 Starts in ${minutes} minute${minutes !== 1 ? 's' : ''}</div>`;
+          }
+        }
+      }
+
+      slot.className = `slot ${cls}`;
+      slot.setAttribute('data-end-time', event.end);
+      slot.setAttribute('data-start-time', event.start);
+      slot.innerHTML = `
+        <div class="dot"></div>
+        <div class="slot-inner">
+          <div>
+            <div class="time">${event.start} - ${event.end}</div>
+            ${timeRemainingHTML}
+          </div>
+          <div>
+            <div class="cls">${event.name}</div>
+            <div class="meta">${event.teacher || ""}</div>
+          </div>
+        </div>
+      `;
+      fragment.appendChild(slot);
   });
   container.appendChild(fragment); // Single DOM operation instead of multiple
   // update the small progress / now indicator only for today
@@ -1633,28 +1685,34 @@ function renderSchedule() {
 
 function updateCountdowns() {
   const now = getNow();
-  const currentSlot = document.querySelector('#s_slots .slot.now');
   
-  // Clear all countdowns first
-  document.querySelectorAll('.countdown').forEach(cd => cd.textContent = '');
-  
-  if (currentSlot && !currentSlot.classList.contains('free')) {
-    const endTime = currentSlot.getAttribute('data-end-time');
-    const countdownEl = currentSlot.querySelector('.countdown');
+  // Update all time-remaining displays
+  document.querySelectorAll('#s_slots .slot').forEach(slot => {
+    const timeRemaining = slot.querySelector('.time-remaining');
+    if (!timeRemaining) return;
     
-    if (endTime && countdownEl) {
+    const endTime = slot.getAttribute('data-end-time');
+    const startTime = slot.getAttribute('data-start-time');
+    const className = slot.querySelector('.cls')?.textContent || '';
+    
+    if (slot.classList.contains('now') && endTime) {
       const endDate = parseTimeToDate(now, endTime);
       const diffMs = endDate - now;
       const minutes = Math.floor(diffMs / 60000);
-      const seconds = Math.floor((diffMs % 60000) / 1000);
       
-      if (minutes >= 0 && seconds >= 0) {
-        countdownEl.textContent = `⏱️ ${minutes}m ${seconds}s remaining`;
-      } else {
-        countdownEl.textContent = '';
+      if (minutes >= 0) {
+        timeRemaining.textContent = `⏱️ ${minutes} minute${minutes !== 1 ? 's' : ''} left in ${className}`;
+      }
+    } else if (slot.classList.contains('up') && startTime) {
+      const startDate = parseTimeToDate(now, startTime);
+      const diffMs = startDate - now;
+      const minutes = Math.floor(diffMs / 60000);
+      
+      if (minutes >= 0 && minutes <= 120) {
+        timeRemaining.textContent = `📍 Starts in ${minutes} minute${minutes !== 1 ? 's' : ''}`;
       }
     }
-  }
+  });
 }
 
 function updateProgressBar(entries, nowArg){
@@ -1928,6 +1986,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const customizeBtn = document.getElementById('customizeLoginBtn');
   if(customizeBtn){
     customizeBtn.addEventListener('click', openCustomizeModal);
+  }
+  
+  // Dashboard customize button
+  const customizeDashboardBtn = document.getElementById('customizeDashboardBtn');
+  if(customizeDashboardBtn){
+    customizeDashboardBtn.addEventListener('click', openCustomizeModal);
   }
 });
 
