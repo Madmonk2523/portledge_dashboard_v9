@@ -1,4 +1,5 @@
-﻿// === PantherBot v4  Citations, Related Questions, Dual Handbooks ===
+﻿// === PantherBot v4 — Citations, Related Questions, Dual Handbooks ===
+// Updated: 2025-10-23 - Fixed template literal bug
 
 // Lazy-load both handbooks
 let studentHandbook = null, athleticsHandbook = null;
