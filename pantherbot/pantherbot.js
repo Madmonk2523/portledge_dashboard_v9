@@ -262,44 +262,10 @@ function decorateBotMessageElement(el, text){
       setTimeout(()=> copy.textContent = old, 1000);
     } catch {}
   });
-  
-  // Add reaction buttons
-  const reactions = document.createElement('span');
-  reactions.className = 'reactions';
-  reactions.style.cssText = 'margin-left: 12px; opacity: 0.7;';
-  
-  const thumbsUp = document.createElement('button');
-  thumbsUp.className = 'reaction-btn';
-  thumbsUp.textContent = '👍';
-  thumbsUp.title = 'Helpful';
-  thumbsUp.style.cssText = 'background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 6px; opacity: 0.6; transition: all 0.2s;';
-  thumbsUp.addEventListener('click', () => {
-    thumbsUp.style.cssText += 'opacity: 1; transform: scale(1.3);';
-    thumbsDown.style.opacity = '0.3';
-    console.log('👍 Positive feedback:', text.slice(0, 50));
-  });
-  thumbsUp.addEventListener('mouseenter', () => thumbsUp.style.opacity = '1');
-  thumbsUp.addEventListener('mouseleave', () => { if (!thumbsUp.style.transform.includes('scale')) thumbsUp.style.opacity = '0.6'; });
-  
-  const thumbsDown = document.createElement('button');
-  thumbsDown.className = 'reaction-btn';
-  thumbsDown.textContent = '👎';
-  thumbsDown.title = 'Not helpful';
-  thumbsDown.style.cssText = 'background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 6px; opacity: 0.6; transition: all 0.2s;';
-  thumbsDown.addEventListener('click', () => {
-    thumbsDown.style.cssText += 'opacity: 1; transform: scale(1.3);';
-    thumbsUp.style.opacity = '0.3';
-    console.log('👎 Negative feedback:', text.slice(0, 50));
-  });
-  thumbsDown.addEventListener('mouseenter', () => thumbsDown.style.opacity = '1');
-  thumbsDown.addEventListener('mouseleave', () => { if (!thumbsDown.style.transform.includes('scale')) thumbsDown.style.opacity = '0.6'; });
-  
-  reactions.appendChild(thumbsUp);
-  reactions.appendChild(thumbsDown);
-  
+
   el.appendChild(span);
   el.appendChild(copy);
-  el.appendChild(reactions);
+  // Reactions removed per request
 }
 
 function addMessage(role, text) {
