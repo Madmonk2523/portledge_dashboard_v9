@@ -1608,28 +1608,11 @@ function renderSchedule() {
     }
     if ((event.name||'').toLowerCase().includes('free')) cls = 'free';
 
-    // Apply custom end time if available
-    let displayEnd = event.end;
-    const customizations = JSON.parse(localStorage.getItem(CUSTOMIZATION_KEY) || '{}');
-    const periodMatch = event.name.match(/Period\s*(\d+)|^(\d+)/i);
-    if(periodMatch){
-      const periodNum = periodMatch[1] || periodMatch[2];
-      const customEnd = customizations[`period${periodNum}End`];
-      if(customEnd){
-        // Convert 24hr to 12hr format
-        const [h,m] = customEnd.split(':');
-        const hour = parseInt(h);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-        displayEnd = `${displayHour}:${m} ${ampm}`;
-      }
-    }
-
     slot.className = `slot ${cls}`;
     slot.innerHTML = `
       <div class="dot"></div>
       <div class="slot-inner">
-        <div class="time">${event.start} - ${displayEnd}</div>
+        <div class="time">${event.start} - ${event.end}</div>
         <div class="cls">${event.name}</div>
         <div class="meta">${event.teacher || ""}</div>
       </div>
