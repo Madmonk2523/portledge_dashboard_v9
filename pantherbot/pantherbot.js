@@ -1,6 +1,6 @@
-﻿// === PantherBot v4 — Citations, Related Questions, Dual Handbooks ===
-// Updated: 2025-10-23 - Fixed template literal bug
-console.log('🔥 PantherBot v4.2 LOADED - MUCH SMARTER & MORE NATURAL! 🧠');
+﻿// === PantherBot v5 — Fast, Concise, Smart Answers ===
+// Updated: 2025-10-23 - Removed citations, optimized for speed & brevity
+console.log('⚡ PantherBot v5.0 LOADED - LIGHTNING FAST & PRECISE! ⚡');
 
 // Lazy-load both handbooks
 let studentHandbook = null, athleticsHandbook = null;
@@ -20,19 +20,17 @@ async function loadHandbooks() {
       import('./athleticsHandbook.js')
     ]);
     studentHandbook = hModule.handbookText || '';
-    studentHandbookUrl = hModule.handbookDocUrl || '';
     athleticsHandbook = aModule.athleticsHandbookText || '';
-    athleticsHandbookUrl = aModule.athleticsHandbookDocUrl || '';
-    console.log(' Loaded student + athletics handbooks');
+    console.log('✅ Loaded student + athletics handbooks');
   } catch (err) {
     console.error('Failed to load handbooks:', err);
     studentHandbook = athleticsHandbook = '';
   }
   handbooksLoading = false;
-  return { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl };
+  return { studentHandbook, athleticsHandbook };
 }
 
-// ===== Enhanced retrieval with citations =====
+// ===== Fast retrieval - no citations needed =====
 const STOPWORDS = new Set([
   'the','a','an','and','or','but','of','to','in','on','for','with','about','is','are','was','were','be','as','by','it','that','this','at','from','your','you'
 ]);
@@ -111,7 +109,7 @@ async function getChunks(){
   return ALL_CHUNKS;
 }
 
-async function getRelevantContextWithCitations(userText, recentHistory, maxChars = 3500){
+async function getRelevantContext(userText, recentHistory, maxChars = 3500){
   const chunks = await getChunks();
   const allQueries = [userText, ...recentHistory.filter(m=>m.role==='user').map(m=>m.content)];
   const combinedQ = allQueries.join(' ');
@@ -120,16 +118,14 @@ async function getRelevantContextWithCitations(userText, recentHistory, maxChars
   const ranked = chunks
     .map(chunk => ({ ...chunk, score: scoreChunk(qTokens, chunk.text) }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 10); // Increased from 8 to 10 for maximum coverage
+    .slice(0, 10);
 
   let out = '';
-  const citations = [];
   for (const r of ranked){
     if ((out + "\n\n" + r.text).length > maxChars) break;
     out += (out ? "\n\n" : "") + r.text;
-    citations.push(r);
   }
-  return { context: out || "", citations };
+  return out || "";
 }
 
 // ===== Chat memory =====
@@ -241,31 +237,6 @@ function showRelatedQuestions(questions){
       }
     });
     wrap.appendChild(btn);
-  });
-  
-  container.appendChild(wrap);
-  container.scrollTop = container.scrollHeight;
-}
-
-// ===== Citations display =====
-function showCitations(citations){
-  if (!citations || citations.length === 0) return;
-  const container = document.getElementById('chatMessages');
-  if (!container) return;
-  
-  const wrap = document.createElement('div');
-  wrap.className = 'citations';
-  wrap.innerHTML = '<div class=\"cite-label\">Sources:</div>';
-  
-  citations.forEach((cite, idx) => {
-    const link = document.createElement('a');
-    link.className = 'cite-link';
-    link.href = cite.docUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = [] ;
-    link.title = cite.text.slice(0, 100) + '...';
-    wrap.appendChild(link);
   });
   
   container.appendChild(wrap);
@@ -413,62 +384,37 @@ async function handleSend() {
     const historyMsgs = getRecentHistory(3);
     console.log('🔍 Getting context...');
     
-    const { context, citations } = await getRelevantContextWithCitations(userText, historyMsgs, 1500).catch(err => {
+    const context = await getRelevantContext(userText, historyMsgs, 3500).catch(err => {
       console.error('Context retrieval error:', err);
-      return { context: '', citations: [] };
+      return '';
     });
     
     console.log('✅ Got context, calling API...');
     
-    const systemPrompt = `You are PantherBot, Portledge School's highly intelligent and helpful AI assistant. You're an expert on everything Portledge - from daily schedules to complex policies.
+    const systemPrompt = `You are PantherBot, Portledge School's efficient AI assistant.
 
-CORE MISSION:
-Your job is to give THOROUGH, THOUGHTFUL, and COMPLETE answers. Never give up too easily. Always search carefully through the information provided.
+ANSWER STYLE:
+- SHORT questions = SHORT answers (1-2 sentences)
+- COMPLEX questions = DETAILED answers (with context & examples)
+- Match the user's energy - casual questions get casual answers
 
-PERSONALITY & TONE:
-- Professional yet warm and approachable
-- Confident when you have information, humble when you don't
-- Use natural, conversational language
-- Be enthusiastic about helping students succeed
-- Use emojis sparingly but effectively (1-2 per response max)
+EXAMPLES:
+❓ "What are school hours?" → "School runs 8:20 AM - 3:30 PM. Buses leave at 3:40 PM. �"
+❓ "Tell me about the dress code policy" → [Give full explanation with bullet points]
+❓ "hi" → "Hey! 👋 What can I help you with?"
 
-HOW TO GIVE THOUGHTFUL ANSWERS:
-1. **READ CAREFULLY**: Study ALL the handbook excerpts provided thoroughly
-2. **SYNTHESIZE**: Combine related information from multiple sections
-3. **BE SPECIFIC**: Give exact times, numbers, procedures - not vague answers
-4. **ADD CONTEXT**: Explain WHY policies exist when relevant
-5. **BE COMPLETE**: Don't leave out important details
-6. **STRUCTURE**: Use bullet points for lists of 3+ items, otherwise use flowing sentences
+RULES:
+1. Be precise & specific (use exact times/numbers from handbook)
+2. If question is simple, keep answer short
+3. If question is complex, give thorough explanation
+4. If info is missing, suggest who to contact
+5. Never make up policies
+6. Use emojis naturally (1-2 max)
 
-EXAMPLES OF GREAT ANSWERS:
-
-❌ BAD: "Classes start at 8:20 a.m."
-✅ GOOD: "School runs from 8:20 a.m. to 3:30 p.m. Classes start at 8:20 a.m., so you should arrive a bit early to get settled. The buses leave promptly at 3:40 p.m. after classes end at 3:30 p.m. 📚"
-
-❌ BAD: "I couldn't find information about PE uniforms."
-✅ GOOD: "I don't see specific PE uniform details in the sections I have access to, but this would typically be covered in the athletics or dress code sections. I'd recommend checking with your PE teacher or the athletics office for the exact requirements. Want to know about the general dress code instead? 👕"
-
-HANDLING GREETINGS:
-- "hi/hello/hey" → Warm greeting + brief intro + "What can I help you with?"
-- Be friendly but get to the point quickly
-
-WHEN INFORMATION IS MISSING:
-1. First, check if related information exists and share it
-2. Suggest specific people/offices to contact
-3. Offer to help with a related topic
-4. NEVER just say "I don't know" without trying to be helpful
-
-CRITICAL RULES:
-- Base ALL factual claims on the handbook excerpts below
-- If you're not 100% certain, say so
-- Never make up policies, times, or procedures
-- Always aim for completeness over brevity
-- Think step-by-step before answering
-
-HANDBOOK EXCERPTS (READ CAREFULLY):
+HANDBOOK INFO:
 ${context}
 
-Remember: Your goal is to give the MOST helpful, complete, and thoughtful answer possible. Take your time and be thorough!`;
+Be smart. Be concise. Be helpful. Answer appropriately for what the user asked.`;
 
 
     const controller = new AbortController();
@@ -526,7 +472,6 @@ Remember: Your goal is to give the MOST helpful, complete, and thoughtful answer
       addMessage('bot', reply);
     }
     
-    showCitations(citations);
     const related = generateRelatedQuestions(userText, reply);
     showRelatedQuestions(related);
     

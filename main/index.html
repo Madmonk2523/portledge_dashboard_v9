@@ -238,19 +238,136 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
 
 
 /* ===== Login Overlay ===== */
-#login{position:fixed; inset:0; display:grid; place-items:center; background:linear-gradient(120deg,#0b3f7a 0%, #001f3f 100%); z-index:1000}
-.login-card{width:min(480px,92vw); background:#fff; border-radius:18px; box-shadow:0 30px 60px rgba(0,0,0,.25); padding:20px}
-.login-head{display:flex; align-items:center; gap:12px; margin-bottom:6px}
-.login-logo{width:52px; height:52px; border-radius:12px; background:#f2f6ff; display:grid; place-items:center; overflow:hidden}
-.login-logo img{width:100%; height:100%; object-fit:contain}
-.login-title{margin:0; font-size:1.5rem; font-weight:900}
-.login-sub{margin:0; color:#5d6a86}
-.login-form{display:grid; gap:10px; margin-top:14px}
-.role-input{border:1px solid #d9e2f6; border-radius:12px; padding:12px 14px; font:inherit}
-.login-btn{border:0; border-radius:12px; padding:12px 14px; font-weight:900; color:#fff; background:linear-gradient(90deg,#003366,#0b3f7a); cursor:pointer}
-.hint{font-size:.9rem; color:#6b7692}
-.shake{animation:shake .25s linear}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+#login{
+  position:fixed; 
+  inset:0; 
+  display:grid; 
+  place-items:center; 
+  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index:1000;
+  animation: gradientShift 15s ease infinite;
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.login-card{
+  width:min(440px,94vw); 
+  background:rgba(255,255,255,0.95); 
+  backdrop-filter:blur(20px);
+  border-radius:24px; 
+  box-shadow:0 40px 80px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,0.2); 
+  padding:40px 32px;
+  animation:slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideIn{
+  from { transform:translateY(30px) scale(0.95); opacity:0; }
+  to { transform:translateY(0) scale(1); opacity:1; }
+}
+.login-head{display:flex; align-items:center; gap:16px; margin-bottom:12px}
+.login-logo{
+  width:64px; 
+  height:64px; 
+  border-radius:16px; 
+  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+  display:grid; 
+  place-items:center; 
+  overflow:hidden;
+  box-shadow:0 8px 20px rgba(102, 126, 234, 0.4);
+}
+.login-logo img{width:90%; height:90%; object-fit:contain; filter:brightness(0) invert(1);}
+.login-title{margin:0; font-size:1.75rem; font-weight:900; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;}
+.login-sub{margin:4px 0 0 0; color:#6b7692; font-size:0.95rem;}
+.login-form{display:grid; gap:16px; margin-top:24px}
+.hint{font-size:.92rem; color:#555; font-weight:600; margin-bottom:-8px;}
+.role-input{
+  border:2px solid #e0e7ff; 
+  border-radius:14px; 
+  padding:14px 16px; 
+  font:inherit; 
+  font-size:1rem;
+  transition:all 0.3s ease;
+  background:#f9fafb;
+}
+.role-input:focus{
+  outline:none; 
+  border-color:#667eea; 
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+.remember-me-wrapper{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:-6px;
+}
+.remember-me-label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  user-select:none;
+}
+.remember-me-checkbox{
+  width:18px;
+  height:18px;
+  cursor:pointer;
+  accent-color:#667eea;
+}
+.remember-me-text{
+  font-size:0.9rem;
+  color:#555;
+  font-weight:500;
+}
+.login-btn{
+  border:0; 
+  border-radius:14px; 
+  padding:16px 20px; 
+  font-weight:800; 
+  font-size:1.05rem;
+  color:#fff; 
+  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+  cursor:pointer;
+  transition:all 0.3s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  box-shadow:0 8px 20px rgba(102, 126, 234, 0.4);
+  position:relative;
+  overflow:hidden;
+}
+.login-btn::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  opacity:0;
+  transition:opacity 0.3s ease;
+}
+.login-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(102, 126, 234, 0.5);
+}
+.login-btn:hover::before{
+  opacity:1;
+}
+.login-btn:active{
+  transform:translateY(0);
+}
+.btn-text, .btn-icon{
+  position:relative;
+  z-index:1;
+}
+.btn-icon{
+  font-size:1.4rem;
+  transition:transform 0.3s ease;
+}
+.login-btn:hover .btn-icon{
+  transform:translateX(4px);
+}
+.shake{animation:shake .4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
 
 /* ===== Hide/Show helpers ===== */
 .hidden{display:none !important}
@@ -564,14 +681,25 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
         <img src="portledge_crest.png" alt="Portledge crest" onerror="this.closest('.login-logo').innerHTML='<span style=&quot;font-weight:900;color:#0b3f7a&quot;>P</span>'">
       </div>
       <div>
-        <h2 class="login-title">Portledge Dashboard</h2>
-        <p class="login-sub">Sign in to continue</p>
+        <h2 class="login-title">Welcome Back</h2>
+        <p class="login-sub">Sign in to your Portledge Dashboard</p>
       </div>
     </div>
     <div class="login-form">
-        <label for="role" class="hint">Enter your Portledge email to sign in:</label>
-        <input id="role" class="role-input" placeholder="Your email here" autocomplete="off" />
-      <button id="loginBtn" class="login-btn">Continue</button>
+      <label for="role" class="hint">Enter your Portledge email:</label>
+      <input id="role" class="role-input" type="email" placeholder="your.name@portledge.org" autocomplete="email" />
+      
+      <div class="remember-me-wrapper">
+        <label class="remember-me-label">
+          <input type="checkbox" id="rememberMe" class="remember-me-checkbox" />
+          <span class="remember-me-text">Remember me</span>
+        </label>
+      </div>
+      
+      <button id="loginBtn" class="login-btn">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-icon">→</span>
+      </button>
     </div>
   </div>
 </section>
@@ -1232,6 +1360,7 @@ function route(role){
 }
 function signOut(){
   localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem('portledge_saved_email'); // Clear saved email
   location.reload();
 }
 
@@ -1239,12 +1368,22 @@ function signOut(){
 function handleLogin() {
   const val = ($('#role').value||'').trim();
   const required = 'cmallor.2028@portledge.org';
+  const rememberMe = document.getElementById('rememberMe').checked;
 
   console.log("Entered email:", val);
 
   if (val === required) {
     console.log("✅ Login success — setting role to student");
     localStorage.setItem(ROLE_KEY, 'student');
+    
+    // Save email if Remember Me is checked
+    if (rememberMe) {
+      localStorage.setItem('portledge_saved_email', val);
+      console.log("💾 Saved email for next time");
+    } else {
+      localStorage.removeItem('portledge_saved_email');
+    }
+    
     route('student');
     initStudent();
     renderSchedule();  // ✅ Force schedule refresh right after login
@@ -1255,6 +1394,20 @@ function handleLogin() {
     $('#loginCard').classList.add('shake');
   }
 }
+
+// ===== Load saved email on page load =====
+window.addEventListener('DOMContentLoaded', () => {
+  const savedEmail = localStorage.getItem('portledge_saved_email');
+  if (savedEmail) {
+    const emailInput = document.getElementById('role');
+    const rememberCheckbox = document.getElementById('rememberMe');
+    if (emailInput && rememberCheckbox) {
+      emailInput.value = savedEmail;
+      rememberCheckbox.checked = true;
+      console.log("✅ Loaded saved email:", savedEmail);
+    }
+  }
+});
 
 
 // Attach login button event
@@ -1957,7 +2110,7 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
   });
 </script>
 
-<script type="module" src="../pantherbot/pantherbot.js?v=20251023v43"></script>
+<script type="module" src="../pantherbot/pantherbot.js?v=20251023v50"></script>
 
 <button id="backToTop" aria-label="Back to top">↑ Top</button>
 </body>
