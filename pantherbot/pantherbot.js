@@ -75,23 +75,37 @@ function scoreChunk(queryTokens, chunk){
 }
 
 let ALL_CHUNKS = null;
+let CHUNKS_LOADING = false;
+
 async function getChunks(){
-  if (!ALL_CHUNKS){
-    try {
-      const { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl } = await loadHandbooks();
-      const sParagraphs = studentHandbook.split(/\n\s*\n/g).filter(p => p && p.trim().length > 20);
-      const aParagraphs = athleticsHandbook.split(/\n\s*\n/g).filter(p => p && p.trim().length > 20);
-      const sJoined = sParagraphs.slice(0, 300).join('\n\n');
-      const aJoined = aParagraphs.slice(0, 300).join('\n\n');
-      const sChunks = chunkHandbook(sJoined, 'student', studentHandbookUrl);
-      const aChunks = chunkHandbook(aJoined, 'athletics', athleticsHandbookUrl);
-      ALL_CHUNKS = [...sChunks, ...aChunks];
-      console.log(`✅ Built ${ALL_CHUNKS.length} chunks (${sChunks.length} student + ${aChunks.length} athletics)`);
-    } catch (err) {
-      console.error('Failed to chunk handbooks:', err);
-      ALL_CHUNKS = [];
-    }
+  if (ALL_CHUNKS) return ALL_CHUNKS;
+  
+  if (CHUNKS_LOADING) {
+    console.log('⏳ Waiting for chunks to load...');
+    while (CHUNKS_LOADING) await new Promise(r => setTimeout(r, 100));
+    return ALL_CHUNKS || [];
   }
+  
+  CHUNKS_LOADING = true;
+  console.log('🔨 Building chunks...');
+  
+  try {
+    const { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl } = await loadHandbooks();
+    const sParagraphs = studentHandbook.split(/\n\s*\n/g).filter(p => p && p.trim().length > 20);
+    const aParagraphs = athleticsHandbook.split(/\n\s*\n/g).filter(p => p && p.trim().length > 20);
+    const sJoined = sParagraphs.slice(0, 300).join('\n\n');
+    const aJoined = aParagraphs.slice(0, 300).join('\n\n');
+    const sChunks = chunkHandbook(sJoined, 'student', studentHandbookUrl);
+    const aChunks = chunkHandbook(aJoined, 'athletics', athleticsHandbookUrl);
+    ALL_CHUNKS = [...sChunks, ...aChunks];
+    console.log(`✅ Built ${ALL_CHUNKS.length} chunks (${sChunks.length} student + ${aChunks.length} athletics)`);
+  } catch (err) {
+    console.error('❌ Failed to chunk handbooks:', err);
+    ALL_CHUNKS = [];
+  } finally {
+    CHUNKS_LOADING = false;
+  }
+  
   return ALL_CHUNKS;
 }
 
@@ -359,24 +373,38 @@ async function handleSend() {
 
   try {
     const thinkingEl = showThinking();
+    console.log('📝 User asked:', userText);
+    
     const historyMsgs = getRecentHistory(3);
-    const { context, citations } = await getRelevantContextWithCitations(userText, historyMsgs, 1500);
+    console.log('🔍 Getting context...');
+    
+    const { context, citations } = await getRelevantContextWithCitations(userText, historyMsgs, 1500).catch(err => {
+      console.error('Context retrieval error:', err);
+      return { context: '', citations: [] };
+    });
+    
+    console.log('✅ Got context, calling API...');
     
     const systemPrompt = [
       'You are PantherBot, a friendly, knowledgeable assistant for Portledge students.',
       'Use the handbook excerpts below to answer. If the answer is not clearly supported, say you could not find it or ask a brief clarifying question.',
-      'Respond in a conversational, natural tone. Keep it concise (25 short sentences) or use tight bullet points when listing steps.',
+      'Respond in a conversational, natural tone. Keep it concise (2-5 short sentences) or use tight bullet points when listing steps.',
       'Avoid repeating the question or adding filler. Do not invent details outside the excerpts.',
       'If helpful, end with one short follow-up question.',
       '\nHandbook excerpts:\n\n' + context
     ].join(' ');
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
+    const timeout = setTimeout(() => {
+      console.error('⏰ API timeout after 15s');
+      controller.abort();
+    }, 15000);
     
     const apiUrl = window.location.hostname === 'localhost' 
       ? 'http://localhost:3000/api/chat'
       : '/api/chat';
+    
+    console.log('🌐 API URL:', apiUrl);
     
     const shortHistory = historyMsgs.map(m=>({ role: m.role, content: clampSentences(m.content, 4) }));
 
@@ -398,12 +426,15 @@ async function handleSend() {
     });
     clearTimeout(timeout);
     
+    console.log('📡 Response status:', res.status);
+    
     if (!res.ok) {
       const text = await res.text();
-      console.error('/api/chat HTTP', res.status, text);
+      console.error('❌ /api/chat HTTP', res.status, text);
       throw new Error(`Server error ${res.status}: ${text}`);
     }
     const data = await res.json();
+    console.log('✅ Got API response');
 
     let reply = 'Sorry, I could not find that in the handbook.';
     if (data.choices && data.choices[0].message && data.choices[0].message.content) {
@@ -423,9 +454,15 @@ async function handleSend() {
     showRelatedQuestions(related);
     
   } catch (err) {
-    console.error('PantherBot error:', err);
+    console.error('❌ PantherBot error:', err);
+    console.error('Error details:', {
+      name: err.name,
+      message: err.message,
+      stack: err.stack?.split('\n').slice(0, 3)
+    });
+    
     const isAbort = (err && (err.name === 'AbortError' || err.message?.includes('aborted')));
-    const msg = isAbort ? 'Request timed out. Please try again.' : `⚠️ Server error. ${err.message?.slice(0,140)}`;
+    const msg = isAbort ? 'Request timed out. Please try again.' : `⚠️ Error: ${err.message?.slice(0, 100)}`;
     const chatMessages = document.getElementById('chatMessages');
     const lastTyping = chatMessages?.querySelector('.chat-message.bot.typing');
     if (lastTyping) {
@@ -435,6 +472,8 @@ async function handleSend() {
       addMessage('bot', msg);
     }
   } finally {
+    console.log('🔓 Cleanup: Re-enabling input');
+
     handleSend.__pending = false;
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
