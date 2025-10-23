@@ -557,10 +557,10 @@ body.theme-dark .theme-toggle{
 
 /* Customize button */
 .customize-btn{
-  border:2px solid rgba(102, 126, 234, 0.3);
-  background:rgba(255,255,255,0.05);
+  border:2px solid rgba(102, 126, 234, 0.4);
+  background:linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
   backdrop-filter:blur(10px);
-  color:#fff;
+  color:#667eea;
   padding:12px 18px;
   border-radius:12px;
   font-weight:700;
@@ -574,10 +574,18 @@ body.theme-dark .theme-toggle{
   margin-top:8px;
 }
 .customize-btn:hover{
-  background:rgba(102, 126, 234, 0.2);
+  background:linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
   border-color:rgba(102, 126, 234, 0.6);
   transform:translateY(-2px);
   box-shadow:0 4px 15px rgba(102, 126, 234, 0.3);
+  color:#764ba2;
+}
+body.theme-dark .customize-btn{
+  color:#e8f0ff;
+  border-color:rgba(102, 126, 234, 0.5);
+}
+body.theme-dark .customize-btn:hover{
+  color:#fff;
 }
 
 /* Customization Modal */
@@ -1842,13 +1850,6 @@ function loadCustomizeValues() {
   
   // Load login background
   document.getElementById('loginBg').value = saved.loginBg || 'gradient1';
-  
-  // Load schedule times
-  const defaultTimes = ['08:55','09:50','10:45','11:40','12:35','13:30','14:25','15:20'];
-  for(let i=1; i<=8; i++){
-    const savedTime = saved[`period${i}End`] || defaultTimes[i-1];
-    document.getElementById(`period${i}End`).value = savedTime;
-  }
 }
 
 function saveCustomizations() {
@@ -1857,11 +1858,6 @@ function saveCustomizations() {
     secondaryColor: document.getElementById('secondaryColor').value,
     loginBg: document.getElementById('loginBg').value,
   };
-  
-  // Save schedule times
-  for(let i=1; i<=8; i++){
-    customizations[`period${i}End`] = document.getElementById(`period${i}End`).value;
-  }
   
   localStorage.setItem(CUSTOMIZATION_KEY, JSON.stringify(customizations));
   applyCustomizations(customizations);
@@ -2673,37 +2669,6 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
           <option value="gradient4">Forest Green</option>
           <option value="gradient5">Neon City</option>
         </select>
-      </div>
-      
-      <!-- Schedule Customization -->
-      <div class="customize-section">
-        <h3>📅 Schedule End Times</h3>
-        <div class="schedule-times">
-          <label>
-            Period 1 ends at: <input type="time" id="period1End" value="08:55" />
-          </label>
-          <label>
-            Period 2 ends at: <input type="time" id="period2End" value="09:50" />
-          </label>
-          <label>
-            Period 3 ends at: <input type="time" id="period3End" value="10:45" />
-          </label>
-          <label>
-            Period 4 ends at: <input type="time" id="period4End" value="11:40" />
-          </label>
-          <label>
-            Period 5 ends at: <input type="time" id="period5End" value="12:35" />
-          </label>
-          <label>
-            Period 6 ends at: <input type="time" id="period6End" value="13:30" />
-          </label>
-          <label>
-            Period 7 ends at: <input type="time" id="period7End" value="14:25" />
-          </label>
-          <label>
-            Period 8 ends at: <input type="time" id="period8End" value="15:20" />
-          </label>
-        </div>
       </div>
     </div>
     
