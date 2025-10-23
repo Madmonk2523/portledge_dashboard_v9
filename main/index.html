@@ -74,7 +74,7 @@
 :root{
   --navy:#003366; --navy-2:#0b3f7a; --blue:#2b6ccf;
   --ink:#162133; --muted:#6c768b; --rail:#e0e6f0; --panel:#fff; --bg:#f3f6fb;
-  --good:#1fa86a; --info:#4f87c7; --done:#9aa6bf; --free:#d0d7e6;
+  --good:#1fa86a; --info:#4f87c7; --done:#9aa6bf;
   --radius:14px; --shadow:0 10px 28px rgba(10,20,40,.08); --ease:cubic-bezier(.4,0,.2,1);
 }
 *{box-sizing:border-box} html,body{height:100%}
@@ -95,7 +95,7 @@ body.theme-dark{
   --navy:#667eea; --navy-2:#764ba2;
   --muted:#b4c0e0;
   --blue:#6b9eff;
-  --done:#7a8aa8; --info:#5eb3ff; --good:#4ade80; --free:#2d3958;
+  --done:#7a8aa8; --info:#5eb3ff; --good:#4ade80;
   color-scheme: dark;
   background:linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0f1729 100%);
   background-attachment:fixed;
@@ -476,12 +476,12 @@ body.theme-dark .theme-toggle{
   position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; gap:10px;
   background:linear-gradient(90deg,var(--navy),#07386c 60%,var(--navy)); color:#fff; padding:10px 14px; box-shadow:0 2px 0 rgba(0,0,0,.06)
 }
-.brand{display:flex; align-items:center; gap:10px}
+.brand{display:flex; align-items:center; gap:12px}
 .brand h1{margin:0; font-weight:900; letter-spacing:.2px; line-height:1.05}
 .pillars-line{margin:2px 0 0 0; font-size:12px; color:#e6e9f5; letter-spacing:.08em}
 .brandstack{display:flex; flex-direction:column}
-.logo{width:34px; height:34px; border-radius:8px; background:#ffffff10; display:grid; place-items:center; overflow:hidden}
-.logo img{width:100%; height:100%; object-fit:contain}
+.logo{width:42px; height:42px; display:flex; align-items:center; justify-content:center; background:transparent}
+.logo img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2))}
 .top-actions{display:flex; gap:8px; align-items:center}
 .signout{border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:#fff; padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer}
 
@@ -514,10 +514,9 @@ body.theme-dark .theme-toggle{
 .legend{display:flex; gap:10px; flex-wrap:wrap}
 .lg{display:flex; align-items:center; gap:8px; font-size:13px; color:#334155; font-weight:600}
 .sw{width:12px; height:12px; border-radius:4px; display:inline-block; box-shadow:0 2px 4px rgba(0,0,0,0.15)}
-/* New color key: done=green, now=yellow, free=orange, up=blue */
+/* New color key: done=green, now=yellow, up=blue */
 .sw.done{background:linear-gradient(135deg, #22c55e, #16a34a)} /* green */
 .sw.now{background:linear-gradient(135deg, #facc15, #eab308)}  /* yellow */
-.sw.free{background:linear-gradient(135deg, #f97316, #ea580c)} /* orange */
 .sw.up{background:linear-gradient(135deg, #3b82f6, #2563eb)}   /* blue */
 
 .timeline{position:relative; padding:12px 0 0; overflow:clip}
@@ -531,12 +530,10 @@ body.theme-dark .theme-toggle{
 .slot.now::before{background:linear-gradient(180deg, #fef08a, #fde047, #facc15); box-shadow:inset -2px 0 8px rgba(250,204,21,0.3), 0 0 20px rgba(250,204,21,0.3)}   /* yellow with glow */
 .slot.up::before{background:linear-gradient(180deg, #93c5fd, #60a5fa, #3b82f6); box-shadow:inset -2px 0 8px rgba(59,130,246,0.3)}     /* blue */
 .slot.done::before{background:linear-gradient(180deg, #86efac, #4ade80, #22c55e); box-shadow:inset -2px 0 8px rgba(34,197,94,0.3)}   /* green */
-.slot.free::before{background:linear-gradient(180deg, #fdba74, #fb923c, #f97316); box-shadow:inset -2px 0 8px rgba(249,115,22,0.3)}   /* orange */
 .dot{position:absolute; left:18px; top:50%; transform:translateY(-50%); width:16px; height:16px; border-radius:50%; background:#cbd5e1; box-shadow:0 4px 12px rgba(0,0,0,.2), 0 0 0 3px white; border:2px solid white}
 .slot.now .dot{background:#facc15; box-shadow:0 4px 12px rgba(250,204,21,.6), 0 0 16px rgba(250,204,21,.4), 0 0 0 3px white; animation:pulse 2.5s infinite}  /* yellow with enhanced glow */
 .slot.up .dot{background:#3b82f6; box-shadow:0 4px 12px rgba(59,130,246,.4), 0 0 0 3px white}  /* blue */
 .slot.done .dot{background:#22c55e; box-shadow:0 4px 12px rgba(34,197,94,.4), 0 0 0 3px white} /* green */
-.slot.free .dot{background:#f97316; box-shadow:0 4px 12px rgba(249,115,22,.4), 0 0 0 3px white} /* orange */
 @keyframes pulse{0%,100%{box-shadow:0 4px 12px rgba(250,204,21,.6), 0 0 16px rgba(250,204,21,.4), 0 0 0 3px white}50%{box-shadow:0 6px 16px rgba(250,204,21,.9), 0 0 28px rgba(250,204,21,.6), 0 0 0 3px white}}
 .slot-inner{display:grid; grid-template-columns:160px 1fr; gap:24px; align-items:center; padding:20px 28px}
 .time{font-size:1.05rem; color:#334155; font-weight:800; white-space:nowrap; letter-spacing:-0.02em}
@@ -704,6 +701,8 @@ body.theme-dark .theme-toggle{
   transition:all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position:relative;
   overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
 .gcard::before{
   content:'';
@@ -731,7 +730,7 @@ body.theme-dark .theme-toggle{
 .bar{height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg, #22c55e 0%, #16a34a 100%); transition:width .8s cubic-bezier(0.4, 0, 0.2, 1); box-shadow:0 0 8px rgba(34,197,94,0.3)}
 .gsub{color:#64748b; font-size:.95rem; margin-bottom:12px; font-weight:500}
 .gbtn{
-  margin-top:12px;
+  margin-top:auto;
   padding:12px 16px;
   border-radius:14px;
   border:2px solid #e2e8f0;
@@ -850,16 +849,14 @@ body.theme-dark .modal .close-btn:hover{
 }
 .login-head{display:flex; align-items:center; gap:16px; margin-bottom:12px}
 .login-logo{
-  width:64px; 
-  height:64px; 
-  border-radius:16px; 
-  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-  display:grid; 
-  place-items:center; 
-  overflow:hidden;
-  box-shadow:0 8px 20px rgba(102, 126, 234, 0.4);
+  width:72px; 
+  height:72px; 
+  display:flex; 
+  align-items:center;
+  justify-content:center;
+  background:transparent;
 }
-.login-logo img{width:90%; height:90%; object-fit:contain; filter:brightness(0) invert(1);}
+.login-logo img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15));}
 .login-title{margin:0; font-size:1.75rem; font-weight:900; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;}
 .login-sub{margin:4px 0 0 0; color:#6b7692; font-size:0.95rem;}
 .login-form{display:grid; gap:16px; margin-top:24px}
@@ -1527,7 +1524,7 @@ body.theme-dark .btn-secondary{
 <!-- ===== STUDENT DASHBOARD ===== -->
 <header id="top-student" class="topbar hidden" role="banner">
   <div class="brand">
-    <div class="logo"><img src="portledge_crest.png" alt="Portledge crest" onerror="this.remove()"></div>
+    <div class="logo"><img src="../portledge_crest.png" alt="Portledge crest" onerror="var p=document.createElement('span'); p.style.fontWeight='900'; p.style.color='#0b3f7a'; p.textContent='P'; var c=this.parentNode; c.textContent=''; c.appendChild(p);"></div>
     <div class="brandstack">
       <h1>Portledge Dashboard — Student</h1>
       <div class="pillars-line">Kindness • Honor • Purpose • Respect</div>
@@ -2000,11 +1997,10 @@ function renderSchedule() {
       else if (!nowAssigned && now >= startD && now < endD) { cls = 'now'; nowAssigned = true; }
       else if (now < startD) cls = 'up';
     } else {
-      const isFree = (event.name||'').toLowerCase().includes('free');
-      if (offset > 0) cls = isFree ? 'free' : 'up';
-      else cls = isFree ? 'free' : 'done';
+      // For non-today views, just show timeline state without special free-period styling
+      if (offset > 0) cls = 'up';
+      else cls = 'done';
     }
-    if ((event.name||'').toLowerCase().includes('free')) cls = 'free';
 
       // No 'Starts in' text; we'll render a mini progress + 'Ends in' only for current period via updater
 
@@ -3014,8 +3010,8 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
       const weekend = document.getElementById('s_weekend');
       if (weekend && weekend.style.display !== 'none') { chip.classList.add('hidden'); return; }
       const nowSlot = document.querySelector('#s_timeline .slot.now');
-      // Only consider true classes as next (ignore free periods which won't have .up)
-      const upSlot  = document.querySelector('#s_timeline .slot.up:not(.free)');
+  // Consider the next upcoming slot (no special handling for free periods)
+  const upSlot  = document.querySelector('#s_timeline .slot.up');
       let label = '';
       if (nowSlot){
         const cls = nowSlot.querySelector('.cls')?.textContent || 'Now';
