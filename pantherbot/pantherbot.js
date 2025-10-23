@@ -322,7 +322,7 @@ function addMessage(role, text) {
   const chatMessages = document.getElementById('chatMessages');
   if (!chatMessages) return;
   const el = document.createElement('div');
-  el.className = chat-message ;
+  el.className = `chat-message ${role}`;
   if (role === 'bot') {
     decorateBotMessageElement(el, text);
   } else {
