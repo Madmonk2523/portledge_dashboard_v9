@@ -216,12 +216,9 @@ body.theme-dark .timeline .slot:hover{
 body.theme-dark .cls{color:var(--ink)}
 body.theme-dark .time{color:#94a3b8}
 body.theme-dark .meta{color:#64748b}
-body.theme-dark .time-remaining{
-  background:linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25));
-  border-color:rgba(102,126,234,0.4);
-  color:#8b9cff;
-  box-shadow:0 0 20px rgba(102,126,234,0.3);
-}
+/* Dark mode mini progress styling */
+body.theme-dark .mini-progress{background:rgba(34,49,79,0.6); box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+body.theme-dark .ends-in{color:var(--ink)}
 body.theme-dark .gpa-badge{
   background:rgba(12, 22, 48, 0.9); 
   color:#cfe0ff; 
@@ -386,34 +383,48 @@ body.theme-dark .theme-toggle{
 .progress > b{display:block; height:100%; background:linear-gradient(90deg,#4a90e2,#6ab0ff)}
 /* Segmented progress: green fill for done, blue marker for now */
 .p-done{position:absolute; left:0; top:0; background:linear-gradient(90deg,#2b6ccf,#6aa3ff); width:0%}
-.p-now{position:absolute; top:0; width:4px; background:#34d399; border-radius:2px; box-shadow:0 0 0 2px #fff inset, 0 0 10px rgba(52,211,153,.6)}
+.p-now{position:absolute; top:0; width:4px; background:#facc15; border-radius:2px; box-shadow:0 0 0 2px #fff inset, 0 0 10px rgba(250,204,21,.6)}
 .legend{display:flex; gap:8px; flex-wrap:wrap}
 .lg{display:flex; align-items:center; gap:6px; font-size:12px; color:#47536a}
 .sw{width:10px; height:10px; border-radius:3px; display:inline-block}
-.sw.now{background:var(--good)} .sw.up{background:var(--info)} .sw.done{background:var(--done)} .sw.free{background:var(--free)}
+/* New color key: done=green, now=yellow, free=orange, up=blue */
+.sw.done{background:#22c55e} /* green */
+.sw.now{background:#facc15}  /* yellow */
+.sw.free{background:#f97316} /* orange */
+.sw.up{background:#3b82f6}   /* blue */
 
 .timeline{position:relative; padding:6px 0 0; overflow:clip}
 .rail{position:absolute; left:20px; top:0; bottom:0; width:3px; background:#e6edf9}
-.now-indicator{position:absolute; left:10px; width:20px; height:20px; border-radius:50%; transform:translateY(-10px); box-shadow:0 6px 20px rgba(31,168,106,.35); background:radial-gradient(circle at 30% 30%, #34d399 0, #1fa86a 60%, #138a56 100%)}
+.now-indicator{position:absolute; left:10px; width:20px; height:20px; border-radius:50%; transform:translateY(-10px); box-shadow:0 6px 20px rgba(250, 204, 21, .35); background:radial-gradient(circle at 30% 30%, #fde047 0, #facc15 60%, #eab308 100%)}
 .timeline .slot{position:relative; padding-left:54px; margin:14px 0; border:2px solid var(--rail); background:#fff; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.08); transition:all 0.3s ease; overflow:hidden}
 .slot:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .slot:last-child{border-bottom:2px solid var(--rail)}
 .slot::before{content:""; position:absolute; left:0; top:0; bottom:0; width:8px; border-radius:16px 0 0 16px; transition:width 0.3s ease}
 .slot:hover::before{width:12px}
-.slot.now::before{background:linear-gradient(180deg, #34d399, #1fa86a)} 
-.slot.up::before{background:linear-gradient(180deg, #4a90e2, #2b6ccf)} 
-.slot.done::before{background:linear-gradient(180deg, #94a3b8, #64748b)} 
-.slot.free::before{background:linear-gradient(180deg, #fbbf24, #f59e0b)}
+.slot.now::before{background:linear-gradient(180deg, #fde047, #facc15)}   /* yellow */
+.slot.up::before{background:linear-gradient(180deg, #60a5fa, #3b82f6)}     /* blue */
+.slot.done::before{background:linear-gradient(180deg, #22c55e, #16a34a)}   /* green */
+.slot.free::before{background:linear-gradient(180deg, #fb923c, #f97316)}   /* orange */
 .dot{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:12px; height:12px; border-radius:50%; background:#c8d3e6; box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.slot.now .dot{background:var(--good); animation:pulse 2s infinite} 
-.slot.up .dot{background:var(--info)} 
-.slot.done .dot{background:var(--done)}
+.slot.now .dot{background:#facc15; animation:pulse 2s infinite}  /* yellow */
+.slot.up .dot{background:#3b82f6}  /* blue */
+.slot.done .dot{background:#22c55e} /* green */
+.slot.free .dot{background:#f97316} /* orange */
 @keyframes pulse{0%,100%{box-shadow:0 2px 8px rgba(52,211,153,.4)}50%{box-shadow:0 2px 16px rgba(52,211,153,.8)}}
 .slot-inner{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center; padding:16px 20px}
 .time{font-size:1rem; color:#51607a; font-weight:700}
 .cls{font-weight:900; color:#0b2249; font-size:1.05rem}
 .meta{color:#5f6c86; font-size:.92rem; margin-top:4px}
-.time-remaining{font-size:0.9em; font-weight:700; margin-top:6px; padding:6px 12px; background:linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15)); border-radius:8px; display:inline-block; color:#667eea; border:1px solid rgba(102,126,234,0.3)}
+/* Mini progress + ends-in row for current period */
+.mini-row{display:none; align-items:center; gap:10px; margin-top:6px}
+.mini-progress{width:140px; height:8px; background:#e6edf9; border-radius:999px; overflow:hidden; box-shadow:inset 0 1px 2px rgba(2,18,43,.08)}
+.mini-fill{height:100%; width:0%; transition:width .5s ease}
+/* Fill color matches slot type */
+.slot.now .mini-fill{background:linear-gradient(90deg,#fde047,#facc15)}    /* yellow */
+.slot.free .mini-fill{background:linear-gradient(90deg,#fb923c,#f97316)}    /* orange */
+.slot.up .mini-fill{background:linear-gradient(90deg,#60a5fa,#3b82f6)}      /* blue */
+.slot.done .mini-fill{background:linear-gradient(90deg,#22c55e,#16a34a)}    /* green */
+.ends-in{font-size:0.9em; font-weight:800; color:#0b2249}
 .badge{display:inline-block; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:900; border:1px solid}
 .badge.now{background:#eafff4; color:#0f7a56; border-color:#bfe7cf}
 .badge.up{background:#eef5ff; color:#17497f; border-color:#cfe0ff}
@@ -1668,23 +1679,7 @@ function renderSchedule() {
     }
     if ((event.name||'').toLowerCase().includes('free')) cls = 'free';
 
-      // Calculate time remaining for current and upcoming classes
-      let timeRemainingHTML = '';
-      if (showProgress && now && !event.name.toLowerCase().includes('free')) {
-        if (cls === 'now') {
-          const diffMs = endD - now;
-          const minutes = Math.floor(diffMs / 60000);
-          if (minutes >= 0) {
-            timeRemainingHTML = `<div class="time-remaining">⏱️ ${minutes} minute${minutes !== 1 ? 's' : ''} left in ${event.name}</div>`;
-          }
-        } else if (cls === 'up') {
-          const diffMs = startD - now;
-          const minutes = Math.floor(diffMs / 60000);
-          if (minutes >= 0 && minutes <= 120) {
-            timeRemainingHTML = `<div class="time-remaining">📍 Starts in ${minutes} minute${minutes !== 1 ? 's' : ''}</div>`;
-          }
-        }
-      }
+      // No 'Starts in' text; we'll render a mini progress + 'Ends in' only for current period via updater
 
       slot.className = `slot ${cls}`;
       slot.setAttribute('data-end-time', event.end);
@@ -1694,7 +1689,10 @@ function renderSchedule() {
         <div class="slot-inner">
           <div>
             <div class="time">${event.start} - ${event.end}</div>
-            ${timeRemainingHTML}
+            <div class="mini-row">
+              <div class="mini-progress"><div class="mini-fill"></div></div>
+              <span class="ends-in"></span>
+            </div>
           </div>
           <div>
             <div class="cls">${event.name}</div>
@@ -1717,32 +1715,32 @@ function renderSchedule() {
 function updateCountdowns() {
   const now = getNow();
   
-  // Update all time-remaining displays
+  // Update mini progress and 'Ends in' for the active period (including free periods)
   document.querySelectorAll('#s_slots .slot').forEach(slot => {
-    const timeRemaining = slot.querySelector('.time-remaining');
-    if (!timeRemaining) return;
-    
+    const miniRow = slot.querySelector('.mini-row');
+    const fill = slot.querySelector('.mini-fill');
+    const endsIn = slot.querySelector('.ends-in');
+    if (!miniRow || !fill || !endsIn) return;
+
     const endTime = slot.getAttribute('data-end-time');
     const startTime = slot.getAttribute('data-start-time');
-    const className = slot.querySelector('.cls')?.textContent || '';
-    
-    if (slot.classList.contains('now') && endTime) {
-      const endDate = parseTimeToDate(now, endTime);
-      const diffMs = endDate - now;
-      const minutes = Math.floor(diffMs / 60000);
-      
-      if (minutes >= 0) {
-        timeRemaining.textContent = `⏱️ ${minutes} minute${minutes !== 1 ? 's' : ''} left in ${className}`;
-      }
-    } else if (slot.classList.contains('up') && startTime) {
-      const startDate = parseTimeToDate(now, startTime);
-      const diffMs = startDate - now;
-      const minutes = Math.floor(diffMs / 60000);
-      
-      if (minutes >= 0 && minutes <= 120) {
-        timeRemaining.textContent = `📍 Starts in ${minutes} minute${minutes !== 1 ? 's' : ''}`;
-      }
-    }
+    if (!endTime || !startTime) { miniRow.style.display = 'none'; return; }
+
+    const start = parseTimeToDate(now, startTime);
+    const end = parseTimeToDate(now, endTime);
+    const active = now >= start && now < end;
+
+    if (!active) { miniRow.style.display = 'none'; return; }
+
+    const total = end - start;
+    const elapsed = now - start;
+    const pct = Math.max(0, Math.min(100, Math.round((elapsed / total) * 100)));
+    fill.style.width = pct + '%';
+
+    const remainingMs = end - now;
+    const minutes = Math.max(0, Math.floor(remainingMs / 60000));
+    endsIn.textContent = `Ends in ${minutes}m`;
+    miniRow.style.display = 'flex';
   });
 }
 
