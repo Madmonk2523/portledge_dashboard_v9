@@ -1,6 +1,6 @@
 ﻿// === PantherBot v4 — Citations, Related Questions, Dual Handbooks ===
 // Updated: 2025-10-23 - Fixed template literal bug
-console.log('🔥 PantherBot v4.1 LOADED - Template Literal Fix Applied');
+console.log('🔥 PantherBot v4.2 LOADED - MUCH SMARTER & MORE NATURAL! 🧠');
 
 // Lazy-load both handbooks
 let studentHandbook = null, athleticsHandbook = null;
@@ -111,7 +111,7 @@ async function getChunks(){
   return ALL_CHUNKS;
 }
 
-async function getRelevantContextWithCitations(userText, recentHistory, maxChars = 1500){
+async function getRelevantContextWithCitations(userText, recentHistory, maxChars = 2500){
   const chunks = await getChunks();
   const allQueries = [userText, ...recentHistory.filter(m=>m.role==='user').map(m=>m.content)];
   const combinedQ = allQueries.join(' ');
@@ -120,16 +120,16 @@ async function getRelevantContextWithCitations(userText, recentHistory, maxChars
   const ranked = chunks
     .map(chunk => ({ ...chunk, score: scoreChunk(qTokens, chunk.text) }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
+    .slice(0, 8); // Increased from 5 to 8 for better coverage
 
   let out = '';
   const citations = [];
   for (const r of ranked){
-    if ((out + '\n\n' + r.text).length > maxChars) break;
-    out += (out ? '\n\n' : '') + r.text;
+    if ((out + "\n\n" + r.text).length > maxChars) break;
+    out += (out ? "\n\n" : "") + r.text;
     citations.push(r);
   }
-  return { context: out || '', citations };
+  return { context: out || "", citations };
 }
 
 // ===== Chat memory =====
@@ -180,30 +180,41 @@ function generateRelatedQuestions(userText, botReply){
   const lower = (userText + ' ' + botReply).toLowerCase();
   const suggestions = [];
   
-  if (/dress code|uniform|attire/i.test(lower)) {
-    suggestions.push('What are the consequences for dress code violations?', 'Can I wear sneakers?');
+  // More comprehensive topic matching
+  if (/dress code|uniform|attire|clothing|wear/i.test(lower)) {
+    suggestions.push('What are the consequences for dress code violations?', 'What can I wear?', 'Is there a formal dress day?');
   }
-  if (/attendance|absent|late/i.test(lower)) {
-    suggestions.push('What happens if I am late to school?', 'How do I report an absence?');
+  if (/attendance|absent|late|tardy|miss|skip/i.test(lower)) {
+    suggestions.push('What happens if I\'m late?', 'How do I report an absence?', 'What\'s the attendance policy?');
   }
-  if (/phone|device|electronic/i.test(lower)) {
-    suggestions.push('When can I use my phone?', 'What is the policy on laptops in class?');
+  if (/phone|device|electronic|laptop|ipad|computer|technology/i.test(lower)) {
+    suggestions.push('When can I use my phone?', 'What devices are allowed?', 'Is there a technology policy?');
   }
-  if (/sports|athletics|team|practice/i.test(lower)) {
-    suggestions.push('What sports are offered?', 'How do I try out for a team?', 'What if I miss practice?');
+  if (/sports|athletics|team|practice|game|coach/i.test(lower)) {
+    suggestions.push('What sports are offered?', 'How do I try out?', 'What if I miss practice?');
   }
-  if (/pe|physical education|gym/i.test(lower)) {
-    suggestions.push('What is the PE uniform?', 'Can I be exempted from PE?');
+  if (/pe|physical education|gym|fitness/i.test(lower)) {
+    suggestions.push('What is the PE uniform?', 'What are PE requirements?', 'Can I be exempted from PE?');
   }
-  if (/concussion|injury/i.test(lower)) {
-    suggestions.push('What is the return-to-play protocol?', 'Who do I contact if I am injured?');
+  if (/concussion|injury|hurt|medical|health/i.test(lower)) {
+    suggestions.push('What\'s the return-to-play protocol?', 'Who handles injuries?', 'What if I get hurt?');
   }
-  if (/grade|academic|homework/i.test(lower)) {
-    suggestions.push('What are the academic eligibility requirements?', 'What is the homework policy?');
+  if (/grade|academic|homework|assignment|test|exam/i.test(lower)) {
+    suggestions.push('What are academic eligibility requirements?', 'What\'s the homework policy?', 'How is grading done?');
+  }
+  if (/lunch|food|cafeteria|meal|eat/i.test(lower)) {
+    suggestions.push('What are lunch options?', 'Can I leave for lunch?', 'Is there a cafeteria?');
+  }
+  if (/parking|drive|car|vehicle|transportation/i.test(lower)) {
+    suggestions.push('Can I drive to school?', 'Is there student parking?', 'What are transportation options?');
+  }
+  if (/hi|hello|hey|greet/i.test(lower)) {
+    suggestions.push('What are school hours?', 'Tell me about dress code', 'What sports are available?');
   }
   
+  // Default suggestions if nothing matches
   if (suggestions.length === 0) {
-    suggestions.push('Tell me about school hours', 'What are the Portledge Pillars?');
+    suggestions.push('What are school hours?', 'Tell me about dress code', 'What sports are offered?');
   }
   
   return suggestions.slice(0, 3);
@@ -409,14 +420,38 @@ async function handleSend() {
     
     console.log('✅ Got context, calling API...');
     
-    const systemPrompt = [
-      'You are PantherBot, a friendly, knowledgeable assistant for Portledge students.',
-      'Use the handbook excerpts below to answer. If the answer is not clearly supported, say you could not find it or ask a brief clarifying question.',
-      'Respond in a conversational, natural tone. Keep it concise (2-5 short sentences) or use tight bullet points when listing steps.',
-      'Avoid repeating the question or adding filler. Do not invent details outside the excerpts.',
-      'If helpful, end with one short follow-up question.',
-      '\nHandbook excerpts:\n\n' + context
-    ].join(' ');
+    const systemPrompt = `You are PantherBot, Portledge School's friendly and knowledgeable AI assistant. You help students, parents, and staff with questions about school policies, rules, athletics, and daily life at Portledge.
+
+PERSONALITY & TONE:
+- Be warm, conversational, and helpful - like a knowledgeable friend
+- Use natural language (say "you can" not "students may")
+- Be encouraging and positive
+- Show personality with occasional friendly emojis (but don't overdo it)
+- If someone says "hi" or "hello", greet them warmly and ask how you can help
+
+HOW TO ANSWER:
+1. ALWAYS try to help - search through ALL the information provided
+2. Answer directly and clearly in 2-4 natural sentences
+3. If you find relevant info, share it confidently
+4. For greetings, respond naturally: "Hey! 👋 I'm here to help with anything about Portledge. What would you like to know?"
+5. Connect related topics - if asked about PE uniform, also mention where to find dress code info
+6. Use bullet points ONLY when listing multiple specific items (3+ items)
+
+WHEN INFO IS MISSING:
+- Don't immediately say "I couldn't find..." 
+- First, try to give helpful context or related information you DO have
+- Suggest who they can ask: "For specifics on that, I'd check with [teacher/office/director]"
+- Offer to help with something related
+
+IMPORTANT RULES:
+- Never make up information
+- Always base answers on the handbook excerpts below
+- Be conversational but accurate
+- End with a helpful follow-up question if appropriate
+
+HANDBOOK EXCERPTS:
+${context}`;
+
 
     const controller = new AbortController();
     const timeout = setTimeout(() => {
@@ -441,10 +476,10 @@ async function handleSend() {
           ...shortHistory,
           { role: 'user', content: userText }
         ],
-        max_tokens: 220,
-        temperature: 0.35,
-        presence_penalty: 0.15,
-        frequency_penalty: 0.2
+        max_tokens: 350,
+        temperature: 0.7,
+        presence_penalty: 0.3,
+        frequency_penalty: 0.3
       }),
       signal: controller.signal
     });
