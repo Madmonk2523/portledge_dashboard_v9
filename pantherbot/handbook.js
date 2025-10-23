@@ -1085,9 +1085,64 @@ Portledge takes this pledge very seriously and expects its students to do likewi
 
 
 Dress Regulations
-The Portledge Pillars of Kindness, Honor, Purpose and Respect provide the framework for student conduct expectations. As such, students are expected to dress each day in clothing that respects and supports the purposeful work of a serious academic community. Please read the following  link carefully: 
+PORTLEDGE SCHOOL
+DRESS CODE 9th–12th Grade
 
-9th–12th Grade Dress Code
+9th–12th GRADE
+The Portledge Pillars of Kindness, Honor, Purpose, and Respect provide the framework for student conduct expectations. As such, students are expected to dress each day in clothing that respects and supports the purposeful work of a serious academic community.
+
+STUDENTS MAY WEAR
+Short or long-sleeved collared shirts.
+Dresses (No shorter than mid-thigh length; no bare shoulders or midriff, spaghetti straps, halter, sheer, or racerback style clothing).
+Sweaters, sweater vests, cardigans, and ¼ zipper pullovers may be worn over either of the above options. Sweaters, sweater vests, cardigans, and 1/4 zipper pullovers may not be worn as stand-alone options.
+With the exception of jeans, solid-colored pants (pants are defined as those that are fastened by a button or clasp and/or that have functional pockets).
+Skorts or skirts (No shorter than mid-thigh length).
+Solid-colored Bermuda or similar (non-athletic style) dress shorts.
+Leggings or tights may only be worn with but not instead of any of the above.
+Sweatpants, athletic wear, and jeans are only permitted on dress-down days.
+Boat shoes, loafers, dress shoes, flats, moderate heels, boots, dress sandals, and sneakers.
+Outerwear that clasps or zips shut is permitted in outdoor areas of campus.
+Outerwear may be worn indoors only with the permission of an adult in the space and must be removed upon request by any adult.
+
+STUDENTS MAY NOT WEAR
+Clothing that is overtly politically partisan in nature.
+Torn clothing. 
+Stand-alone transparent clothing.
+All items of clothing that explicitly or implicitly promote or support any military or paramilitary forces.
+Clothing containing images or wording suggesting or portraying violence, illegal acts, inappropriate or not age-appropriate images, or illegal substances.  
+Outerwear that does not have a clasp.
+
+FRIDAY DRESS-DOWN DAYS
+Fridays will be dress-down days. The dress code is relaxed on dress-down days to permit Portledge athletic gear and other more casual attire. Clothing, however, must be in good repair and reflect positive regard for the school, not be transparent, and must never contain images suggesting or portraying violence, illegal acts, or illegal substances. Hats, visors, headgear, torn clothing, and pajamas are prohibited on dress-down days. No items that explicitly or implicitly promote or support any military or paramilitary forces may be worn on dress-down days. Clothing that is overtly politically partisan in nature is also prohibited, even on dress-down days.
+
+REPRESENTATIVE DRESS CODE
+There will be several occasions throughout the year when students are expected to dress more formally (as befitting an occasion or ceremony). To this end, the following requirements are in place for students:
+
+EVENING PERFORMANCES
+Navy blue pants or skirt (skirt must reach or be below mid-thigh in length) with dress shoes for all.
+White Portledge collared blouse, dress, or shirt with belt (if pants are worn). 
+White button-down shirt (or dress shirt equivalent) with Portledge tie with a belt.
+
+AWARD CEREMONIES
+Business casual dress for all.
+Depending on individual preference, students may wear:
+Blazers, ties, button-down white or pastel-colored shirts, with khaki style or other dress pants with dress shoes. 
+Collared blouses with skirts or dresses (both at or below mid-thigh length) with dress shoes.
+
+GRADUATION CEREMONY
+The Graduation ceremony is a unique opportunity to both celebrate the accomplishments of our 12th graders and reflect on their experience at Portledge. As one of our most important community events, the customary formal dress is a significant and symbolic component of the event.
+
+Depending on individual preferences, students may choose from any of the following items:
+Navy blue blazer/jacket, white pants, white button-down shirt or blouse, Portledge or navy blue tie, black or brown shoes, black or brown socks, black or brown belt. 
+Solid white dress at least to the mid-thigh, appropriate formal footwear. 
+Navy blue or white pants suit with blazer/jacket and collared shirt or blouse with appropriate formal footwear.
+
+Please note: The Panther Den carries many dress-code approved items for purchase. Please be mindful that not all items in the Panther Den follow or would be acceptable under the dress code. Please call the school for specific hours. 
+
+The school reserves the right to use judgment in individual cases while respecting the cultural, physical, or emotional needs or religious beliefs of the student or other special circumstances regarding headwear and other dress code items. 
+Students should bring specific questions to the Dean of Students.
+
+Revised May 2025
 
 
 Dress Regulations Enforcement/Consequences
