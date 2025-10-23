@@ -354,19 +354,41 @@ function showThinking() {
 async function handleSend() {
   const userInput = document.getElementById('userInput');
   const chatMessages = document.getElementById('chatMessages');
-  if (!userInput || !chatMessages) return;
+  const sendBtn = document.getElementById('sendBtn');
+  
+  if (!userInput || !chatMessages) {
+    console.error('❌ Missing DOM elements');
+    return;
+  }
 
   const userText = userInput.value.trim();
   if (!userText) return;
 
-  if (handleSend.__pending) return;
+  if (handleSend.__pending) {
+    console.log('⏸️ Already sending...');
+    return;
+  }
+  
   handleSend.__pending = true;
-  const sendBtn = document.getElementById('sendBtn');
+  
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.textContent = 'Sending...';
   }
   userInput.disabled = true;
+
+  // Safety timeout - force re-enable after 20 seconds no matter what
+  const safetyTimeout = setTimeout(() => {
+    console.warn('⚠️ Safety timeout triggered - forcing re-enable');
+    handleSend.__pending = false;
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send';
+    }
+    if (userInput) {
+      userInput.disabled = false;
+    }
+  }, 20000);
 
   addMessage('user', userText);
   userInput.value = '';
@@ -473,17 +495,31 @@ async function handleSend() {
     }
   } finally {
     console.log('🔓 Cleanup: Re-enabling input');
-
+    
+    // Clear safety timeout
+    clearTimeout(safetyTimeout);
+    
+    // Always reset state
     handleSend.__pending = false;
+    
+    // Re-enable send button
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
       sendBtn.disabled = false;
       sendBtn.textContent = 'Send';
+      console.log('✅ Send button re-enabled');
+    } else {
+      console.error('❌ Send button not found in cleanup');
     }
+    
+    // Re-enable input
     const userInput = document.getElementById('userInput');
     if (userInput) {
       userInput.disabled = false;
       userInput.focus();
+      console.log('✅ Input re-enabled');
+    } else {
+      console.error('❌ Input not found in cleanup');
     }
   }
 }
