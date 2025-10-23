@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    const { messages, max_tokens, temperature } = body || {};
+  const { messages, max_tokens, temperature, presence_penalty, frequency_penalty } = body || {};
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'Missing or invalid messages array' });
@@ -58,7 +58,9 @@ module.exports = async function handler(req, res) {
         model: 'gpt-4o-mini',
         messages,
         max_tokens: max_tokens || 100,
-        temperature: temperature || 0.1
+        temperature: (typeof temperature === 'number' ? temperature : 0.1),
+        presence_penalty: (typeof presence_penalty === 'number' ? presence_penalty : 0.0),
+        frequency_penalty: (typeof frequency_penalty === 'number' ? frequency_penalty : 0.0)
       }),
       signal: controller.signal
     });

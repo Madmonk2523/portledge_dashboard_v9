@@ -1,5 +1,4 @@
 // === PantherBot v3 — Fixed Send + Enter events ===
-import { OPENAI_API_KEY } from "./apiKey.js";
 
 // Lazy load handbook only when needed (handbook.js is 214KB!)
 let handbookText = null;
@@ -138,7 +137,11 @@ function resetPantherBot(){
   chatHistory = [];
   saveHistory();
   const cm = document.getElementById('chatMessages');
-  if (cm) cm.innerHTML = '';
+  if (cm) {
+    cm.innerHTML = '';
+    // Re-add friendly greeting
+    addMessage('bot', "👋 Hi, I’m PantherBot — your Portledge assistant. Ask me anything about school rules, dress code, or policies!");
+  }
 }
 
 function getQueryText(current){
@@ -152,12 +155,39 @@ function clampSentences(text, maxSentences = 3){
 }
 
 
+function decorateBotMessageElement(el, text){
+  // Clear and rebuild with message span + copy button
+  while (el.firstChild) el.removeChild(el.firstChild);
+  el.classList.remove('typing');
+  const span = document.createElement('span');
+  span.className = 'msg-text';
+  span.textContent = text;
+  const copy = document.createElement('button');
+  copy.className = 'copy-btn';
+  copy.type = 'button';
+  copy.textContent = 'Copy';
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(span.textContent || '');
+      const old = copy.textContent;
+      copy.textContent = 'Copied!';
+      setTimeout(()=> copy.textContent = old, 1000);
+    } catch {}
+  });
+  el.appendChild(span);
+  el.appendChild(copy);
+}
+
 function addMessage(role, text) {
   const chatMessages = document.getElementById("chatMessages");
   if (!chatMessages) return;
   const el = document.createElement("div");
   el.className = `chat-message ${role}`;
-  el.textContent = text;
+  if (role === 'bot') {
+    decorateBotMessageElement(el, text);
+  } else {
+    el.textContent = text;
+  }
   chatMessages.appendChild(el);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   // Track in-memory history
@@ -171,7 +201,13 @@ function showThinking() {
   if (!chatMessages) return null;
   const el = document.createElement("div");
   el.className = "chat-message bot typing";
-  el.textContent = "Thinking…"; // simple, lightweight indicator
+  el.textContent = "Thinking"; // base text; we'll animate the dots
+  // simple animated dots ticker
+  let tick = 0;
+  el._ticker = setInterval(() => {
+    tick = (tick + 1) % 4; // 0..3
+    el.textContent = "Thinking" + ".".repeat(tick);
+  }, 400);
   chatMessages.appendChild(el);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   return el;
@@ -204,9 +240,11 @@ async function handleSend() {
   // Build a minimal context: short instruction + only relevant handbook excerpts
   const relevant = await getRelevantContext(getQueryText(userText), 1500);
   const context = [
-    "You are PantherBot, a helpful assistant for Portledge students.",
-    "Use ONLY the handbook excerpts below to answer. If the answer isn't in the excerpts, say you couldn't find it.",
-    "Be clear and concise (2-4 sentences).",
+    "You are PantherBot, a friendly, knowledgeable assistant for Portledge students.",
+    "Prefer the handbook excerpts below; if the answer isn't clearly supported, say you couldn't find it or ask a brief clarifying question.",
+    "Respond in a conversational, natural tone. Keep it concise (2–5 short sentences) or a tight bullet list when steps apply.",
+    "Avoid repeating the question or adding filler. Do not invent details outside the excerpts.",
+    "If helpful, end with one short follow‑up question.",
     "\nHandbook excerpts:\n\n" + relevant
   ].join(' ');
 
@@ -233,8 +271,10 @@ async function handleSend() {
           ...historyMsgs,
           { role: "user", content: userText }
         ],
-        max_tokens: 180,
-        temperature: 0
+        max_tokens: 220,
+        temperature: 0.35,
+        presence_penalty: 0.15,
+        frequency_penalty: 0.2
       }),
       signal: controller.signal
     });
@@ -254,8 +294,8 @@ async function handleSend() {
     }
 
     if (thinkingEl) {
-      thinkingEl.textContent = reply;
-      thinkingEl.classList.remove('typing');
+      if (thinkingEl._ticker) { try { clearInterval(thinkingEl._ticker); } catch{} }
+      decorateBotMessageElement(thinkingEl, reply);
       addToHistory('assistant', reply);
     } else {
       addMessage("bot", reply);
@@ -268,8 +308,8 @@ async function handleSend() {
     const chatMessages = document.getElementById("chatMessages");
     const lastTyping = chatMessages?.querySelector('.chat-message.bot.typing');
     if (lastTyping) {
-      lastTyping.textContent = msg;
-      lastTyping.classList.remove('typing');
+      if (lastTyping._ticker) { try { clearInterval(lastTyping._ticker); } catch{} }
+      decorateBotMessageElement(lastTyping, msg);
     } else {
       addMessage("bot", msg);
     }
@@ -306,6 +346,12 @@ function initPantherBot() {
       handleSend();
     }
   };
+  // New chat button
+  const newChatBtn = document.getElementById('newChatBtn');
+  if (newChatBtn && !newChatBtn.__bound){
+    newChatBtn.addEventListener('click', resetPantherBot);
+    newChatBtn.__bound = true;
+  }
   // Preload handbook immediately for faster first response
   loadHandbook().then(() => getChunks());
 }

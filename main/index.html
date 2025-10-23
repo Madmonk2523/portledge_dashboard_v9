@@ -333,6 +333,31 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   align-self: flex-start;
 }
 
+/* Typing indicator state */
+.chat-message.bot.typing {
+  opacity: 0.9;
+  color: #394a6b;
+  position: relative;
+  animation: pb-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pb-pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Small copy button inside bot bubbles */
+.chat-message .copy-btn{
+  margin-left: 8px;
+  font-size: 12px;
+  color: #4f87c7;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.chat-message .copy-btn:hover{ text-decoration: underline; }
+
 .chat-input {
   display: flex;
   gap: 12px;
@@ -592,6 +617,9 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
       <div>
         <h2>🐾 PantherBot</h2>
         <div class="meta">Your AI-powered handbook assistant</div>
+      </div>
+      <div>
+        <button id="newChatBtn" class="btn" title="Start a new chat">New chat</button>
       </div>
     </div>
     <div class="pb-suggestions">

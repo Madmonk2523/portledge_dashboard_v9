@@ -1,2 +1,2 @@
-// ⚠️ Replace YOUR_KEY_HERE with your actual OpenAI API key
+// Not used in production; client should not hold secrets. Keep empty.
 export const OPENAI_API_KEY = "";
