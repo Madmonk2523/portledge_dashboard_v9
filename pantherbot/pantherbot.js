@@ -150,7 +150,7 @@ function resetPantherBot(){
   const cm = document.getElementById('chatMessages');
   if (cm) {
     cm.innerHTML = '';
-    addMessage('bot', ' Hi, I am PantherBot  your Portledge assistant. Ask me anything about school rules, athletics, dress code, or policies!');
+    addMessage('bot', '👋 Hey there! I\'m PantherBot, your friendly Portledge assistant. Ask me anything about:\n• School rules & policies 📚\n• Athletics & sports 🏀\n• Dress code 👕\n• Academic requirements 📝\n\nWhat can I help you with today?');
   }
 }
 
@@ -264,8 +264,44 @@ function decorateBotMessageElement(el, text){
       setTimeout(()=> copy.textContent = old, 1000);
     } catch {}
   });
+  
+  // Add reaction buttons
+  const reactions = document.createElement('span');
+  reactions.className = 'reactions';
+  reactions.style.cssText = 'margin-left: 12px; opacity: 0.7;';
+  
+  const thumbsUp = document.createElement('button');
+  thumbsUp.className = 'reaction-btn';
+  thumbsUp.textContent = '👍';
+  thumbsUp.title = 'Helpful';
+  thumbsUp.style.cssText = 'background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 6px; opacity: 0.6; transition: all 0.2s;';
+  thumbsUp.addEventListener('click', () => {
+    thumbsUp.style.cssText += 'opacity: 1; transform: scale(1.3);';
+    thumbsDown.style.opacity = '0.3';
+    console.log('👍 Positive feedback:', text.slice(0, 50));
+  });
+  thumbsUp.addEventListener('mouseenter', () => thumbsUp.style.opacity = '1');
+  thumbsUp.addEventListener('mouseleave', () => { if (!thumbsUp.style.transform.includes('scale')) thumbsUp.style.opacity = '0.6'; });
+  
+  const thumbsDown = document.createElement('button');
+  thumbsDown.className = 'reaction-btn';
+  thumbsDown.textContent = '👎';
+  thumbsDown.title = 'Not helpful';
+  thumbsDown.style.cssText = 'background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 6px; opacity: 0.6; transition: all 0.2s;';
+  thumbsDown.addEventListener('click', () => {
+    thumbsDown.style.cssText += 'opacity: 1; transform: scale(1.3);';
+    thumbsUp.style.opacity = '0.3';
+    console.log('👎 Negative feedback:', text.slice(0, 50));
+  });
+  thumbsDown.addEventListener('mouseenter', () => thumbsDown.style.opacity = '1');
+  thumbsDown.addEventListener('mouseleave', () => { if (!thumbsDown.style.transform.includes('scale')) thumbsDown.style.opacity = '0.6'; });
+  
+  reactions.appendChild(thumbsUp);
+  reactions.appendChild(thumbsDown);
+  
   el.appendChild(span);
   el.appendChild(copy);
+  el.appendChild(reactions);
 }
 
 function addMessage(role, text) {
@@ -430,10 +466,59 @@ function initPantherBot() {
     }
   };
   
+  // Add subtle character counter
+  userInput.addEventListener('input', () => {
+    const len = userInput.value.length;
+    if (len > 100) {
+      userInput.style.borderColor = '#f59e0b';
+    } else {
+      userInput.style.borderColor = '';
+    }
+  });
+  
   const newChatBtn = document.getElementById('newChatBtn');
   if (newChatBtn && !newChatBtn.__bound){
     newChatBtn.addEventListener('click', resetPantherBot);
     newChatBtn.__bound = true;
+  }
+  
+  // Voice input
+  const voiceBtn = document.getElementById('voiceBtn');
+  if (voiceBtn && 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    voiceBtn.addEventListener('click', () => {
+      voiceBtn.classList.add('listening');
+      voiceBtn.textContent = '🔴';
+      try {
+        recognition.start();
+      } catch (e) {
+        console.log('Recognition already started');
+      }
+    });
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      userInput.value = transcript;
+      voiceBtn.classList.remove('listening');
+      voiceBtn.textContent = '🎤';
+    };
+    
+    recognition.onerror = () => {
+      voiceBtn.classList.remove('listening');
+      voiceBtn.textContent = '🎤';
+    };
+    
+    recognition.onend = () => {
+      voiceBtn.classList.remove('listening');
+      voiceBtn.textContent = '🎤';
+    };
+  } else if (voiceBtn) {
+    voiceBtn.style.display = 'none';
   }
   
   loadHandbooks().then(() => getChunks());

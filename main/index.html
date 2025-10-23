@@ -276,6 +276,29 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   max-width: 850px;
   margin: 0 auto;
   border: 1px solid rgba(0, 51, 102, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.chat-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(79, 135, 199, 0.1), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.chat-container:hover {
+  box-shadow: 0 12px 48px rgba(0, 51, 102, 0.18);
+  border-color: rgba(79, 135, 199, 0.3);
+}
+
+.chat-container:hover::before {
+  left: 100%;
 }
 
 .chat-messages {
@@ -320,6 +343,7 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   box-shadow: 0 2px 8px rgba(0, 51, 102, 0.1);
   text-align: left;
   align-self: flex-end;
+  animation: slideInRight 0.3s ease-out;
 }
 
 .chat-message.bot {
@@ -328,6 +352,7 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   padding: 12px 18px;
   border-radius: 18px 18px 18px 4px;
   border: 1px solid rgba(0, 51, 102, 0.08);
+  animation: slideInLeft 0.3s ease-out;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   text-align: left;
   align-self: flex-start;
@@ -338,13 +363,46 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   opacity: 0.9;
   color: #394a6b;
   position: relative;
-  animation: pb-pulse 1.2s ease-in-out infinite;
+  animation: pb-pulse 1.2s ease-in-out infinite, slideInLeft 0.3s ease-out;
 }
 
 @keyframes pb-pulse {
   0% { opacity: 0.6; }
   50% { opacity: 1; }
   100% { opacity: 0.6; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Small copy button inside bot bubbles */
@@ -363,6 +421,7 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   margin: 8px 0;
   padding: 8px 12px;
   background: #f0f4f8;
+  animation: fadeInUp 0.4s ease-out;
   border-radius: 8px;
   font-size: 13px;
 }
@@ -388,6 +447,7 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   padding: 8px 12px;
   background: #fafcfe;
   border-radius: 8px;
+  animation: fadeInUp 0.5s ease-out;
 }
 .rq-label {
   font-size: 13px;
@@ -406,9 +466,15 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s;
+  animation: fadeInUp 0.4s ease-out backwards;
 }
+.rq-btn:nth-child(2) { animation-delay: 0.1s; }
+.rq-btn:nth-child(3) { animation-delay: 0.2s; }
+.rq-btn:nth-child(4) { animation-delay: 0.3s; }
 .rq-btn:hover {
   background: #e8f2ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 135, 199, 0.2);
   border-color: #4f87c7;
 }
 
@@ -437,6 +503,35 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
   border-color: #003366;
   background: white;
   box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.08);
+}
+
+#voiceBtn {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  cursor: pointer;
+  font-size: 20px;
+  border-radius: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+  min-width: 54px;
+}
+
+#voiceBtn:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%);
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
+}
+
+#voiceBtn:active, #voiceBtn.listening {
+  transform: scale(0.95);
+  animation: voicePulse 1s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25); }
+  50% { box-shadow: 0 4px 20px rgba(124, 58, 237, 0.6); }
 }
 
 .chat-input button {
@@ -691,6 +786,7 @@ body.theme-dark ::-webkit-scrollbar-thumb{background:#243556; border-radius:999p
     </div>
     <div class="chat-input">
       <input type="text" id="userInput" placeholder="Ask about the handbook..." />
+      <button id="voiceBtn" title="Voice input" aria-label="Voice input">🎤</button>
       <button id="sendBtn">Send</button>
     </div>
   </div>
