@@ -1609,12 +1609,14 @@ function renderSchedule() {
     if ((event.name||'').toLowerCase().includes('free')) cls = 'free';
 
     slot.className = `slot ${cls}`;
+    slot.setAttribute('data-end-time', event.end);
     slot.innerHTML = `
       <div class="dot"></div>
       <div class="slot-inner">
         <div class="time">${event.start} - ${event.end}</div>
         <div class="cls">${event.name}</div>
         <div class="meta">${event.teacher || ""}</div>
+        <div class="countdown" style="display:none; font-size:0.85em; color:#667eea; font-weight:600; margin-top:4px;"></div>
       </div>
     `;
     fragment.appendChild(slot);
@@ -1623,7 +1625,35 @@ function renderSchedule() {
   // update the small progress / now indicator only for today
   if(showProgress && now) updateProgressBar(entries, now);
 
+  // Start countdown timer for current class
+  if(showProgress) updateCountdowns();
+
   // Animation removed for performance
+}
+
+function updateCountdowns() {
+  const now = getNow();
+  const currentSlot = document.querySelector('#s_timeline .slot.now');
+  
+  // Hide all countdowns first
+  document.querySelectorAll('.countdown').forEach(cd => cd.style.display = 'none');
+  
+  if (currentSlot && !currentSlot.classList.contains('free')) {
+    const endTime = currentSlot.getAttribute('data-end-time');
+    const countdownEl = currentSlot.querySelector('.countdown');
+    
+    if (endTime && countdownEl) {
+      const endDate = parseTimeToDate(now, endTime);
+      const diffMs = endDate - now;
+      const minutes = Math.floor(diffMs / 60000);
+      const seconds = Math.floor((diffMs % 60000) / 1000);
+      
+      if (minutes >= 0 && seconds >= 0) {
+        countdownEl.textContent = `⏱️ ${minutes}m ${seconds}s remaining`;
+        countdownEl.style.display = 'block';
+      }
+    }
+  }
 }
 
 function updateProgressBar(entries, nowArg){
@@ -2570,6 +2600,9 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
     if (slots){
       updateNextUp();
       setInterval(updateNextUp, 60000); // Reduced from 30s to 60s, removed expensive MutationObserver
+      
+      // Update countdown every second
+      setInterval(updateCountdowns, 1000);
     }
 
     // PantherBot suggested chips
