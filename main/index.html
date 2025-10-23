@@ -247,6 +247,37 @@ body.theme-dark ::-webkit-scrollbar-thumb{
   border:2px solid rgba(12, 22, 48, 0.5);
   box-shadow:0 0 10px rgba(102, 126, 234, 0.5);
 }
+
+/* Global text visibility improvements in dark mode */
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4,
+body.theme-dark h5,
+body.theme-dark h6,
+body.theme-dark p,
+body.theme-dark label,
+body.theme-dark span,
+body.theme-dark li,
+body.theme-dark th,
+body.theme-dark td {
+  color: var(--ink);
+}
+/* Buttons and nav controls */
+body.theme-dark .daybtn{
+  border:1px solid rgba(102,126,234,0.25);
+  background:rgba(15,23,41,0.7);
+  color:var(--ink);
+}
+body.theme-dark .btn{
+  border:1px solid rgba(102,126,234,0.25);
+  background:rgba(15,23,41,0.7);
+  color:var(--ink);
+}
+/* Keep primary buttons bright */
+body.theme-dark .btn.primary{
+  color:#fff;
+}
 body.theme-dark ::-webkit-scrollbar-thumb:hover{
   background:linear-gradient(135deg, #764ba2, #667eea);
   box-shadow:0 0 20px rgba(102, 126, 234, 0.8);
