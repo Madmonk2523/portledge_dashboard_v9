@@ -1,5 +1,5 @@
-// 🏫 Portledge Handbook Text
-// Paste the ENTIRE handbook text between the backticks below:
+// 🏫 Portledge Student Handbook Text
+// Source: https://docs.google.com/document/d/13A5N3gUTSdg6oVRZ343DWI5A_vQKqoTGkuY9dKXP51E/view?tab=t.0
 export const handbookText = `
 
 
@@ -1658,3 +1658,6 @@ To this end, Portledge operates a monitoring system using exclusive indoor and o
 
 Please be advised that video surveillance is only used in common areas and not in areas where there is a reasonable expectation of privacy, such as restrooms, locker rooms, etc. 
 `;
+
+
+export const handbookDocUrl = 'https://docs.google.com/document/d/13A5N3gUTSdg6oVRZ343DWI5A_vQKqoTGkuY9dKXP51E/view?tab=t.0';

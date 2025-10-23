@@ -1,57 +1,68 @@
-// === PantherBot v3 — Fixed Send + Enter events ===
+﻿// === PantherBot v4  Citations, Related Questions, Dual Handbooks ===
 
-// Lazy load handbook only when needed (handbook.js is 214KB!)
-let handbookText = null;
-let handbookLoading = false;
-async function loadHandbook() {
-  if (handbookText) return handbookText;
-  if (handbookLoading) {
-    // Wait for existing load to complete
-    while (handbookLoading) await new Promise(r => setTimeout(r, 100));
-    return handbookText;
+// Lazy-load both handbooks
+let studentHandbook = null, athleticsHandbook = null;
+let studentHandbookUrl = null, athleticsHandbookUrl = null;
+let handbooksLoading = false;
+
+async function loadHandbooks() {
+  if (studentHandbook && athleticsHandbook) return { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl };
+  if (handbooksLoading) {
+    while (handbooksLoading) await new Promise(r => setTimeout(r, 100));
+    return { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl };
   }
-  handbookLoading = true;
+  handbooksLoading = true;
   try {
-    const module = await import("./handbook.js");
-    handbookText = module.handbookText;
+    const [hModule, aModule] = await Promise.all([
+      import('./handbook.js'),
+      import('./athleticsHandbook.js')
+    ]);
+    studentHandbook = hModule.handbookText || '';
+    studentHandbookUrl = hModule.handbookDocUrl || '';
+    athleticsHandbook = aModule.athleticsHandbookText || '';
+    athleticsHandbookUrl = aModule.athleticsHandbookDocUrl || '';
+    console.log(' Loaded student + athletics handbooks');
   } catch (err) {
-    console.error("Failed to load handbook:", err);
-    handbookText = "";
+    console.error('Failed to load handbooks:', err);
+    studentHandbook = athleticsHandbook = '';
   }
-  handbookLoading = false;
-  return handbookText;
+  handbooksLoading = false;
+  return { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl };
 }
 
-
-// ===== Lightweight local retrieval to minimize tokens =====
-// Split handbook into small chunks and score them against the user's query.
-// We then send ONLY the top few chunks to the model instead of the entire handbook.
+// ===== Enhanced retrieval with citations =====
 const STOPWORDS = new Set([
-  "the","a","an","and","or","but","of","to","in","on","for","with","about","is","are","was","were","be","as","by","it","that","this","at","from","your","you"
+  'the','a','an','and','or','but','of','to','in','on','for','with','about','is','are','was','were','be','as','by','it','that','this','at','from','your','you'
 ]);
 
 function normalize(text){
-  return (text||"")
+  return (text||'')
     .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .filter(w => w && !STOPWORDS.has(w));
 }
 
-function chunkHandbook(text, chunkSize = 800, overlap = 100){
+function chunkHandbook(text, source, docUrl, chunkSize = 800, overlap = 100){
   const chunks = [];
-  let i = 0;
-  const maxChunks = 500; // Limit to prevent memory overflow
+  let i = 0, chunkId = 0;
+  const maxChunks = 500;
   while (i < text.length && chunks.length < maxChunks){
     const end = Math.min(text.length, i + chunkSize);
     const chunk = text.slice(i, end).trim();
-    if (chunk) chunks.push(chunk);
+    if (chunk) {
+      chunks.push({
+        id: `${source}-${chunkId++}`,
+        text: chunk,
+        source,
+        docUrl
+      });
+    }
     i += (chunkSize - overlap);
   }
   return chunks;
 }
 
-// Simple keyword overlap score
 function scoreChunk(queryTokens, chunk){
   const tokens = normalize(chunk);
   if (!tokens.length) return 0;
@@ -60,52 +71,52 @@ function scoreChunk(queryTokens, chunk){
   for (const t of queryTokens){
     if (set.has(t)) score += 1;
   }
-  // Prefer shorter chunks slightly
   return score + Math.min(0.5, 50 / (tokens.length + 1));
 }
 
-// Build chunks once and reuse (memoized)
-let HB_CHUNKS = null;
+let ALL_CHUNKS = null;
 async function getChunks(){
-  if (!HB_CHUNKS){
+  if (!ALL_CHUNKS){
     try {
-      const text = await loadHandbook();
-      if (!text || text.length < 100) {
-        console.error("Handbook is empty or too short");
-        HB_CHUNKS = [];
-        return HB_CHUNKS;
-      }
-      // Split on paragraphs for better context
-      const paragraphs = text.split(/\n\s*\n/g).filter(p => p && p.trim().length > 20);
-      const joined = paragraphs.slice(0, 300).join("\n\n"); // Limit paragraphs to prevent overflow
-      HB_CHUNKS = chunkHandbook(joined);
-      console.log(`✅ Loaded ${HB_CHUNKS.length} chunks from handbook`);
+      const { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl } = await loadHandbooks();
+      const sParagraphs = studentHandbook.split(/\n\s*\n/g).filter(p => p && p.trim().length > 20);
+      const aParagraphs = athleticsHandbook.split(/\n\s*\n/g).filter(p => p && p.trim().length > 20);
+      const sJoined = sParagraphs.slice(0, 300).join('\n\n');
+      const aJoined = aParagraphs.slice(0, 300).join('\n\n');
+      const sChunks = chunkHandbook(sJoined, 'student', studentHandbookUrl);
+      const aChunks = chunkHandbook(aJoined, 'athletics', athleticsHandbookUrl);
+      ALL_CHUNKS = [...sChunks, ...aChunks];
+      console.log(`✅ Built ${ALL_CHUNKS.length} chunks (${sChunks.length} student + ${aChunks.length} athletics)`);
     } catch (err) {
-      console.error("Failed to chunk handbook:", err);
-      HB_CHUNKS = [];
+      console.error('Failed to chunk handbooks:', err);
+      ALL_CHUNKS = [];
     }
   }
-  return HB_CHUNKS;
+  return ALL_CHUNKS;
 }
 
-async function getRelevantContext(userText, maxChars = 900){
+async function getRelevantContextWithCitations(userText, recentHistory, maxChars = 1500){
   const chunks = await getChunks();
-  const qTokens = normalize(userText);
+  const allQueries = [userText, ...recentHistory.filter(m=>m.role==='user').map(m=>m.content)];
+  const combinedQ = allQueries.join(' ');
+  const qTokens = normalize(combinedQ);
+  
   const ranked = chunks
-    .map((c, idx) => ({ idx, c, s: scoreChunk(qTokens, c) }))
-    .sort((a, b) => b.s - a.s)
-    .slice(0, 4); // top 4 chunks for better coverage
+    .map(chunk => ({ ...chunk, score: scoreChunk(qTokens, chunk.text) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
 
-  // Concatenate while staying under maxChars
-  let out = "";
+  let out = '';
+  const citations = [];
   for (const r of ranked){
-    if ((out + "\n\n" + r.c).length > maxChars) break;
-    out += (out ? "\n\n" : "") + r.c;
+    if ((out + '\n\n' + r.text).length > maxChars) break;
+    out += (out ? '\n\n' : '') + r.text;
+    citations.push(r);
   }
-  return out || "";
+  return { context: out || '', citations };
 }
 
-// ===== Lightweight chat memory (client-side) =====
+// ===== Chat memory =====
 const HISTORY_KEY = 'pd_pb_history_v1';
 let chatHistory = [];
 
@@ -139,24 +150,103 @@ function resetPantherBot(){
   const cm = document.getElementById('chatMessages');
   if (cm) {
     cm.innerHTML = '';
-    // Re-add friendly greeting
-    addMessage('bot', "👋 Hi, I’m PantherBot — your Portledge assistant. Ask me anything about school rules, dress code, or policies!");
+    addMessage('bot', ' Hi, I am PantherBot  your Portledge assistant. Ask me anything about school rules, athletics, dress code, or policies!');
   }
 }
 
-function getQueryText(current){
-  const lastUsers = chatHistory.filter(m=>m.role==='user').slice(-2).map(m=>m.content);
-  return [...lastUsers, current].join(' ');
-}
-
 function clampSentences(text, maxSentences = 3){
-  const parts = (text||"").split(/(?<=[.!?])\s+/).filter(Boolean);
-  return parts.slice(0, maxSentences).join(" ");
+  const parts = (text||'').split(/(?<=[.!?])\s+/).filter(Boolean);
+  return parts.slice(0, maxSentences).join(' ');
 }
 
+// ===== Related questions =====
+function generateRelatedQuestions(userText, botReply){
+  const lower = (userText + ' ' + botReply).toLowerCase();
+  const suggestions = [];
+  
+  if (/dress code|uniform|attire/i.test(lower)) {
+    suggestions.push('What are the consequences for dress code violations?', 'Can I wear sneakers?');
+  }
+  if (/attendance|absent|late/i.test(lower)) {
+    suggestions.push('What happens if I am late to school?', 'How do I report an absence?');
+  }
+  if (/phone|device|electronic/i.test(lower)) {
+    suggestions.push('When can I use my phone?', 'What is the policy on laptops in class?');
+  }
+  if (/sports|athletics|team|practice/i.test(lower)) {
+    suggestions.push('What sports are offered?', 'How do I try out for a team?', 'What if I miss practice?');
+  }
+  if (/pe|physical education|gym/i.test(lower)) {
+    suggestions.push('What is the PE uniform?', 'Can I be exempted from PE?');
+  }
+  if (/concussion|injury/i.test(lower)) {
+    suggestions.push('What is the return-to-play protocol?', 'Who do I contact if I am injured?');
+  }
+  if (/grade|academic|homework/i.test(lower)) {
+    suggestions.push('What are the academic eligibility requirements?', 'What is the homework policy?');
+  }
+  
+  if (suggestions.length === 0) {
+    suggestions.push('Tell me about school hours', 'What are the Portledge Pillars?');
+  }
+  
+  return suggestions.slice(0, 3);
+}
 
+function showRelatedQuestions(questions){
+  const container = document.getElementById('chatMessages');
+  if (!container || !questions || questions.length === 0) return;
+  
+  const wrap = document.createElement('div');
+  wrap.className = 'related-questions';
+  wrap.innerHTML = '<div class=\"rq-label\">Related:</div>';
+  
+  questions.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'rq-btn';
+    btn.textContent = q;
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('userInput');
+      const send = document.getElementById('sendBtn');
+      if (input && send) {
+        input.value = q;
+        send.click();
+      }
+    });
+    wrap.appendChild(btn);
+  });
+  
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ===== Citations display =====
+function showCitations(citations){
+  if (!citations || citations.length === 0) return;
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+  
+  const wrap = document.createElement('div');
+  wrap.className = 'citations';
+  wrap.innerHTML = '<div class=\"cite-label\">Sources:</div>';
+  
+  citations.forEach((cite, idx) => {
+    const link = document.createElement('a');
+    link.className = 'cite-link';
+    link.href = cite.docUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = [] ;
+    link.title = cite.text.slice(0, 100) + '...';
+    wrap.appendChild(link);
+  });
+  
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ===== Message helpers =====
 function decorateBotMessageElement(el, text){
-  // Clear and rebuild with message span + copy button
   while (el.firstChild) el.removeChild(el.firstChild);
   el.classList.remove('typing');
   const span = document.createElement('span');
@@ -179,10 +269,10 @@ function decorateBotMessageElement(el, text){
 }
 
 function addMessage(role, text) {
-  const chatMessages = document.getElementById("chatMessages");
+  const chatMessages = document.getElementById('chatMessages');
   if (!chatMessages) return;
-  const el = document.createElement("div");
-  el.className = `chat-message ${role}`;
+  const el = document.createElement('div');
+  el.className = chat-message ;
   if (role === 'bot') {
     decorateBotMessageElement(el, text);
   } else {
@@ -190,86 +280,78 @@ function addMessage(role, text) {
   }
   chatMessages.appendChild(el);
   chatMessages.scrollTop = chatMessages.scrollHeight;
-  // Track in-memory history
   if (role === 'user') addToHistory('user', text);
   if (role === 'bot') addToHistory('assistant', text);
 }
 
-// Minimal typing indicator that we can replace with the final answer
 function showThinking() {
-  const chatMessages = document.getElementById("chatMessages");
+  const chatMessages = document.getElementById('chatMessages');
   if (!chatMessages) return null;
-  const el = document.createElement("div");
-  el.className = "chat-message bot typing";
-  el.textContent = "Thinking"; // base text; we'll animate the dots
-  // simple animated dots ticker
+  const el = document.createElement('div');
+  el.className = 'chat-message bot typing';
+  el.textContent = 'Thinking';
   let tick = 0;
   el._ticker = setInterval(() => {
-    tick = (tick + 1) % 4; // 0..3
-    el.textContent = "Thinking" + ".".repeat(tick);
+    tick = (tick + 1) % 4;
+    el.textContent = 'Thinking' + '.'.repeat(tick);
   }, 400);
   chatMessages.appendChild(el);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   return el;
 }
 
+// ===== Main handler =====
 async function handleSend() {
-  const userInput = document.getElementById("userInput");
-  const chatMessages = document.getElementById("chatMessages");
+  const userInput = document.getElementById('userInput');
+  const chatMessages = document.getElementById('chatMessages');
   if (!userInput || !chatMessages) return;
 
   const userText = userInput.value.trim();
   if (!userText) return;
 
-  // Prevent duplicate requests and UI jank
   if (handleSend.__pending) return;
   handleSend.__pending = true;
-  const sendBtn = document.getElementById("sendBtn");
+  const sendBtn = document.getElementById('sendBtn');
   if (sendBtn) {
     sendBtn.disabled = true;
-    sendBtn.textContent = "Sending..."; // Visual feedback
+    sendBtn.textContent = 'Sending...';
   }
   userInput.disabled = true;
 
-  addMessage("user", userText);
-  userInput.value = "";
+  addMessage('user', userText);
+  userInput.value = '';
 
   try {
-  // Show a temporary typing indicator and replace it later
-  const thinkingEl = showThinking();
-  // Build a minimal context: short instruction + only relevant handbook excerpts
-  const relevant = await getRelevantContext(getQueryText(userText), 1500);
-  const context = [
-    "You are PantherBot, a friendly, knowledgeable assistant for Portledge students.",
-    "Prefer the handbook excerpts below; if the answer isn't clearly supported, say you couldn't find it or ask a brief clarifying question.",
-    "Respond in a conversational, natural tone. Keep it concise (2–5 short sentences) or a tight bullet list when steps apply.",
-    "Avoid repeating the question or adding filler. Do not invent details outside the excerpts.",
-    "If helpful, end with one short follow‑up question.",
-    "\nHandbook excerpts:\n\n" + relevant
-  ].join(' ');
+    const thinkingEl = showThinking();
+    const historyMsgs = getRecentHistory(3);
+    const { context, citations } = await getRelevantContextWithCitations(userText, historyMsgs, 1500);
+    
+    const systemPrompt = [
+      'You are PantherBot, a friendly, knowledgeable assistant for Portledge students.',
+      'Use the handbook excerpts below to answer. If the answer is not clearly supported, say you could not find it or ask a brief clarifying question.',
+      'Respond in a conversational, natural tone. Keep it concise (25 short sentences) or use tight bullet points when listing steps.',
+      'Avoid repeating the question or adding filler. Do not invent details outside the excerpts.',
+      'If helpful, end with one short follow-up question.',
+      '\nHandbook excerpts:\n\n' + context
+    ].join(' ');
 
-    // Abort if request takes too long
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
     
-    // Use Vercel serverless function if deployed, otherwise localhost
     const apiUrl = window.location.hostname === 'localhost' 
       ? 'http://localhost:3000/api/chat'
       : '/api/chat';
     
-    // Build conversation with recent history for continuity
-    const historyMsgs = getRecentHistory(3).map(m=>({ role: m.role, content: clampSentences(m.content, 4) }));
+    const shortHistory = historyMsgs.map(m=>({ role: m.role, content: clampSentences(m.content, 4) }));
 
     const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: [
-          { role: "system", content: context },
-          ...historyMsgs,
-          { role: "user", content: userText }
+          { role: 'system', content: systemPrompt },
+          ...shortHistory,
+          { role: 'user', content: userText }
         ],
         max_tokens: 220,
         temperature: 0.35,
@@ -279,18 +361,17 @@ async function handleSend() {
       signal: controller.signal
     });
     clearTimeout(timeout);
+    
     if (!res.ok) {
       const text = await res.text();
-      console.error("/api/chat HTTP", res.status, text);
+      console.error('/api/chat HTTP', res.status, text);
       throw new Error(`Server error ${res.status}: ${text}`);
     }
     const data = await res.json();
 
-    let reply = null;
+    let reply = 'Sorry, I could not find that in the handbook.';
     if (data.choices && data.choices[0].message && data.choices[0].message.content) {
       reply = data.choices[0].message.content.trim();
-    } else {
-      reply = "Sorry, I couldn't find that in the handbook.";
     }
 
     if (thinkingEl) {
@@ -298,30 +379,33 @@ async function handleSend() {
       decorateBotMessageElement(thinkingEl, reply);
       addToHistory('assistant', reply);
     } else {
-      addMessage("bot", reply);
+      addMessage('bot', reply);
     }
+    
+    showCitations(citations);
+    const related = generateRelatedQuestions(userText, reply);
+    showRelatedQuestions(related);
+    
   } catch (err) {
-  console.error("PantherBot error:", err);
+    console.error('PantherBot error:', err);
     const isAbort = (err && (err.name === 'AbortError' || err.message?.includes('aborted')));
-    const msg = isAbort ? "Request timed out. Please try again." : `⚠️ Server error. ${err.message?.slice(0,140)}`;
-    // If typing indicator exists, reuse it; else add a new message
-    const chatMessages = document.getElementById("chatMessages");
+    const msg = isAbort ? 'Request timed out. Please try again.' : `⚠️ Server error. ${err.message?.slice(0,140)}`;
+    const chatMessages = document.getElementById('chatMessages');
     const lastTyping = chatMessages?.querySelector('.chat-message.bot.typing');
     if (lastTyping) {
       if (lastTyping._ticker) { try { clearInterval(lastTyping._ticker); } catch{} }
       decorateBotMessageElement(lastTyping, msg);
     } else {
-      addMessage("bot", msg);
+      addMessage('bot', msg);
     }
-  }
-  finally {
+  } finally {
     handleSend.__pending = false;
-    const sendBtn = document.getElementById("sendBtn");
+    const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
       sendBtn.disabled = false;
-      sendBtn.textContent = "Send"; // Restore button text
+      sendBtn.textContent = 'Send';
     }
-    const userInput = document.getElementById("userInput");
+    const userInput = document.getElementById('userInput');
     if (userInput) {
       userInput.disabled = false;
       userInput.focus();
@@ -329,11 +413,10 @@ async function handleSend() {
   }
 }
 
-
-// === PantherBot DOM initializer ===
+// ===== Init =====
 function initPantherBot() {
-  const sendBtn = document.getElementById("sendBtn");
-  const userInput = document.getElementById("userInput");
+  const sendBtn = document.getElementById('sendBtn');
+  const userInput = document.getElementById('userInput');
   if (!sendBtn || !userInput) {
     setTimeout(initPantherBot, 500);
     return;
@@ -341,19 +424,19 @@ function initPantherBot() {
   
   sendBtn.onclick = handleSend;
   userInput.onkeypress = e => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleSend();
     }
   };
-  // New chat button
+  
   const newChatBtn = document.getElementById('newChatBtn');
   if (newChatBtn && !newChatBtn.__bound){
     newChatBtn.addEventListener('click', resetPantherBot);
     newChatBtn.__bound = true;
   }
-  // Preload handbook immediately for faster first response
-  loadHandbook().then(() => getChunks());
+  
+  loadHandbooks().then(() => getChunks());
 }
 
-document.addEventListener("DOMContentLoaded", () => { loadHistory(); initPantherBot(); });
+document.addEventListener('DOMContentLoaded', () => { loadHistory(); initPantherBot(); });
