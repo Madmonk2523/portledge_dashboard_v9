@@ -23,20 +23,25 @@
   margin-bottom: 6px;
 }
 
-/* Compact Status + Progress Bar */
+/* Compact Status + Progress Bar - Horizontal Layout */
 .status-bar {
   margin: 6px auto 12px;
   max-width: 700px;
-  text-align: center;
   font-weight: 700;
   color: #0b2249;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+#s_currentLabel {
+  white-space: nowrap;
+  font-size: 0.9rem;
 }
 
 .status-progress {
-  width: 100%;
+  flex: 1;
   height: 10px;
   background: #dbe4f5;
   border-radius: 999px;
@@ -222,8 +227,7 @@ body.theme-dark .cls{color:var(--ink)}
 body.theme-dark .time{color:#94a3b8}
 body.theme-dark .meta{color:#64748b}
 /* Dark mode mini progress styling */
-body.theme-dark .mini-progress{background:rgba(34,49,79,0.6); box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
-body.theme-dark .ends-in{color:var(--ink)}
+/* (removed) dark-mode styles for per-slot mini progress */
 body.theme-dark .gpa-badge{
   background:rgba(12, 22, 48, 0.9); 
   color:#cfe0ff; 
@@ -428,19 +432,10 @@ body.theme-dark .theme-toggle{
 .slot.free .dot{background:#f97316} /* orange */
 @keyframes pulse{0%,100%{box-shadow:0 2px 8px rgba(52,211,153,.4)}50%{box-shadow:0 2px 16px rgba(52,211,153,.8)}}
 .slot-inner{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center; padding:16px 20px}
-.time{font-size:1rem; color:#51607a; font-weight:700}
+.time{font-size:1rem; color:#51607a; font-weight:700; white-space:nowrap}
 .cls{font-weight:900; color:#0b2249; font-size:1.05rem}
 .meta{color:#5f6c86; font-size:.92rem; margin-top:4px}
-/* Mini progress + ends-in row for current period */
-.mini-row{display:none; align-items:center; gap:10px; margin-top:6px}
-.mini-progress{width:140px; height:8px; background:#e6edf9; border-radius:999px; overflow:hidden; box-shadow:inset 0 1px 2px rgba(2,18,43,.08)}
-.mini-fill{height:100%; width:0%; transition:width .5s ease}
-/* Fill color matches slot type */
-.slot.now .mini-fill{background:linear-gradient(90deg,#fde047,#facc15)}    /* yellow */
-.slot.free .mini-fill{background:linear-gradient(90deg,#fb923c,#f97316)}    /* orange */
-.slot.up .mini-fill{background:linear-gradient(90deg,#60a5fa,#3b82f6)}      /* blue */
-.slot.done .mini-fill{background:linear-gradient(90deg,#22c55e,#16a34a)}    /* green */
-.ends-in{font-size:0.9em; font-weight:800; color:#0b2249}
+/* (removed) per-slot mini progress; showing Ends-in near global progress bar instead */
 .badge{display:inline-block; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:900; border:1px solid}
 .badge.now{background:#eafff4; color:#0f7a56; border-color:#bfe7cf}
 .badge.up{background:#eef5ff; color:#17497f; border-color:#cfe0ff}
@@ -1283,7 +1278,6 @@ body.theme-dark .btn-secondary{
                     <span class="lg"><i class="sw now"></i> Now</span>
                     <span class="lg"><i class="sw up"></i> Upcoming</span>
                     <span class="lg"><i class="sw done"></i> Done</span>
-                    <span class="lg"><i class="sw free"></i> Free</span>
                   </div>
                 </div>
           </div>
@@ -1722,10 +1716,6 @@ function renderSchedule() {
         <div class="slot-inner">
           <div>
             <div class="time">${event.start} - ${event.end}</div>
-            <div class="mini-row">
-              <div class="mini-progress"><div class="mini-fill"></div></div>
-              <span class="ends-in"></span>
-            </div>
           </div>
           <div>
             <div class="cls">${event.name}</div>
@@ -1746,35 +1736,48 @@ function renderSchedule() {
 }
 
 function updateCountdowns() {
+  // Update the global status label and progress bar with 'Ends in' for the active period
   const now = getNow();
-  
-  // Update mini progress and 'Ends in' for the active period (including free periods)
-  document.querySelectorAll('#s_slots .slot').forEach(slot => {
-    const miniRow = slot.querySelector('.mini-row');
-    const fill = slot.querySelector('.mini-fill');
-    const endsIn = slot.querySelector('.ends-in');
-    if (!miniRow || !fill || !endsIn) return;
 
+  const slots = document.querySelectorAll('#s_slots .slot');
+  const fill = document.getElementById('s_progressFill');
+  const label = document.getElementById('s_currentLabel');
+
+  let found = false;
+  let currentName = '';
+  let endLabel = '';
+  let start = null;
+  let end = null;
+
+  for (const slot of slots) {
     const endTime = slot.getAttribute('data-end-time');
     const startTime = slot.getAttribute('data-start-time');
-    if (!endTime || !startTime) { miniRow.style.display = 'none'; return; }
+    if (!endTime || !startTime) continue;
 
-    const start = parseTimeToDate(now, startTime);
-    const end = parseTimeToDate(now, endTime);
-    const active = now >= start && now < end;
+    const s = parseTimeToDate(now, startTime);
+    const e = parseTimeToDate(now, endTime);
+    if (now >= s && now < e) {
+      found = true;
+      start = s; end = e;
+      currentName = slot.querySelector('.cls')?.textContent || 'Now';
+      endLabel = endTime;
+      break;
+    }
+  }
 
-    if (!active) { miniRow.style.display = 'none'; return; }
-
+  if (found && start && end) {
     const total = end - start;
     const elapsed = now - start;
     const pct = Math.max(0, Math.min(100, Math.round((elapsed / total) * 100)));
-    fill.style.width = pct + '%';
+    if (fill) fill.style.width = pct + '%';
 
     const remainingMs = end - now;
-    const minutes = Math.max(0, Math.floor(remainingMs / 60000));
-    endsIn.textContent = `Ends in ${minutes}m`;
-    miniRow.style.display = 'flex';
-  });
+    const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
+    if (label) label.textContent = `Now: ${currentName} — Ends at ${endLabel} — Ends in ${minutes}m`;
+  } else {
+    if (fill) fill.style.width = '0%';
+    if (label) label.textContent = '';
+  }
 }
 
 function updateProgressBar(entries, nowArg){
@@ -1795,7 +1798,9 @@ function updateProgressBar(entries, nowArg){
     const endD = parseTimeToDate(now, current.end);
     const pct = Math.round(((now - startD) / (endD - startD)) * 100);
     fill.style.width = pct + "%";
-    label.textContent = `Now: ${current.name} — Ends at ${current.end}`;
+    const remainingMs = endD - now;
+    const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
+    label.textContent = `Now: ${current.name} — Ends at ${current.end} — Ends in ${minutes}m`;
   } else {
     fill.style.width = "0%";
     label.textContent = '';
