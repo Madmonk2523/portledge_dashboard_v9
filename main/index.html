@@ -1616,7 +1616,7 @@ function renderSchedule() {
         <div class="time">${event.start} - ${event.end}</div>
         <div class="cls">${event.name}</div>
         <div class="meta">${event.teacher || ""}</div>
-        <div class="countdown" style="display:none; font-size:0.85em; color:#667eea; font-weight:600; margin-top:4px;"></div>
+        <div class="countdown" style="font-size:0.9em; font-weight:700; margin-top:6px; padding:4px 8px; background:rgba(102,126,234,0.15); border-radius:6px; display:inline-block;"></div>
       </div>
     `;
     fragment.appendChild(slot);
@@ -1633,10 +1633,10 @@ function renderSchedule() {
 
 function updateCountdowns() {
   const now = getNow();
-  const currentSlot = document.querySelector('#s_timeline .slot.now');
+  const currentSlot = document.querySelector('#s_slots .slot.now');
   
-  // Hide all countdowns first
-  document.querySelectorAll('.countdown').forEach(cd => cd.style.display = 'none');
+  // Clear all countdowns first
+  document.querySelectorAll('.countdown').forEach(cd => cd.textContent = '');
   
   if (currentSlot && !currentSlot.classList.contains('free')) {
     const endTime = currentSlot.getAttribute('data-end-time');
@@ -1650,7 +1650,8 @@ function updateCountdowns() {
       
       if (minutes >= 0 && seconds >= 0) {
         countdownEl.textContent = `⏱️ ${minutes}m ${seconds}s remaining`;
-        countdownEl.style.display = 'block';
+      } else {
+        countdownEl.textContent = '';
       }
     }
   }
