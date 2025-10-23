@@ -198,6 +198,11 @@ body.theme-dark .card, body.theme-dark .gcard, body.theme-dark .gpa, body.theme-
   border:1px solid rgba(102, 126, 234, 0.2); 
   box-shadow:0 15px 40px rgba(0,0,0,.5), 0 0 30px rgba(102, 126, 234, 0.1);
 }
+/* Grades page text tweaks */
+body.theme-dark .gsub{color:#9fb0d6}
+body.theme-dark .gpa-meta{color:#9fb0d6}
+body.theme-dark .gtitle{color:var(--ink)}
+body.theme-dark .ggrade{color:#8bb3ff}
 body.theme-dark .card:hover, body.theme-dark .gcard:hover{
   border-color:rgba(102, 126, 234, 0.4);
   box-shadow:0 20px 50px rgba(0,0,0,.6), 0 0 40px rgba(102, 126, 234, 0.2);
@@ -300,6 +305,17 @@ body.theme-dark .related-btn{
   background:rgba(102, 126, 234, 0.1);
   border:1px solid rgba(102, 126, 234, 0.3);
   color:var(--ink);
+}
+/* Grades buttons */
+body.theme-dark .gbtn{
+  background:rgba(15,23,41,0.8);
+  color:var(--ink);
+  border:1px solid rgba(102,126,234,0.3);
+}
+body.theme-dark .gbtn:hover{
+  background:rgba(102,126,234,0.25);
+  border-color:rgba(102,126,234,0.5);
+  box-shadow:0 0 20px rgba(102,126,234,0.35);
 }
 body.theme-dark .related-btn:hover{
   background:rgba(102, 126, 234, 0.25);
@@ -490,7 +506,24 @@ body.theme-dark .theme-toggle{
 .modal{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.35); z-index:1200}
 .modal.hidden{display:none}
 .modal .modal-content{width:min(560px,92vw); background:#fff; border-radius:14px; box-shadow:0 30px 60px rgba(0,0,0,.35); padding:16px}
-.modal .close-btn{float:right; border:1px solid #d5dcf0; background:#fff; border-radius:10px; padding:6px 10px; cursor:pointer; font-weight:800}
+.modal .close-btn{float:right; border:1px solid #d5dcf0; background:#fff; color:#0b2249; border-radius:10px; padding:6px 10px; cursor:pointer; font-weight:800}
+/* Dark mode modal */
+body.theme-dark .modal{background:rgba(0,0,0,.6)}
+body.theme-dark .modal .modal-content{
+  background:rgba(15,23,41,0.92);
+  border:1px solid rgba(102,126,234,0.3);
+  color:var(--ink);
+  box-shadow:0 40px 80px rgba(0,0,0,.7), 0 0 40px rgba(102,126,234,0.2);
+}
+body.theme-dark .modal .close-btn{
+  background:linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+  border:1px solid rgba(102,126,234,0.5);
+  color:#fff;
+}
+body.theme-dark .modal .close-btn:hover{
+  background:linear-gradient(135deg, rgba(102,126,234,0.35), rgba(118,75,162,0.35));
+  box-shadow:0 0 20px rgba(102,126,234,0.4);
+}
 
 
 /* ===== Login Overlay ===== */
