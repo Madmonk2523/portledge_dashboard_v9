@@ -2266,7 +2266,16 @@ function handleLogin() {
     
     route('student');
     initStudent();
+    // Prevent any flash of progress/status before school-hours check applies
+    try {
+      const wrap = document.querySelector('.day-progress-wrap');
+      if (wrap) wrap.style.display = 'none';
+      const statusBar = document.getElementById('s_status');
+      if (statusBar) statusBar.style.display = 'none';
+    } catch {}
+    // Render schedule, then immediately enforce school-hours visibility
     renderSchedule();  // ✅ Force schedule refresh right after login
+    startClockAndProgress("08:20", "15:30"); // ✅ Enforce 8:20–3:30 gating instantly on login
   } else {
     console.warn("❌ Invalid login");
     $('#loginCard').classList.remove('shake');
