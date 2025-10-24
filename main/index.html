@@ -2747,7 +2747,8 @@ function updateCountdowns() {
     const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
     
     if (isPassingTime) {
-      if (label) label.textContent = `🚶 Passing Time — ${minutes}m left`;
+      // Passing time: only reflect on progress bar, keep label empty per spec
+      if (label) label.textContent = '';
     } else {
       if (label) label.textContent = `${currentName} — ${minutes}m left`;
     }
@@ -2785,7 +2786,8 @@ function updateProgressBar(entries, nowArg){
     const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
     
     if (isPassingTime) {
-      label.textContent = `🚶 Passing Time — ${minutes}m left`;
+      // Passing time: keep label empty, progress bar still shows fill
+      label.textContent = '';
     } else {
       label.textContent = `${current.name} — ${minutes}m left`;
     }

@@ -1,7 +1,15 @@
 // Service Worker for Offline Functionality
-const CACHE_NAME = 'portledge-dashboard-v1';
+const CACHE_NAME = 'portledge-dashboard-v2';
 const urlsToCache = [
+  '/',
+  '/index.html',
   '/main/index.html',
+  '/main/api.js',
+  '/pantherbot/pantherbot.js',
+  '/pantherbot/handbook.js',
+  '/pantherbot/athleticsHandbook.js',
+  '/pantherbot/apiKey.js',
+  '/manifest.json',
   '/portledge_crest.png',
   '/portledge_crest.svg',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap'
@@ -39,39 +47,33 @@ self.addEventListener('activate', event => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
+  const req = event.request;
+
+  // Offline fallback for AI endpoint
+  if (req.method === 'POST' && new URL(req.url).pathname.startsWith('/api/chat')) {
+    event.respondWith(
+      fetch(req.clone()).catch(() => new Response(JSON.stringify({
+        error: 'offline',
+        message: 'Offline: PantherBot is unavailable without internet.'
+      }), { status: 503, headers: { 'Content-Type': 'application/json' } }))
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
+    caches.match(req).then(cached => {
+      if (cached) return cached;
+      return fetch(req.clone()).then(res => {
+        // Only cache same-origin GET successful responses
+        if (req.method === 'GET' && res && res.status === 200) {
+          const url = new URL(req.url);
+          if (url.origin === location.origin) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(req, copy)).catch(()=>{});
+          }
         }
-
-        // Clone the request
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(response => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          // Only cache GET requests
-          if (event.request.method === 'GET') {
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-          }
-
-          return response;
-        }).catch(() => {
-          // Network failed, return offline page if available
-          return caches.match('/main/index.html');
-        });
-      })
+        return res;
+      }).catch(() => caches.match('/main/index.html'));
+    })
   );
 });
