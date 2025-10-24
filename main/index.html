@@ -3563,10 +3563,12 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
       let label = '';
       if (nowSlot){
         const cls = nowSlot.querySelector('.cls')?.textContent || 'Now';
-        label = `Now: ${cls}`;
+        const time = nowSlot.querySelector('.time')?.textContent || '';
+        label = time ? `${cls} ${time}` : cls;
       } else if (upSlot){
         const cls = upSlot.querySelector('.cls')?.textContent || 'Upcoming';
-        label = `Next: ${cls}`;
+        const time = upSlot.querySelector('.time')?.textContent || '';
+        label = time ? `${cls} ${time}` : cls;
       }
       if (label){
         chip.classList.remove('hidden');
