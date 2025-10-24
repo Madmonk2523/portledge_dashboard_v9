@@ -2172,6 +2172,7 @@ body.theme-dark .btn-secondary{
   <button class="signout" id="signOutStudent">Sign Out</button>
   <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-pressed="false">Dark Mode</button>
   <button id="customizeDashboardBtn" class="theme-toggle" title="Customize" style="margin-left:8px">⚙️ Customize</button>
+  <button id="tempSettingsBtn" class="theme-toggle" title="Temp Settings" style="margin-left:8px">⏱️ Temp</button>
 </div>
 
 
@@ -3808,6 +3809,61 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
 
 <script type="module" src="../pantherbot/pantherbot.js?v=20251023v51ultra"></script>
 
+<script>
+  // ===== Temp Settings Logic =====
+  function openTempModal(){
+    const m=document.getElementById('tempModal'); if(!m) return; m.classList.remove('hidden'); m.setAttribute('aria-hidden','false');
+    // Prefill
+    const o = localStorage.getItem('pd_time_override');
+    const inp = document.getElementById('tempOverride');
+    const status = document.getElementById('tempStatus');
+    if (o && inp) {
+      const dt = new Date(o);
+      if (!isNaN(dt.getTime())) {
+        // Convert to local datetime-local value (YYYY-MM-DDTHH:mm)
+        const pad=n=>String(n).padStart(2,'0');
+        const val = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+        inp.value = val;
+        status.textContent = `Override active: ${dt.toLocaleString()}`;
+      }
+    } else if (status) {
+      status.textContent = 'No override active.';
+    }
+  }
+  function closeTempModal(){ const m=document.getElementById('tempModal'); if(!m) return; m.classList.add('hidden'); m.setAttribute('aria-hidden','true'); }
+  function setTempNow(){
+    const inp = document.getElementById('tempOverride');
+    if(!inp) return;
+    const now = new Date();
+    const pad=n=>String(n).padStart(2,'0');
+    const val = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    inp.value = val;
+  }
+  function applyTempOverride(){
+    const inp = document.getElementById('tempOverride');
+    const status = document.getElementById('tempStatus');
+    if(!inp || !inp.value){ alert('Pick a date and time'); return; }
+    const iso = new Date(inp.value).toISOString();
+    localStorage.setItem('pd_time_override', iso);
+    if (status) status.textContent = `Override active: ${new Date(iso).toLocaleString()}`;
+    // Refresh schedule/progress immediately
+    try { renderSchedule(); } catch {}
+    try { updateCountdowns(); } catch {}
+  }
+  function clearTempOverride(){
+    localStorage.removeItem('pd_time_override');
+    const status = document.getElementById('tempStatus'); if (status) status.textContent = 'No override active.';
+    try { renderSchedule(); } catch {}
+    try { updateCountdowns(); } catch {}
+  }
+  
+  // Wire header button
+  window.addEventListener('DOMContentLoaded', ()=>{
+    const btn = document.getElementById('tempSettingsBtn');
+    if (btn && !btn.__bound){ btn.__bound = true; btn.addEventListener('click', openTempModal); }
+  });
+</script>
+
 <!-- CUSTOMIZATION MODAL -->
 <div id="customizeModal" class="modal" style="display:none">
   <div class="modal-content">
@@ -3853,6 +3909,30 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
 </div>
 
 <button id="backToTop" aria-label="Back to top">↑ Top</button>
+
+<!-- TEMP SETTINGS MODAL -->
+<div id="tempModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>⏱️ Temp Settings</h2>
+      <button class="modal-close" onclick="closeTempModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="customize-section">
+        <h3>Override Current Time</h3>
+        <p class="meta">Set a temporary date/time so the schedule behaves as if it's that moment.</p>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px">
+          <input type="datetime-local" id="tempOverride" class="input" />
+          <button class="btn" type="button" onclick="setTempNow()">Set Now</button>
+          <button class="btn" type="button" onclick="applyTempOverride()">Apply</button>
+          <button class="btn" type="button" onclick="clearTempOverride()">Clear</button>
+        </div>
+        <div class="meta" id="tempStatus" style="margin-top:6px;">No override active.</div>
+      </div>
+    </div>
+  </div>
+  
+</div>
 </body>
 </html>
 
