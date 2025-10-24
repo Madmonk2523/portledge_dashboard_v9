@@ -14,7 +14,8 @@ const PORTLEDGE_KB = {
     earlyDismissal: "Early dismissal days end at 12:30 PM.",
     lateStart: "Late start days begin at 10:00 AM.",
     delayedOpening: "On delayed opening days, periods are shortened but all classes and advisories meet in their usual order. Middle and Upper School follow the myPortledge schedule. Lower School and Early Childhood report to Homeroom.",
-    classDurations: "MONDAY: All classes are 40 minutes. TUESDAY-FRIDAY: Most classes are 50 minutes, some are 70 minutes (typically major subjects like lab sciences, language classes, or PE)."
+    classDurations: "MONDAY: All classes are 40 minutes so students can attend EVERY class in one day. TUESDAY-FRIDAY: Most classes are 50 minutes, some are 70 minutes (typically major subjects like lab sciences, language classes, or PE).",
+    mondayExplanation: "Monday uses 40-minute periods to fit all classes into one day, ensuring students see every teacher and course each week. This rotation schedule helps maintain consistency and prevents students from missing the same class repeatedly."
   },
   
   weatherPolicy: {
@@ -588,10 +589,10 @@ PORTLEDGE HANDBOOK KNOWLEDGE:
 ${context}
 
 SCHEDULE TIMING RULES (CRITICAL):
-• MONDAY: All classes are 40 minutes long
+• MONDAY: All classes are 40 minutes long so students can attend EVERY class in one day
 • TUESDAY-FRIDAY: Most classes are 50 minutes, some are 70 minutes (major subjects like lab sciences, languages, PE)
 • When answering schedule questions, ALWAYS reference the REAL-TIME CONTEXT above which shows exact times
-• For class duration questions, cite the Monday=40min, Tues-Fri=50/70min rule
+• For class duration questions, cite the Monday=40min (to fit all classes), Tues-Fri=50/70min rule
 
 INTELLIGENCE RULES:
 - For "my next class" or "my schedule" questions → Use REAL-TIME CONTEXT above with exact times
@@ -609,8 +610,9 @@ EXAMPLES:
 ❓ "What's my next class?" → Check NEXT CLASS and give specific answer with time
 ❓ "How am I doing in Math?" → Check CURRENT GRADES and give their actual grade
 ❓ "What are school hours?" → "School runs 8:20 AM - 3:30 PM."
-❓ "How long are classes on Monday?" → "All Monday classes are 40 minutes."
-❓ "How long are classes?" → "Monday classes are 40 minutes. Tuesday-Friday classes are 50 or 70 minutes."
+❓ "How long are classes on Monday?" → "All Monday classes are 40 minutes so you can attend every class in one day."
+❓ "How long are classes?" → "Monday classes are 40 minutes (to fit all classes). Tuesday-Friday classes are 50 or 70 minutes."
+❓ "Why are Monday classes shorter?" → "Monday uses 40-minute periods so students can attend every single class in one day."
 
 You're not just a handbook - you're a SMART assistant who knows THIS student's live info!`;
 
