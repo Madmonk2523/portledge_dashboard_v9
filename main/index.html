@@ -710,19 +710,18 @@ body.theme-dark .theme-toggle{
 .weekend h3{margin:0 0 8px 0; font-size:1.3rem}
 .weekend .sub{color:#6a7690}
 
-/* Mini current class card */
+/* Mini current class card — identical styling to main slot */
 .slot-mini{
-  margin:0; display:inline-flex; align-items:center; vertical-align:middle;
-  border-radius:14px; transform:none; box-shadow:0 3px 10px rgba(0,0,0,.06);
-  background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border:1px solid #e2e8f0; overflow:hidden; padding-left:46px; max-width:520px
+  position:relative; padding-left:70px; margin:6px 0; /* tighter vertical for header */
+  border:2px solid #e2e8f0; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius:24px; box-shadow:0 8px 20px rgba(0,0,0,.08);
+  transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow:hidden;
+  display:block; flex:0 1 680px; max-width:680px;
 }
-.slot-mini .slot-inner{grid-template-columns:110px 1fr; gap:12px; padding:10px 14px}
-.slot-mini .time{font-size:.95rem}
-.slot-mini .cls{font-size:1rem; font-weight:600}
-.slot-mini .meta{font-size:.85rem; margin-top:2px}
-.slot-mini .dot{left:14px; width:12px; height:12px}
-.slot-mini::before{border-radius:14px 0 0 14px}
+/* Use the same grid and typography as main slot (inherit global .slot-inner, .time, .cls, .meta) */
+/* No overrides needed for .slot-mini .slot-inner/.time/.cls/.meta */
+/* Dot uses global sizing/position */
+.slot-mini::before{border-radius:24px 0 0 24px}
 .slot-mini.hidden{display:none!important}
 
 /* Big date + day navigation - Premium upgrade */
@@ -2206,9 +2205,18 @@ body.theme-dark .btn-secondary{
       <section class="panel">
         <div class="p-body">
           <div class="summary">
-                <div class="day-progress-area" style="display:flex;align-items:center;gap:10px;flex:1">
-                  <!-- Mini current class card (top-left) -->
-                  <div id="miniCurrent" class="slot slot-mini hidden">
+                <div class="day-progress-area" style="display:flex;align-items:center;gap:12px;flex:1">
+                  <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
+                    <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
+                    <!-- Blank space for future content -->
+                  </div>
+                  <div class="legend" style="margin-left:auto;">
+                    <span class="lg"><i class="sw now"></i> Now</span>
+                    <span class="lg"><i class="sw up"></i> Upcoming</span>
+                    <span class="lg"><i class="sw done"></i> Done</span>
+                  </div>
+                  <!-- Mini current class card (top-right) -->
+                  <div id="miniCurrent" class="slot slot-mini hidden" style="margin-left:12px;">
                     <div class="dot"></div>
                     <div class="slot-inner">
                       <div>
@@ -2219,15 +2227,6 @@ body.theme-dark .btn-secondary{
                         <div class="meta" id="miniMeta"></div>
                       </div>
                     </div>
-                  </div>
-                  <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
-                    <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
-                    <!-- Blank space for future content -->
-                  </div>
-                  <div class="legend" style="margin-left:auto;">
-                    <span class="lg"><i class="sw now"></i> Now</span>
-                    <span class="lg"><i class="sw up"></i> Upcoming</span>
-                    <span class="lg"><i class="sw done"></i> Done</span>
                   </div>
                 </div>
           </div>
