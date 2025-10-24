@@ -2649,29 +2649,6 @@ function updateProgressBar(entries, nowArg){
     setInterval(updateClock, 15000); // Update every 15s for timely show/hide within school hours
   }
 
-  // Temporary settings button (removable) — allows setting override date/time for testing
-  (function(){
-    const btn = document.createElement('button');
-    btn.textContent = 'Temp Settings'; btn.id='tempSettingsBtn'; btn.className='btn';
-    btn.style.position='fixed'; btn.style.right='14px'; btn.style.bottom='14px'; btn.style.zIndex=2000;
-    document.body.appendChild(btn);
-    const modal = document.createElement('div'); modal.className='modal hidden'; modal.id='tempSettingsModal';
-    modal.innerHTML = `<div class="modal-content"><button id="closeTempSettings" class="close-btn">Close</button><h3>Time Override</h3>
-      <div style="margin-top:8px">Set current date/time for testing:</div>
-      <input id="overrideDt" type="datetime-local" class="input" style="width:100%;margin-top:8px" />
-      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="saveOverride" class="btn primary">Save</button><button id="clearOverride" class="btn">Clear</button></div>
-    </div>`;
-    document.body.appendChild(modal);
-    btn.onclick = ()=>{ modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); };
-    document.getElementById('closeTempSettings').onclick = ()=>{ modal.classList.add('hidden'); modal.setAttribute('aria-hidden','true'); };
-    document.getElementById('saveOverride').onclick = ()=>{
-      const v = document.getElementById('overrideDt').value; if(!v) return alert('Set datetime');
-      try{ localStorage.setItem('pd_time_override', new Date(v).toISOString()); alert('Saved override'); modal.classList.add('hidden'); renderSchedule(); startClockAndProgress("08:20","15:30"); }catch(e){alert('Failed');}
-    };
-    document.getElementById('clearOverride').onclick = ()=>{ localStorage.removeItem('pd_time_override'); alert('Cleared'); renderSchedule(); startClockAndProgress("08:20","15:30"); };
-  })();
-
-
 /* ===== Helpers ===== */
 // $ and $$ already defined at top of script
 const fmtHM = new Intl.DateTimeFormat([], {hour:'numeric', minute:'2-digit'});
@@ -3515,15 +3492,28 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
       const chip = document.getElementById('nextUp');
       const chipText = document.getElementById('nextUpText');
       if (!chip || !chipText) return;
-      // Only show Next/Now for TODAY. If viewing other days, hide.
+      
+      // Only show Next/Now for TODAY during school hours (8:20 AM - 3:30 PM)
       try {
         if (typeof offset !== 'undefined' && offset !== 0){ chip.classList.add('hidden'); return; }
       } catch {}
-      const weekend = document.getElementById('s_weekend');
-      if (weekend && weekend.style.display !== 'none') { chip.classList.add('hidden'); return; }
+      
+      // Check if we're during school hours
+      const now = getNow();
+      const [sH, sM] = [8, 20]; // 8:20 AM
+      const [eH, eM] = [15, 30]; // 3:30 PM
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sH, sM, 0, 0);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eH, eM, 0, 0);
+      const isOpen = now >= start && now <= end && !weekend(now);
+      
+      // Hide if not during school hours
+      if (!isOpen) { chip.classList.add('hidden'); return; }
+      
+      const weekendEl = document.getElementById('s_weekend');
+      if (weekendEl && weekendEl.style.display !== 'none') { chip.classList.add('hidden'); return; }
+      
       const nowSlot = document.querySelector('#s_timeline .slot.now');
-  // Consider the next upcoming slot (no special handling for free periods)
-  const upSlot  = document.querySelector('#s_timeline .slot.up');
+      const upSlot  = document.querySelector('#s_timeline .slot.up');
       let label = '';
       if (nowSlot){
         const cls = nowSlot.querySelector('.cls')?.textContent || 'Now';
