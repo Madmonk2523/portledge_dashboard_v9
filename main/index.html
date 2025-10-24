@@ -14,6 +14,8 @@
 <meta name="apple-mobile-web-app-title" content="Portledge"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="format-detection" content="telephone=no"/>
+<link rel="manifest" href="../manifest.json"/>
+<link rel="apple-touch-icon" href="../portledge_crest.png"/>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -86,6 +88,45 @@
   --good:#1fa86a; --info:#4f87c7; --done:#9aa6bf;
   --radius:14px; --shadow:0 10px 28px rgba(10,20,40,.08); --ease:cubic-bezier(.4,0,.2,1);
 }
+
+/* ===== Visual Polish Enhancements ===== */
+@keyframes fadeIn{0%{opacity:0; transform:translateY(10px)}100%{opacity:1; transform:translateY(0)}}
+@keyframes slideInRight{0%{opacity:0; transform:translateX(30px)}100%{opacity:1; transform:translateX(0)}}
+@keyframes scaleIn{0%{opacity:0; transform:scale(0.95)}100%{opacity:1; transform:scale(1)}}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes ripple{0%{transform:scale(0); opacity:1}100%{transform:scale(4); opacity:0}}
+
+/* Smooth page transitions */
+.page{animation:fadeIn 0.4s var(--ease)}
+.tab{animation:scaleIn 0.3s var(--ease); animation-fill-mode:backwards}
+.tab:nth-child(1){animation-delay:0.05s}
+.tab:nth-child(2){animation-delay:0.1s}
+.tab:nth-child(3){animation-delay:0.15s}
+.tab:nth-child(4){animation-delay:0.2s}
+.tab:nth-child(5){animation-delay:0.25s}
+
+/* Enhanced button interactions */
+.btn:active, .daybtn:active{transform:translateY(0) scale(0.98) !important}
+.tab:active{transform:scale(0.95)}
+
+/* Subtle gradient animation on login screen */
+#login{animation:shimmer 20s linear infinite; background-size:200% 100%}
+
+/* Card hover glow */
+.slot:hover::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:24px;
+  background:linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,197,253,0.05));
+  pointer-events:none;
+  opacity:0;
+  animation:fadeIn 0.3s forwards;
+}
+
+/* Smooth theme transition */
+body{transition:background 0.6s var(--ease), color 0.6s var(--ease)}
+
 *{box-sizing:border-box} html,body{height:100%}
 body{
   margin:0;
@@ -95,12 +136,14 @@ body{
   -webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
+  scroll-behavior:smooth;
   /* iPhone safe area support */
   padding-top:env(safe-area-inset-top);
   padding-bottom:env(safe-area-inset-bottom);
   padding-left:env(safe-area-inset-left);
   padding-right:env(safe-area-inset-right);
 }
+html{scroll-behavior:smooth}
 :focus-visible{outline:3px solid #94b0ff; outline-offset:3px; border-radius:8px}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 
@@ -590,10 +633,24 @@ body.theme-dark .theme-toggle{
 .signout{border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:#fff; padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer}
 
 /* ===== Tabs ===== */
-.nav{position:sticky; top:58px; z-index:95; display:flex; gap:8px; padding:8px 12px; background:#fff; border-bottom:1px solid var(--rail)}
-.tab{padding:8px 12px; border-radius:999px; border:1px solid var(--rail); background:#fff; cursor:pointer; font-weight:800; color:#0b2249}
-.tab:hover{background:#f5f7fb}
-.tab.active{background:linear-gradient(90deg,var(--navy),var(--navy-2)); color:#fff; border-color:transparent}
+.nav{position:sticky; top:58px; z-index:95; display:flex; gap:8px; padding:8px 12px; background:#fff; border-bottom:1px solid var(--rail); backdrop-filter:blur(10px); box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.tab{padding:8px 12px; border-radius:999px; border:1px solid var(--rail); background:#fff; cursor:pointer; font-weight:800; color:#0b2249; transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position:relative; overflow:hidden}
+.tab::after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:50%;
+  width:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--navy),var(--navy-2));
+  transform:translateX(-50%);
+  transition:width 0.3s ease;
+  border-radius:3px 3px 0 0;
+}
+.tab:hover{background:#f5f7fb; transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.tab:hover::after{width:80%}
+.tab.active{background:linear-gradient(90deg,var(--navy),var(--navy-2)); color:#fff; border-color:transparent; box-shadow:0 4px 16px rgba(0,51,102,0.3)}
+.tab.active::after{width:0}
 
 /* ===== Pages ===== */
 .page{min-height:calc(100dvh - 120px); padding:18px 12px 18px; display:none}
@@ -677,7 +734,8 @@ body.theme-dark .theme-toggle{
 .input:focus, select:focus{
   outline:none;
   border-color:#3b82f6;
-  box-shadow:0 0 0 3px rgba(59,130,246,0.1), 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow:0 0 0 4px rgba(59,130,246,0.15), 0 4px 16px rgba(59,130,246,0.2), 0 8px 24px rgba(0,0,0,0.1);
+  transform:translateY(-1px);
 }
 .btn{
   border:2px solid #e2e8f0;
@@ -717,12 +775,27 @@ body.theme-dark .theme-toggle{
   grid-template-columns:1fr 120px 110px 80px;
   gap:14px;
   align-items:center;
-  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(59,130,246,0.1), transparent);
+  transition:left 0.6s ease;
+}
+.card:hover::before{
+  left:100%;
 }
 .card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 8px 24px rgba(0,0,0,0.12);
-  border-color:#cbd5e1;
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 12px 32px rgba(0,0,0,0.14), 0 0 0 1px rgba(59,130,246,0.1);
+  border-color:#93c5fd;
 }
 @media(max-width:900px){.card{grid-template-columns:1fr 110px 100px}}
 @media(max-width:640px){.card{grid-template-columns:1fr}}
@@ -736,10 +809,19 @@ body.theme-dark .theme-toggle{
   font-weight:800;
   border:2px solid;
   letter-spacing:0.02em;
+  transition:all 0.3s ease;
+  cursor:default;
+}
+.tag:hover{
+  transform:scale(1.05);
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 .tag.open{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.tag.open:hover{background:#fee2e2;box-shadow:0 4px 12px rgba(220,38,38,0.2)}
 .tag.doing{background:#fefce8;color:#ca8a04;border-color:#fef08a}
+.tag.doing:hover{background:#fef3c7;box-shadow:0 4px 12px rgba(202,138,4,0.2)}
 .tag.done{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+.tag.done:hover{background:#dcfce7;box-shadow:0 4px 12px rgba(22,163,74,0.2)}
 
 .gpa{
   display:flex;
@@ -2535,7 +2617,33 @@ function renderSchedule() {
 
   let nowAssigned = false;
   const fragment = document.createDocumentFragment(); // Use fragment for batch DOM insert
-  entries.forEach(event => {
+  
+  // ===== PASSING TIME DETECTION =====
+  // Detect 3-minute gaps between classes and insert invisible passing time periods
+  const enhancedEntries = [];
+  for (let i = 0; i < entries.length; i++) {
+    enhancedEntries.push(entries[i]);
+    
+    // Check if there's a next class
+    if (i < entries.length - 1) {
+      const currentEnd = parseTimeToDate(date, entries[i].end);
+      const nextStart = parseTimeToDate(date, entries[i + 1].start);
+      const gapMinutes = Math.round((nextStart - currentEnd) / 60000);
+      
+      // If gap is exactly 3 minutes, insert passing time (invisible card, visible in progress bar)
+      if (gapMinutes === 3) {
+        enhancedEntries.push({
+          name: '🚶 Passing Time',
+          start: entries[i].end,
+          end: entries[i + 1].start,
+          teacher: '',
+          isPassingTime: true // Flag for special rendering
+        });
+      }
+    }
+  }
+  
+  enhancedEntries.forEach(event => {
     const slot = document.createElement("div");
     const startD = parseTimeToDate(date, event.start);
     const endD = parseTimeToDate(date, event.end);
@@ -2548,6 +2656,18 @@ function renderSchedule() {
       // For non-today views, just show timeline state without special free-period styling
       if (offset > 0) cls = 'up';
       else cls = 'done';
+    }
+
+    // ===== PASSING TIME: Don't render card, but it exists for progress bar calculation =====
+    if (event.isPassingTime) {
+      // Create invisible marker element for progress bar calculation only
+      slot.className = `slot ${cls} passing-time-marker`;
+      slot.style.display = 'none'; // Completely hidden from view
+      slot.setAttribute('data-end-time', event.end);
+      slot.setAttribute('data-start-time', event.start);
+      slot.setAttribute('data-passing-time', 'true');
+      fragment.appendChild(slot);
+      return; // Don't render visual card
     }
 
       // No 'Starts in' text; we'll render a mini progress + 'Ends in' only for current period via updater
@@ -2571,7 +2691,7 @@ function renderSchedule() {
   });
   container.appendChild(fragment); // Single DOM operation instead of multiple
   // update the small progress / now indicator only for today
-  if(showProgress && now) updateProgressBar(entries, now);
+  if(showProgress && now) updateProgressBar(enhancedEntries, now);
 
   // Start countdown timer for current class
   if(showProgress) updateCountdowns();
@@ -2592,10 +2712,12 @@ function updateCountdowns() {
   let endLabel = '';
   let start = null;
   let end = null;
+  let isPassingTime = false;
 
   for (const slot of slots) {
     const endTime = slot.getAttribute('data-end-time');
     const startTime = slot.getAttribute('data-start-time');
+    const isPassing = slot.getAttribute('data-passing-time') === 'true';
     if (!endTime || !startTime) continue;
 
     const s = parseTimeToDate(now, startTime);
@@ -2603,7 +2725,13 @@ function updateCountdowns() {
     if (now >= s && now < e) {
       found = true;
       start = s; end = e;
-      currentName = slot.querySelector('.cls')?.textContent || 'Now';
+      isPassingTime = isPassing;
+      
+      if (isPassing) {
+        currentName = '🚶 Passing Time';
+      } else {
+        currentName = slot.querySelector('.cls')?.textContent || 'Now';
+      }
       endLabel = endTime;
       break;
     }
@@ -2617,7 +2745,12 @@ function updateCountdowns() {
 
     const remainingMs = end - now;
     const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
-    if (label) label.textContent = `${currentName} — ${minutes}m left`;
+    
+    if (isPassingTime) {
+      if (label) label.textContent = `🚶 Passing Time — ${minutes}m left`;
+    } else {
+      if (label) label.textContent = `${currentName} — ${minutes}m left`;
+    }
   } else {
     if (fill) fill.style.width = '0%';
     if (label) label.textContent = '';
@@ -2628,10 +2761,16 @@ function updateProgressBar(entries, nowArg){
   const now = nowArg || getNow();
 
   let current = null, currentIdx = -1;
+  let isPassingTime = false;
+  
   entries.forEach((ev, i) => {
     const startD = parseTimeToDate(now, ev.start);
     const endD = parseTimeToDate(now, ev.end);
-    if (now >= startD && now < endD) { current = ev; currentIdx = i; }
+    if (now >= startD && now < endD) { 
+      current = ev; 
+      currentIdx = i;
+      isPassingTime = ev.isPassingTime || false;
+    }
   });
 
   const fill = document.getElementById("s_progressFill");
@@ -2644,7 +2783,12 @@ function updateProgressBar(entries, nowArg){
     fill.style.width = pct + "%";
     const remainingMs = endD - now;
     const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
-    label.textContent = `${current.name} — ${minutes}m left`;
+    
+    if (isPassingTime) {
+      label.textContent = `🚶 Passing Time — ${minutes}m left`;
+    } else {
+      label.textContent = `${current.name} — ${minutes}m left`;
+    }
   } else {
     fill.style.width = "0%";
     label.textContent = '';
@@ -3606,6 +3750,56 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
   window.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#nav-student .tab[data-page='s-schedule']").click();
   });
+
+  // ===== Service Worker Registration for Offline Support =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('../sw.js')
+        .then(registration => {
+          console.log('✅ Service Worker registered successfully:', registration.scope);
+          
+          // Check for updates every 5 minutes
+          setInterval(() => {
+            registration.update();
+          }, 5 * 60 * 1000);
+        })
+        .catch(error => {
+          console.log('❌ Service Worker registration failed:', error);
+        });
+    });
+
+    // Handle offline/online status
+    window.addEventListener('online', () => {
+      console.log('🌐 Back online');
+      const offlineIndicator = document.getElementById('offlineIndicator');
+      if (offlineIndicator) offlineIndicator.remove();
+    });
+
+    window.addEventListener('offline', () => {
+      console.log('📡 Offline mode activated');
+      // Show offline indicator
+      if (!document.getElementById('offlineIndicator')) {
+        const indicator = document.createElement('div');
+        indicator.id = 'offlineIndicator';
+        indicator.innerHTML = '📡 Offline Mode';
+        indicator.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #fbbf24, #f59e0b);
+          color: #78350f;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-weight: 800;
+          font-size: 14px;
+          box-shadow: 0 8px 24px rgba(251,191,36,0.4);
+          z-index: 10000;
+          animation: slideInRight 0.4s ease;
+        `;
+        document.body.appendChild(indicator);
+      }
+    });
+  }
 </script>
 
 <script type="module" src="../pantherbot/pantherbot.js?v=20251023v51ultra"></script>
