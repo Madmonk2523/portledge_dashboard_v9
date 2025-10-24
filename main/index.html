@@ -2743,6 +2743,7 @@ function updateCountdowns() {
   let found = false;
   let currentName = '';
   let endLabel = '';
+  let startLabel = '';
   let start = null;
   let end = null;
   let isPassingTime = false;
@@ -2759,6 +2760,7 @@ function updateCountdowns() {
       found = true;
       start = s; end = e;
       isPassingTime = isPassing;
+      startLabel = startTime;
       
       if (isPassing) {
         currentName = '🚶 Passing Time';
@@ -2801,7 +2803,7 @@ function updateCountdowns() {
         const currentSlot = Array.from(slots).find(s=>{
           const sText = s.getAttribute('data-start-time');
           const eText = s.getAttribute('data-end-time');
-          return sText===startTime && eText===endLabel;
+          return sText===startLabel && eText===endLabel;
         }) || null;
         const metaText = currentSlot?.querySelector('.meta')?.textContent || '';
         mMeta.textContent = metaText;

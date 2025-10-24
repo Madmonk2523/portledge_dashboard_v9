@@ -389,8 +389,7 @@ function resetPantherBot(){
   if (cm) {
     cm.innerHTML = '';
     addMessage('bot', '👋 Hey there! I\'m PantherBot, your friendly Portledge assistant. Ask me anything about:\n• School rules & policies 📚\n• Athletics & sports 🏀\n• Dress code 👕\n• Academic requirements 📝\n\nWhat can I help you with today?');
-    // Refresh quick prompts with new random ones
-    showQuickPrompts();
+    // Quick prompts removed (now using randomized input prompts)
   }
 }
 
@@ -775,42 +774,12 @@ function initPantherBot() {
     voiceBtn.style.display = 'none';
   }
   
-  // Show quick prompts on load
-  showQuickPrompts();
+  // Quick prompts removed (now using randomized input prompts)
   
   loadHandbooks().then(() => getChunks());
 }
 
-// Display quick chat prompts
-function showQuickPrompts() {
-  const chatMessages = document.getElementById('chatMessages');
-  if (!chatMessages) return;
-  
-  // Clear existing prompts
-  const existing = chatMessages.querySelector('.quick-prompts-container');
-  if (existing) existing.remove();
-  
-  const container = document.createElement('div');
-  container.className = 'quick-prompts-container';
-  container.innerHTML = '<div class="quick-prompts-label">💡 Quick questions:</div>';
-  
-  const prompts = getRandomPrompts(6);
-  prompts.forEach(prompt => {
-    const btn = document.createElement('button');
-    btn.className = 'quick-prompt-btn';
-    btn.textContent = prompt;
-    btn.addEventListener('click', () => {
-      const input = document.getElementById('userInput');
-      const send = document.getElementById('sendBtn');
-      if (input && send) {
-        input.value = prompt;
-        send.click();
-      }
-    });
-    container.appendChild(btn);
-  });
-  
-  chatMessages.insertBefore(container, chatMessages.firstChild);
-}
+// Quick prompts removed per request (now using randomized prompts in chat input)
+// function showQuickPrompts() removed
 
 document.addEventListener('DOMContentLoaded', () => { loadHistory(); initPantherBot(); });
