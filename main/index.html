@@ -2294,6 +2294,11 @@ const $$ = s => [...document.querySelectorAll(s)];
 // === STATIC WEEKLY SCHEDULE (clean, non-overlapping, 12-hour times) ===
 // Rule: “Free Period” only if the gap is >= 30 min. Lunches that overlap a class are removed.
 const weeklySchedule = {
+  // ===== SCHEDULE TIMING STRUCTURE =====
+  // MONDAY: All classes are 40 minutes
+  // TUESDAY-FRIDAY: Most classes are 50 minutes, some are 70 minutes (lab sciences, languages, PE)
+  // =====================================
+  
   Monday: [
     { start: "8:20 AM", end: "9:00 AM", name: "History 10: Modern European History - 1", teacher: "Robert Liberto — Commons C306" },
     { start: "9:00 AM", end: "9:46 AM", name: "Free Period" },
