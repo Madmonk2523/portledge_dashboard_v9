@@ -1,11 +1,156 @@
-﻿// === PantherBot v5 — Fast, Concise, Smart Answers ===
-// Updated: 2025-10-23 - Removed citations, optimized for speed & brevity
-console.log('⚡ PantherBot v5.0 LOADED - LIGHTNING FAST & PRECISE! ⚡');
+﻿// === PantherBot v6 — EXTRA SMART with Context Awareness ===
+// Updated: 2025-10-24 - Added schedule/grade context, enhanced intelligence
+console.log('⚡ PantherBot v6.0 LOADED - CONTEXT-AWARE & SUPER SMART! ⚡');
 
 // Lazy-load both handbooks
 let studentHandbook = null, athleticsHandbook = null;
 let studentHandbookUrl = null, athleticsHandbookUrl = null;
 let handbooksLoading = false;
+
+// ===== PORTLEDGE KNOWLEDGE BASE =====
+// Updated with inclement weather policy and dress code (Oct 2025)
+const PORTLEDGE_KB = {
+  bellSchedule: {
+    regular: "School runs 8:20 AM - 3:30 PM. Classes are 50 minutes each.",
+    earlyDismissal: "Early dismissal days end at 12:30 PM.",
+    lateStart: "Late start days begin at 10:00 AM.",
+    delayedOpening: "On delayed opening days, periods are shortened but all classes and advisories meet in their usual order. Middle and Upper School follow the myPortledge schedule. Lower School and Early Childhood report to Homeroom."
+  },
+  
+  weatherPolicy: {
+    notification: "School closures announced by 6 AM via email, text, phone, website banner, myPortledge, and News12 Long Island.",
+    snowDays: "After the first 'grace' snow day, instruction continues online for grades 1-12. Pre-Nursery through Kindergarten receive educational activities. Lower School uses Google Classroom (grades 1-5).",
+    afterSchool: "If inclement weather expected after 3:30 PM, families notified by 12 PM about cancellation of after-school activities, athletics, and games.",
+    transportation: "If your district bus is delayed but Portledge is not, call your district to confirm pickup. No academic penalty for bus-related lateness.",
+    localWeather: "If unsafe to travel due to local neighborhood weather conditions, no academic penalty for absence. Teachers should notify directors if unable to attend due to local weather."
+  },
+  
+  dressCode9to12: {
+    regularDays: {
+      allowed: "Collared shirts (short/long sleeve), dresses (mid-thigh+, no bare shoulders), sweaters/cardigans over collared shirts, solid pants (no jeans), skorts/skirts (mid-thigh+), solid Bermuda shorts, leggings only with above items, dress shoes/sneakers",
+      prohibited: "Political clothing, torn clothing, transparent clothing, military imagery, violence/illegal content, outerwear without clasps"
+    },
+    friday: "Dress-down Fridays allow Portledge athletic gear and casual attire. Must be in good repair. NO hats, torn clothing, pajamas, military imagery, political clothing, violence imagery.",
+    formal: {
+      eveningPerformances: "Navy pants/skirt with white Portledge shirt/blouse and dress shoes",
+      awards: "Business casual - blazers, ties, button-downs with dress pants OR collared blouses with skirts/dresses",
+      graduation: "Navy blazer with white pants and Portledge tie OR white dress OR navy/white pantsuit"
+    },
+    pantherDen: "The Panther Den sells approved items but not all Panther Den items are dress-code compliant. Questions go to Dean of Students."
+  },
+  
+  contactInfo: {
+    address: "355 Duck Pond Road, Locust Valley, NY 11560",
+    phone: "516.750.3100",
+    website: "www.portledge.org"
+  }
+};
+
+// ===== CONTEXT GATHERING =====
+// Extract student's current schedule, grades, and real-time info
+function getStudentContext() {
+  const context = {
+    currentTime: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+    currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+    schedule: null,
+    nextClass: null,
+    currentClass: null,
+    grades: null,
+    recentActivity: null
+  };
+  
+  try {
+    // Get current/next class from the Next chip
+    const nextUpText = document.getElementById('nextUpText')?.textContent;
+    if (nextUpText && !nextUpText.includes('—')) {
+      if (nextUpText.startsWith('Now:')) {
+        context.currentClass = nextUpText.replace('Now: ', '');
+      } else if (nextUpText.startsWith('Next:')) {
+        context.nextClass = nextUpText.replace('Next: ', '');
+      }
+    }
+    
+    // Get today's full schedule from the timeline
+    const timeline = document.getElementById('s_timeline');
+    if (timeline) {
+      const slots = timeline.querySelectorAll('.slot');
+      const scheduleItems = [];
+      slots.forEach(slot => {
+        const className = slot.querySelector('.cls')?.textContent;
+        const time = slot.querySelector('.time')?.textContent;
+        const teacher = slot.querySelector('.teach')?.textContent;
+        const room = slot.querySelector('.rm')?.textContent;
+        if (className && time) {
+          scheduleItems.push({
+            class: className,
+            time: time,
+            teacher: teacher || '',
+            room: room || '',
+            status: slot.classList.contains('now') ? 'current' : 
+                    slot.classList.contains('up') ? 'upcoming' : 
+                    slot.classList.contains('done') ? 'completed' : 'scheduled'
+          });
+        }
+      });
+      if (scheduleItems.length > 0) {
+        context.schedule = scheduleItems;
+      }
+    }
+    
+    // Get grades from the grades page
+    const gradesContainer = document.getElementById('s_grades_list');
+    if (gradesContainer) {
+      const gradeCards = gradesContainer.querySelectorAll('.gcard');
+      const gradesList = [];
+      gradeCards.forEach(card => {
+        const subject = card.querySelector('.gtitle')?.textContent;
+        const grade = card.querySelector('.gbig')?.textContent;
+        if (subject && grade) {
+          gradesList.push({ subject, grade });
+        }
+      });
+      if (gradesList.length > 0) {
+        context.grades = gradesList;
+      }
+    }
+  } catch (err) {
+    console.error('Error gathering student context:', err);
+  }
+  
+  return context;
+}
+
+// Format context into natural language for the AI
+function formatContextForAI(context) {
+  let text = `REAL-TIME STUDENT CONTEXT:\n`;
+  text += `Current time: ${context.currentTime} on ${context.currentDate}\n\n`;
+  
+  if (context.currentClass) {
+    text += `CURRENT CLASS: ${context.currentClass}\n`;
+  }
+  if (context.nextClass) {
+    text += `NEXT CLASS: ${context.nextClass}\n`;
+  }
+  
+  if (context.schedule && context.schedule.length > 0) {
+    text += `\nTODAY'S SCHEDULE:\n`;
+    context.schedule.forEach(item => {
+      text += `  ${item.time} - ${item.class}`;
+      if (item.teacher) text += ` (${item.teacher})`;
+      if (item.room) text += ` [Room ${item.room}]`;
+      text += ` [${item.status}]\n`;
+    });
+  }
+  
+  if (context.grades && context.grades.length > 0) {
+    text += `\nCURRENT GRADES:\n`;
+    context.grades.forEach(g => {
+      text += `  ${g.subject}: ${g.grade}\n`;
+    });
+  }
+  
+  return text;
+}
 
 async function loadHandbooks() {
   if (studentHandbook && athleticsHandbook) return { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl };
@@ -357,30 +502,35 @@ async function handleSend() {
     
     console.log('✅ Got context, calling API...');
     
-    const systemPrompt = `You are PantherBot, Portledge School's efficient AI assistant.
+    // Gather real-time student context
+    const studentContext = getStudentContext();
+    const contextText = formatContextForAI(studentContext);
+    console.log('📊 Student context:', studentContext);
+    
+    const systemPrompt = `You are PantherBot, Portledge School's intelligent AI assistant with access to the student's REAL-TIME schedule and grades.
 
-ANSWER STYLE:
-- SHORT questions = SHORT answers (1-2 sentences)
-- COMPLEX questions = DETAILED answers (with context & examples)
-- Match the user's energy - casual questions get casual answers
+${contextText}
 
-EXAMPLES:
-❓ "What are school hours?" → "School runs 8:20 AM - 3:30 PM. Buses leave at 3:40 PM. �"
-❓ "Tell me about the dress code policy" → [Give full explanation with bullet points]
-❓ "hi" → "Hey! 👋 What can I help you with?"
-
-RULES:
-1. Be precise & specific (use exact times/numbers from handbook)
-2. If question is simple, keep answer short
-3. If question is complex, give thorough explanation
-4. If info is missing, suggest who to contact
-5. Never make up policies
-6. Use emojis naturally (1-2 max)
-
-HANDBOOK INFO:
+PORTLEDGE HANDBOOK KNOWLEDGE:
 ${context}
 
-Be smart. Be concise. Be helpful. Answer appropriately for what the user asked.`;
+INTELLIGENCE RULES:
+- For "my next class" or "my schedule" questions → Use REAL-TIME CONTEXT above
+- For "my grades" or "how am I doing" questions → Reference their actual CURRENT GRADES
+- For handbook/policy questions → Use PORTLEDGE HANDBOOK KNOWLEDGE
+- Always consider current time and what's happening NOW
+
+ANSWER STYLE:
+- Match question complexity: Short Q = Short A (1-2 sentences), Complex Q = Detailed A
+- When using student's real data, be SPECIFIC (exact times, class names, actual grades)
+- Be conversational and helpful, use 1-2 emojis naturally
+
+EXAMPLES:
+❓ "What's my next class?" → Check NEXT CLASS and give specific answer with time
+❓ "How am I doing in Math?" → Check CURRENT GRADES and give their actual grade
+❓ "What are school hours?" → "School runs 8:20 AM - 3:30 PM."
+
+You're not just a handbook - you're a SMART assistant who knows THIS student's live info!`;
 
 
     const controller = new AbortController();
