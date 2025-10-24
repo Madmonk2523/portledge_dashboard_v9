@@ -14,8 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="Portledge"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="format-detection" content="telephone=no"/>
-<link rel="manifest" href="../manifest.json"/>
-<link rel="apple-touch-icon" href="../portledge_crest.png"/>
+<!-- PWA removed per request: manifest & apple icon links deleted -->
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -710,6 +709,16 @@ body.theme-dark .theme-toggle{
 .weekend{text-align:center; padding:40px 16px; color:#4a5672}
 .weekend h3{margin:0 0 8px 0; font-size:1.3rem}
 .weekend .sub{color:#6a7690}
+
+/* Mini current class card */
+.slot-mini{margin:0; display:inline-block; vertical-align:middle; border-radius:16px; transform:none; box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.slot-mini .slot-inner{grid-template-columns:130px 1fr; gap:16px; padding:12px 16px}
+.slot-mini .time{font-size:1rem}
+.slot-mini .cls{font-size:1.05rem}
+.slot-mini .meta{font-size:.9rem; margin-top:4px}
+.slot-mini .dot{left:14px; width:14px; height:14px}
+.slot-mini::before{border-radius:16px 0 0 16px}
+.slot-mini.hidden{display:none!important}
 
 /* Big date + day navigation - Premium upgrade */
 .bigdate{font-weight:900; font-size:1.8rem; text-align:center; margin:16px 0 12px 0; color:#0f172a; letter-spacing:-0.02em; text-shadow:0 2px 4px rgba(0,0,0,0.05)}
@@ -2192,6 +2201,19 @@ body.theme-dark .btn-secondary{
         <div class="p-body">
           <div class="summary">
                 <div class="day-progress-area" style="display:flex;align-items:center;gap:10px;flex:1">
+                  <!-- Mini current class card (top-left) -->
+                  <div id="miniCurrent" class="slot slot-mini hidden">
+                    <div class="dot"></div>
+                    <div class="slot-inner">
+                      <div>
+                        <div class="time" id="miniTime">—</div>
+                      </div>
+                      <div>
+                        <div class="cls" id="miniCls">—</div>
+                        <div class="meta" id="miniMeta"></div>
+                      </div>
+                    </div>
+                  </div>
                   <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
                     <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
                     <!-- Blank space for future content -->
@@ -2737,6 +2759,12 @@ function updateCountdowns() {
     }
   }
 
+  // Update the mini current class card
+  const mini = document.getElementById('miniCurrent');
+  const mTime = document.getElementById('miniTime');
+  const mCls = document.getElementById('miniCls');
+  const mMeta = document.getElementById('miniMeta');
+
   if (found && start && end) {
     const total = end - start;
     const elapsed = now - start;
@@ -2745,16 +2773,38 @@ function updateCountdowns() {
 
     const remainingMs = end - now;
     const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
-    
     if (isPassingTime) {
       // Passing time: only reflect on progress bar, keep label empty per spec
       if (label) label.textContent = '';
+      // Hide mini card during passing time
+      if (mini) mini.classList.add('hidden');
     } else {
       if (label) label.textContent = `${currentName} — ${minutes}m left`;
+      // Fill mini card details
+      if (mini && mTime && mCls && mMeta) {
+        mini.classList.remove('hidden');
+        mTime.textContent = `${start.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}`;
+        mCls.textContent = currentName;
+        // Try to get teacher from the slot meta
+        const currentSlot = Array.from(slots).find(s=>{
+          const sText = s.getAttribute('data-start-time');
+          const eText = s.getAttribute('data-end-time');
+          return sText===startTime && eText===endLabel;
+        }) || null;
+        const metaText = currentSlot?.querySelector('.meta')?.textContent || '';
+        mMeta.textContent = metaText;
+        // Sync classes for color states
+        mini.classList.toggle('now', true);
+        mini.classList.toggle('up', false);
+        mini.classList.toggle('done', false);
+      }
     }
   } else {
     if (fill) fill.style.width = '0%';
     if (label) label.textContent = '';
+    // Hide mini card if nothing active
+    const mini = document.getElementById('miniCurrent');
+    if (mini) mini.classList.add('hidden');
   }
 }
 
@@ -3753,55 +3803,7 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
     document.querySelector("#nav-student .tab[data-page='s-schedule']").click();
   });
 
-  // ===== Service Worker Registration for Offline Support =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('../sw.js')
-        .then(registration => {
-          console.log('✅ Service Worker registered successfully:', registration.scope);
-          
-          // Check for updates every 5 minutes
-          setInterval(() => {
-            registration.update();
-          }, 5 * 60 * 1000);
-        })
-        .catch(error => {
-          console.log('❌ Service Worker registration failed:', error);
-        });
-    });
-
-    // Handle offline/online status
-    window.addEventListener('online', () => {
-      console.log('🌐 Back online');
-      const offlineIndicator = document.getElementById('offlineIndicator');
-      if (offlineIndicator) offlineIndicator.remove();
-    });
-
-    window.addEventListener('offline', () => {
-      console.log('📡 Offline mode activated');
-      // Show offline indicator
-      if (!document.getElementById('offlineIndicator')) {
-        const indicator = document.createElement('div');
-        indicator.id = 'offlineIndicator';
-        indicator.innerHTML = '📡 Offline Mode';
-        indicator.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: linear-gradient(135deg, #fbbf24, #f59e0b);
-          color: #78350f;
-          padding: 12px 24px;
-          border-radius: 12px;
-          font-weight: 800;
-          font-size: 14px;
-          box-shadow: 0 8px 24px rgba(251,191,36,0.4);
-          z-index: 10000;
-          animation: slideInRight 0.4s ease;
-        `;
-        document.body.appendChild(indicator);
-      }
-    });
-  }
+  // Offline support removed per request
 </script>
 
 <script type="module" src="../pantherbot/pantherbot.js?v=20251023v51ultra"></script>

@@ -530,11 +530,6 @@ function showThinking() {
 
 // ===== Main handler =====
 async function handleSend() {
-  // Offline guard: if offline, show a helpful message and do nothing
-  if (typeof navigator !== 'undefined' && !navigator.onLine) {
-    addMessage('bot', '📡 Offline mode: PantherBot needs internet to reply. You can still use Schedule, Assignments, and Grades offline.');
-    return;
-  }
   const userInput = document.getElementById('userInput');
   const chatMessages = document.getElementById('chatMessages');
   const sendBtn = document.getElementById('sendBtn');
@@ -784,31 +779,6 @@ function initPantherBot() {
   showQuickPrompts();
   
   loadHandbooks().then(() => getChunks());
-
-  // Handle online/offline UI state
-  const setOnlineState = () => {
-    const offlineBanner = document.getElementById('pb_offline_banner');
-    const disabled = (typeof navigator !== 'undefined' && !navigator.onLine);
-    if (sendBtn) sendBtn.disabled = !!disabled;
-    if (userInput) userInput.disabled = !!disabled;
-    if (disabled) {
-      if (!offlineBanner) {
-        const el = document.createElement('div');
-        el.id = 'pb_offline_banner';
-        el.textContent = '📡 Offline Mode — PantherBot replies are unavailable';
-        el.style.cssText = 'margin:8px 0;padding:10px 14px;border-radius:12px;background:#FEF3C7;color:#78350F;font-weight:800;border:1px solid #F59E0B;';
-        const chat = document.getElementById('chatMessages');
-        if (chat && chat.parentElement) chat.parentElement.insertBefore(el, chat);
-      }
-    } else if (offlineBanner) {
-      offlineBanner.remove();
-      if (userInput) userInput.disabled = false;
-      if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Send'; }
-    }
-  };
-  window.addEventListener('online', setOnlineState);
-  window.addEventListener('offline', setOnlineState);
-  setOnlineState();
 }
 
 // Display quick chat prompts
