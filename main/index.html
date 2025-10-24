@@ -1501,7 +1501,7 @@ body.theme-dark .btn-secondary{
   <div class="login-card" id="loginCard">
     <div class="login-head">
       <div class="login-logo">
-        <img src="portledge_crest.png" alt="Portledge crest" onerror="this.closest('.login-logo').innerHTML='<span style=&quot;font-weight:900;color:#0b3f7a&quot;>P</span>'">
+        <img src="../portledge_crest.png" alt="Portledge crest" onerror="if(!this.dataset.fallback){this.dataset.fallback='svg';this.src='../portledge_crest.svg';}else{this.style.display='none';}">
       </div>
       <div>
         <h2 class="login-title">Welcome Back</h2>
@@ -1527,7 +1527,7 @@ body.theme-dark .btn-secondary{
 <!-- ===== STUDENT DASHBOARD ===== -->
 <header id="top-student" class="topbar hidden" role="banner">
   <div class="brand">
-    <div class="logo"><img src="../portledge_crest.png" alt="Portledge crest" onerror="var p=document.createElement('span'); p.style.fontWeight='900'; p.style.color='#0b3f7a'; p.textContent='P'; var c=this.parentNode; c.textContent=''; c.appendChild(p);"></div>
+    <div class="logo"><img src="../portledge_crest.png" alt="Portledge crest" onerror="if(!this.dataset.fallback){this.dataset.fallback='svg';this.src='../portledge_crest.svg';}else{this.style.display='none';}"></div>
     <div class="brandstack">
       <h1>Portledge Dashboard — Student</h1>
       <div class="pillars-line">Kindness • Honor • Purpose • Respect</div>
