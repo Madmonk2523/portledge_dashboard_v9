@@ -504,6 +504,23 @@ body.theme-dark .rq-btn:hover{
 body.theme-dark .chat-message .copy-btn{
   color:#8bb3ff;
 }
+body.theme-dark .quick-prompts-container {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(76, 29, 149, 0.3) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+body.theme-dark .quick-prompts-label {
+  color: #bfdbfe;
+}
+body.theme-dark .quick-prompt-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(102, 126, 234, 0.4);
+  color: #cbd5e1;
+}
+body.theme-dark .quick-prompt-btn:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
 body.theme-dark .related-btn{
   background:rgba(102, 126, 234, 0.1);
   border:1px solid rgba(102, 126, 234, 0.3);
@@ -1427,6 +1444,41 @@ body.theme-dark .btn-secondary{
   cursor: pointer;
 }
 .chat-message .copy-btn:hover{ text-decoration: underline; }
+
+/* Quick Prompts */
+.quick-prompts-container {
+  margin: 16px 0;
+  padding: 16px;
+  background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
+  border-radius: 12px;
+  animation: fadeInUp 0.4s ease-out;
+}
+.quick-prompts-label {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.quick-prompt-btn {
+  display: inline-block;
+  margin: 4px;
+  padding: 8px 14px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+.quick-prompt-btn:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
 
 /* Citations */
 .citations {
@@ -2568,7 +2620,7 @@ function updateCountdowns() {
 
     const remainingMs = end - now;
     const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
-    if (label) label.textContent = `Now: ${currentName} — Ends at ${endLabel} — Ends in ${minutes}m`;
+    if (label) label.textContent = `${currentName} — ${minutes}m left`;
   } else {
     if (fill) fill.style.width = '0%';
     if (label) label.textContent = '';
@@ -2595,7 +2647,7 @@ function updateProgressBar(entries, nowArg){
     fill.style.width = pct + "%";
     const remainingMs = endD - now;
     const minutes = Math.max(0, Math.ceil(remainingMs / 60000));
-    label.textContent = `Now: ${current.name} — Ends at ${current.end} — Ends in ${minutes}m`;
+    label.textContent = `${current.name} — ${minutes}m left`;
   } else {
     fill.style.width = "0%";
     label.textContent = '';
@@ -3506,12 +3558,10 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
       let label = '';
       if (nowSlot){
         const cls = nowSlot.querySelector('.cls')?.textContent || 'Now';
-        const tm  = nowSlot.querySelector('.time')?.textContent || '';
-        label = `Now: ${cls} (${tm})`;
+        label = `Now: ${cls}`;
       } else if (upSlot){
         const cls = upSlot.querySelector('.cls')?.textContent || 'Upcoming';
-        const tm  = upSlot.querySelector('.time')?.textContent || '';
-        label = `Next: ${cls} at ${parseStart(tm)}`;
+        label = `Next: ${cls}`;
       }
       if (label){
         chip.classList.remove('hidden');
