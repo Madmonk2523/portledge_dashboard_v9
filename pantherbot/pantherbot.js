@@ -1,6 +1,5 @@
 ﻿// === PantherBot v6 — EXTRA SMART with Context Awareness ===
 // Updated: 2025-10-24 - Added schedule/grade context, enhanced intelligence
-console.log('⚡ PantherBot v6.0 LOADED - CONTEXT-AWARE & SUPER SMART! ⚡');
 
 // Lazy-load both handbooks
 let studentHandbook = null, athleticsHandbook = null;
@@ -166,7 +165,6 @@ async function loadHandbooks() {
     ]);
     studentHandbook = hModule.handbookText || '';
     athleticsHandbook = aModule.athleticsHandbookText || '';
-    console.log('✅ Loaded student + athletics handbooks');
   } catch (err) {
     console.error('Failed to load handbooks:', err);
     studentHandbook = athleticsHandbook = '';
@@ -226,13 +224,11 @@ async function getChunks(){
   if (ALL_CHUNKS) return ALL_CHUNKS;
   
   if (CHUNKS_LOADING) {
-    console.log('⏳ Waiting for chunks to load...');
     while (CHUNKS_LOADING) await new Promise(r => setTimeout(r, 100));
     return ALL_CHUNKS || [];
   }
   
   CHUNKS_LOADING = true;
-  console.log('🔨 Building chunks...');
   
   try {
     const { studentHandbook, athleticsHandbook, studentHandbookUrl, athleticsHandbookUrl } = await loadHandbooks();
@@ -243,9 +239,8 @@ async function getChunks(){
     const sChunks = chunkHandbook(sJoined, 'student', studentHandbookUrl);
     const aChunks = chunkHandbook(aJoined, 'athletics', athleticsHandbookUrl);
     ALL_CHUNKS = [...sChunks, ...aChunks];
-    console.log(`✅ Built ${ALL_CHUNKS.length} chunks (${sChunks.length} student + ${aChunks.length} athletics)`);
   } catch (err) {
-    console.error('❌ Failed to chunk handbooks:', err);
+    console.error('Failed to chunk handbooks:', err);
     ALL_CHUNKS = [];
   } finally {
     CHUNKS_LOADING = false;
@@ -452,17 +447,14 @@ async function handleSend() {
   const sendBtn = document.getElementById('sendBtn');
   
   if (!userInput || !chatMessages) {
-    console.error('❌ Missing DOM elements');
+    console.error('Missing DOM elements');
     return;
   }
 
   const userText = userInput.value.trim();
   if (!userText) return;
 
-  if (handleSend.__pending) {
-    console.log('⏸️ Already sending...');
-    return;
-  }
+  if (handleSend.__pending) return;
   
   handleSend.__pending = true;
   
@@ -474,7 +466,6 @@ async function handleSend() {
 
   // Safety timeout - force re-enable after 20 seconds no matter what
   const safetyTimeout = setTimeout(() => {
-    console.warn('⚠️ Safety timeout triggered - forcing re-enable');
     handleSend.__pending = false;
     if (sendBtn) {
       sendBtn.disabled = false;
@@ -490,22 +481,17 @@ async function handleSend() {
 
   try {
     const thinkingEl = showThinking();
-    console.log('📝 User asked:', userText);
     
     const historyMsgs = getRecentHistory(3);
-    console.log('🔍 Getting context...');
     
     const context = await getRelevantContext(userText, historyMsgs, 3500).catch(err => {
       console.error('Context retrieval error:', err);
       return '';
     });
     
-    console.log('✅ Got context, calling API...');
-    
     // Gather real-time student context
     const studentContext = getStudentContext();
     const contextText = formatContextForAI(studentContext);
-    console.log('📊 Student context:', studentContext);
     
     const systemPrompt = `You are PantherBot, Portledge School's intelligent AI assistant with access to the student's REAL-TIME schedule and grades.
 
@@ -535,15 +521,12 @@ You're not just a handbook - you're a SMART assistant who knows THIS student's l
 
     const controller = new AbortController();
     const timeout = setTimeout(() => {
-      console.error('⏰ API timeout after 15s');
       controller.abort();
     }, 15000);
     
     const apiUrl = window.location.hostname === 'localhost' 
       ? 'http://localhost:3000/api/chat'
       : '/api/chat';
-    
-    console.log('🌐 API URL:', apiUrl);
     
     const shortHistory = historyMsgs.map(m=>({ role: m.role, content: clampSentences(m.content, 4) }));
 
@@ -565,15 +548,12 @@ You're not just a handbook - you're a SMART assistant who knows THIS student's l
     });
     clearTimeout(timeout);
     
-    console.log('📡 Response status:', res.status);
-    
     if (!res.ok) {
       const text = await res.text();
-      console.error('❌ /api/chat HTTP', res.status, text);
+      console.error('/api/chat error:', res.status, text);
       throw new Error(`Server error ${res.status}: ${text}`);
     }
     const data = await res.json();
-    console.log('✅ Got API response');
 
     let reply = 'Sorry, I could not find that in the handbook.';
     if (data.choices && data.choices[0].message && data.choices[0].message.content) {
@@ -592,12 +572,7 @@ You're not just a handbook - you're a SMART assistant who knows THIS student's l
     showRelatedQuestions(related);
     
   } catch (err) {
-    console.error('❌ PantherBot error:', err);
-    console.error('Error details:', {
-      name: err.name,
-      message: err.message,
-      stack: err.stack?.split('\n').slice(0, 3)
-    });
+    console.error('PantherBot error:', err);
     
     const isAbort = (err && (err.name === 'AbortError' || err.message?.includes('aborted')));
     const msg = isAbort ? 'Request timed out. Please try again.' : `⚠️ Error: ${err.message?.slice(0, 100)}`;
@@ -610,8 +585,6 @@ You're not just a handbook - you're a SMART assistant who knows THIS student's l
       addMessage('bot', msg);
     }
   } finally {
-    console.log('🔓 Cleanup: Re-enabling input');
-    
     // Clear safety timeout
     clearTimeout(safetyTimeout);
     
@@ -623,9 +596,6 @@ You're not just a handbook - you're a SMART assistant who knows THIS student's l
     if (sendBtn) {
       sendBtn.disabled = false;
       sendBtn.textContent = 'Send';
-      console.log('✅ Send button re-enabled');
-    } else {
-      console.error('❌ Send button not found in cleanup');
     }
     
     // Re-enable input
@@ -633,9 +603,6 @@ You're not just a handbook - you're a SMART assistant who knows THIS student's l
     if (userInput) {
       userInput.disabled = false;
       userInput.focus();
-      console.log('✅ Input re-enabled');
-    } else {
-      console.error('❌ Input not found in cleanup');
     }
   }
 }
@@ -687,9 +654,7 @@ function initPantherBot() {
       voiceBtn.textContent = '🔴';
       try {
         recognition.start();
-      } catch (e) {
-        console.log('Recognition already started');
-      }
+      } catch {}
     });
     
     recognition.onresult = (event) => {

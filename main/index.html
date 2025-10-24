@@ -304,7 +304,6 @@ body.theme-dark .cls{color:#e2e8f0; font-weight:900}
 body.theme-dark .time{color:#cbd5e1; font-weight:800}
 body.theme-dark .meta{color:#94a3b8; font-weight:500}
 /* Dark mode mini progress styling */
-/* (removed) dark-mode styles for per-slot mini progress */
 body.theme-dark .gpa-badge{
   background:linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(23, 37, 84, 0.9) 100%);
   color:#bfdbfe;
@@ -2728,15 +2727,9 @@ function handleLogin() {
   const val = ($('#role').value||'').trim();
   const required = 'cmallor.2028@portledge.org';
 
-  console.log("Entered email:", val);
-
   if (val === required) {
-    console.log("✅ Login success — setting role to student");
     localStorage.setItem(ROLE_KEY, 'student');
-    
-    // Auto-save email (no checkbox needed)
     localStorage.setItem('portledge_saved_email', val);
-    console.log("💾 Auto-saved email for next time");
     
     route('student');
     initStudent();
@@ -2751,7 +2744,7 @@ function handleLogin() {
     renderSchedule();  // ✅ Force schedule refresh right after login
     startClockAndProgress("08:20", "15:30"); // ✅ Enforce 8:20–3:30 gating instantly on login
   } else {
-    console.warn("❌ Invalid login");
+    console.warn("Invalid login");
     $('#loginCard').classList.remove('shake');
     void $('#loginCard').offsetWidth;
     $('#loginCard').classList.add('shake');
@@ -2834,8 +2827,6 @@ function applyCustomizations(custom) {
   if(loginSection && custom.loginBg){
     loginSection.style.background = loginBgMap[custom.loginBg] || loginBgMap.gradient1;
   }
-  
-  console.log('✨ Applied customizations:', custom);
 }
 
 // Attach customize button click
@@ -2859,7 +2850,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('role');
     if (emailInput) {
       emailInput.value = savedEmail;
-      console.log("✅ Auto-loaded saved email:", savedEmail);
     }
   }
   
@@ -3092,7 +3082,6 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
 
 
 /* ===== TEACHER DASHBOARD LOGIC ===== */
-// initTeacher removed
 
 /* ===== Directory (shared impl) ===== */
 const teachers=[
