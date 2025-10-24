@@ -236,11 +236,6 @@ body.theme-dark .chip{
   border:1px solid rgba(102, 126, 234, 0.25); 
   box-shadow:0 8px 20px rgba(0,0,0,.4), 0 0 15px rgba(102, 126, 234, 0.1);
 }
-body.theme-dark .chip-next{
-  background:linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)); 
-  border:1px solid rgba(102, 126, 234, 0.3);
-  box-shadow:0 8px 20px rgba(0,0,0,.4), 0 0 20px rgba(102, 126, 234, 0.2);
-}
 body.theme-dark .input, body.theme-dark select{
   background:rgba(12, 22, 48, 0.8); 
   backdrop-filter:blur(10px);
@@ -1309,7 +1304,6 @@ body.theme-dark .btn-secondary{
 /* ===== Small UI chips (reusable) ===== */
 .chip{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--rail); background:#fff; color:#0b2249; font-weight:800; font-size:.85rem; box-shadow:var(--shadow)}
 .chip .dot{width:8px; height:8px; border-radius:50%}
-.chip-next{background:linear-gradient(#ffffff,#f6f9ff); border-color:#dbe3f6}
 
 /* PantherBot suggestions row */
 .pb-suggestions{display:flex; flex-wrap:wrap; gap:8px; margin:10px auto 8px; max-width:850px}
@@ -2119,10 +2113,6 @@ body.theme-dark .btn-secondary{
                   <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
                     <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
                     <!-- Blank space for future content -->
-                  </div>
-                  <div id="nextUp" class="chip chip-next hidden">
-                    <span class="dot" style="background: var(--info)"></span>
-                    <span id="nextUpText">Next: —</span>
                   </div>
                   <div class="legend" style="margin-left:auto;">
                     <span class="lg"><i class="sw now"></i> Now</span>
@@ -3530,61 +3520,9 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
       }
     });
 
-    // Next-up chip (observe schedule DOM)
-    function parseStart(timeText){
-      // expects like "8:20 AM – 9:10 AM" or "08:20 – 09:10"
-      const part = (timeText||'').split('–')[0].trim();
-      return part;
-    }
-    function updateNextUp(){
-      const chip = document.getElementById('nextUp');
-      const chipText = document.getElementById('nextUpText');
-      if (!chip || !chipText) return;
-      
-      // Only show Next/Now for TODAY during school hours (8:20 AM - 3:30 PM)
-      try {
-        if (typeof offset !== 'undefined' && offset !== 0){ chip.classList.add('hidden'); return; }
-      } catch {}
-      
-      // Check if we're during school hours
-      const now = getNow();
-      const [sH, sM] = [8, 20]; // 8:20 AM
-      const [eH, eM] = [15, 30]; // 3:30 PM
-      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sH, sM, 0, 0);
-      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eH, eM, 0, 0);
-      const isOpen = now >= start && now <= end && !weekend(now);
-      
-      // Hide if not during school hours
-      if (!isOpen) { chip.classList.add('hidden'); return; }
-      
-      const weekendEl = document.getElementById('s_weekend');
-      if (weekendEl && weekendEl.style.display !== 'none') { chip.classList.add('hidden'); return; }
-      
-      const nowSlot = document.querySelector('#s_timeline .slot.now');
-      const upSlot  = document.querySelector('#s_timeline .slot.up');
-      let label = '';
-      if (nowSlot){
-        const cls = nowSlot.querySelector('.cls')?.textContent || 'Now';
-        const time = nowSlot.querySelector('.time')?.textContent || '';
-        label = time ? `${cls} ${time}` : cls;
-      } else if (upSlot){
-        const cls = upSlot.querySelector('.cls')?.textContent || 'Upcoming';
-        const time = upSlot.querySelector('.time')?.textContent || '';
-        label = time ? `${cls} ${time}` : cls;
-      }
-      if (label){
-        chip.classList.remove('hidden');
-        chipText.textContent = label;
-      } else {
-        chip.classList.add('hidden');
-      }
-    }
+    // Update countdown every second
     const slots = document.getElementById('s_slots');
     if (slots){
-      updateNextUp();
-      setInterval(updateNextUp, 60000); // Reduced from 30s to 60s, removed expensive MutationObserver
-      
-      // Update countdown every second
       setInterval(updateCountdowns, 1000);
     }
 
