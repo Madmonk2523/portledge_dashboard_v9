@@ -711,13 +711,18 @@ body.theme-dark .theme-toggle{
 .weekend .sub{color:#6a7690}
 
 /* Mini current class card */
-.slot-mini{margin:0; display:inline-block; vertical-align:middle; border-radius:16px; transform:none; box-shadow:0 6px 16px rgba(0,0,0,.08)}
-.slot-mini .slot-inner{grid-template-columns:130px 1fr; gap:16px; padding:12px 16px}
-.slot-mini .time{font-size:1rem}
-.slot-mini .cls{font-size:1.05rem}
-.slot-mini .meta{font-size:.9rem; margin-top:4px}
-.slot-mini .dot{left:14px; width:14px; height:14px}
-.slot-mini::before{border-radius:16px 0 0 16px}
+.slot-mini{
+  margin:0; display:inline-flex; align-items:center; vertical-align:middle;
+  border-radius:14px; transform:none; box-shadow:0 3px 10px rgba(0,0,0,.06);
+  background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border:1px solid #e2e8f0; overflow:hidden; padding-left:46px; max-width:520px
+}
+.slot-mini .slot-inner{grid-template-columns:110px 1fr; gap:12px; padding:10px 14px}
+.slot-mini .time{font-size:.95rem}
+.slot-mini .cls{font-size:1rem; font-weight:600}
+.slot-mini .meta{font-size:.85rem; margin-top:2px}
+.slot-mini .dot{left:14px; width:12px; height:12px}
+.slot-mini::before{border-radius:14px 0 0 14px}
 .slot-mini.hidden{display:none!important}
 
 /* Big date + day navigation - Premium upgrade */
@@ -2726,6 +2731,12 @@ function updateCountdowns() {
   // Update the global status label and progress bar with 'Ends in' for the active period
   const now = getNow();
 
+  // Helper to strip trailing section markers like " - 1", " - 2", " - 26"
+  function cleanName(name){
+    if(!name) return name;
+    return name.replace(/\s*-\s*\d+\s*$/, "").trim();
+  }
+
   const slots = document.querySelectorAll('#s_slots .slot');
   const fill = document.getElementById('s_progressFill');
   const label = document.getElementById('s_currentLabel');
@@ -2753,7 +2764,8 @@ function updateCountdowns() {
       if (isPassing) {
         currentName = '🚶 Passing Time';
       } else {
-        currentName = slot.querySelector('.cls')?.textContent || 'Now';
+        const raw = slot.querySelector('.cls')?.textContent || 'Now';
+        currentName = cleanName(raw);
       }
       endLabel = endTime;
       break;
@@ -2827,6 +2839,10 @@ function updateProgressBar(entries, nowArg){
 
   const fill = document.getElementById("s_progressFill");
   const label = document.getElementById("s_currentLabel");
+  function cleanName(name){
+    if(!name) return name;
+    return name.replace(/\s*-\s*\d+\s*$/, "").trim();
+  }
 
   if (current) {
     const startD = parseTimeToDate(now, current.start);
@@ -2840,7 +2856,7 @@ function updateProgressBar(entries, nowArg){
       // Passing time: keep label empty, progress bar still shows fill
       label.textContent = '';
     } else {
-      label.textContent = `${current.name} — ${minutes}m left`;
+      label.textContent = `${cleanName(current.name)} — ${minutes}m left`;
     }
   } else {
     fill.style.width = "0%";
