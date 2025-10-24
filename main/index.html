@@ -689,7 +689,9 @@ body.theme-dark .theme-toggle{
   font-weight:600;
 }
 
-.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; align-items:stretch}
+/* Ensure all grid items (grade cards) stretch to equal height so buttons align across the row */
+.grid3 > *{height:100%}
 @media(max-width:900px){.grid3{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.grid3{grid-template-columns:1fr}}
 .gcard{
@@ -703,6 +705,7 @@ body.theme-dark .theme-toggle{
   overflow:hidden;
   display:flex;
   flex-direction:column;
+  height:100%;
 }
 .gcard::before{
   content:'';
