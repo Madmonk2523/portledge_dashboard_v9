@@ -2129,24 +2129,27 @@ function updateProgressBar(entries, nowArg){
       const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sH, sM, 0, 0);
       const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eH, eM, 0, 0);
       const isOpen = now >= start && now <= end && !weekend(now);
+      const isToday = (typeof offset === 'number') ? (offset === 0) : true;
       const wrapper = document.querySelector('.day-progress-wrap');
-      if(wrapper) wrapper.style.display = isOpen? 'flex':'none';
+      if(wrapper) wrapper.style.display = (isOpen && isToday)? 'flex':'none';
       
       // Hide status bar outside school hours
       const statusBar = document.getElementById('s_status');
-      if(statusBar) statusBar.style.display = isOpen? 'flex':'none';
+      if(statusBar) statusBar.style.display = (isOpen && isToday)? 'flex':'none';
       
-      if(isOpen && progEl){
+      if(isOpen && isToday && progEl){
         const percent = Math.round(Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100)));
         progEl.style.width = percent + '%';
         if(pctText) pctText.textContent = percent + '%';
+        // keep the global class progress/label fresh during open hours
+        try { updateCountdowns(); } catch {}
       } else if(progEl){
         progEl.style.width = '0%'; if(pctText) pctText.textContent = '';
       }
     }
 
     updateClock();
-    setInterval(updateClock, 120000); // Reduced from 60s to 120s
+    setInterval(updateClock, 15000); // Update every 15s for timely show/hide within school hours
   }
 
   // Temporary settings button (removable) — allows setting override date/time for testing
