@@ -2206,17 +2206,8 @@ body.theme-dark .btn-secondary{
         <div class="p-body">
           <div class="summary">
                 <div class="day-progress-area" style="display:flex;align-items:center;gap:12px;flex:1">
-                  <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
-                    <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
-                    <!-- Blank space for future content -->
-                  </div>
-                  <div class="legend" style="margin-left:auto;">
-                    <span class="lg"><i class="sw now"></i> Now</span>
-                    <span class="lg"><i class="sw up"></i> Upcoming</span>
-                    <span class="lg"><i class="sw done"></i> Done</span>
-                  </div>
-                  <!-- Mini current class card (top-right) -->
-                  <div id="miniCurrent" class="slot slot-mini hidden" style="margin-left:12px;">
+                  <!-- Mini current class card (top-left) - always yellow/orange -->
+                  <div id="miniCurrent" class="slot slot-mini hidden now" style="margin-right:12px;">
                     <div class="dot"></div>
                     <div class="slot-inner">
                       <div>
@@ -2227,6 +2218,15 @@ body.theme-dark .btn-secondary{
                         <div class="meta" id="miniMeta"></div>
                       </div>
                     </div>
+                  </div>
+                  <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
+                    <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
+                    <!-- Blank space for future content -->
+                  </div>
+                  <div class="legend" style="margin-left:auto;">
+                    <span class="lg"><i class="sw now"></i> Now</span>
+                    <span class="lg"><i class="sw up"></i> Upcoming</span>
+                    <span class="lg"><i class="sw done"></i> Done</span>
                   </div>
                 </div>
           </div>
@@ -2805,10 +2805,9 @@ function updateCountdowns() {
         }) || null;
         const metaText = currentSlot?.querySelector('.meta')?.textContent || '';
         mMeta.textContent = metaText;
-        // Sync classes for color states
-        mini.classList.toggle('now', true);
-        mini.classList.toggle('up', false);
-        mini.classList.toggle('done', false);
+        // Force mini card to always display 'now' (yellow/orange) styling
+        mini.classList.remove('up', 'done');
+        mini.classList.add('now');
       }
     }
   } else {
