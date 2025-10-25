@@ -2625,6 +2625,7 @@ function renderSchedule() {
   // For today, use override time; for other days, do not show progress or 'now:'
   let now;
   let showProgress = offset === 0;
+  const currentTimeOfDay = getNow(); // Always get current time for mini card
   if(showProgress){
     now = getNow();
   } else {
@@ -2717,7 +2718,53 @@ function renderSchedule() {
   // Start countdown timer for current class
   if(showProgress) updateCountdowns();
 
+  // For scrolled days (not today), show mini card with what would be happening at current time
+  if (!showProgress && offset !== 0) {
+    updateMiniCardForScrolledDay(enhancedEntries, currentTimeOfDay);
+  }
+
   // Animation removed for performance
+}
+
+function updateMiniCardForScrolledDay(entries, currentTime) {
+  // Show mini card based on current time of day for non-today views
+  const mini = document.getElementById('miniCurrent');
+  const mTime = document.getElementById('miniTime');
+  const mCls = document.getElementById('miniCls');
+  const mMeta = document.getElementById('miniMeta');
+  
+  if (!mini || !mTime || !mCls || !mMeta) return;
+
+  // Find which class would be happening at the current time
+  let found = false;
+  for (const entry of entries) {
+    if (entry.isPassingTime) continue; // Skip passing time
+    
+    // Parse times relative to a reference date (just for time comparison)
+    const refDate = new Date();
+    const startParts = entry.start.split(':');
+    const endParts = entry.end.split(':');
+    const startTime = new Date(refDate);
+    startTime.setHours(parseInt(startParts[0]), parseInt(startParts[1]), 0, 0);
+    const endTime = new Date(refDate);
+    endTime.setHours(parseInt(endParts[0]), parseInt(endParts[1]), 0, 0);
+    
+    if (currentTime >= startTime && currentTime < endTime) {
+      // This is the class that would be happening now
+      mini.classList.remove('hidden');
+      mTime.textContent = `${entry.start} - ${entry.end}`;
+      mCls.textContent = entry.name || 'Class';
+      mMeta.textContent = entry.teacher || '';
+      mini.classList.remove('up', 'done');
+      mini.classList.add('now');
+      found = true;
+      break;
+    }
+  }
+  
+  if (!found) {
+    mini.classList.add('hidden');
+  }
 }
 
 function updateCountdowns() {
