@@ -67,26 +67,81 @@ function getNameParts(entry){
 
 function matchDirectoryByNameTokens(tokens, directory) {
   if (!tokens || tokens.length === 0) return [];
-  const tset = new Set(tokens);
-  const results = [];
+
+  // Local helpers for fuzzy matching
+  function splitWords(s) { return String(s || '').toLowerCase().trim().split(/\s+/).filter(Boolean); }
+  function levenshtein(a, b) {
+    a = String(a || '').toLowerCase();
+    b = String(b || '').toLowerCase();
+    const m = a.length, n = b.length;
+    if (!m) return n; if (!n) return m;
+    const dp = new Array(n + 1);
+    for (let j = 0; j <= n; j++) dp[j] = j;
+    for (let i = 1; i <= m; i++) {
+      let prev = i - 1;
+      dp[0] = i;
+      for (let j = 1; j <= n; j++) {
+        const temp = dp[j];
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        dp[j] = Math.min(
+          dp[j] + 1,        // deletion
+          dp[j - 1] + 1,    // insertion
+          prev + cost       // substitution
+        );
+        prev = temp;
+      }
+    }
+    return dp[n];
+  }
+  function distanceOk(token, word) {
+    const L = Math.max(token.length, word.length);
+    const d = levenshtein(token, word);
+    // dynamic threshold: tighter for short tokens, looser for longer
+    const th = token.length <= 3 ? 1 : token.length <= 5 ? 1 : token.length <= 8 ? 2 : 2;
+    return d <= th;
+  }
+
+  const strong = [];
+  const fuzzy = [];
+
   for (const entry of directory) {
     const { first, last, full } = getNameParts(entry);
     if (!first && !last && !full) continue;
-    // basic match: all query tokens must match first or last (prefix ok) or appear in full name words
-    let ok = true;
-    for (const t of tset) {
-      const matchesFirst = first && (first.startsWith(t) || first === t);
-      const matchesLast = last && (last.startsWith(t) || last === t);
-      const matchesFull = full && full.split(/\s+/).some(w => w.startsWith(t) || w === t);
-      if (!matchesFirst && !matchesLast && !matchesFull) { ok = false; break; }
+    const fullWords = splitWords(full);
+
+    // Strict (exact or prefix) match check
+    let strictOk = true;
+    for (const t of tokens) {
+      const mf = first && (first === t || first.startsWith(t));
+      const ml = last && (last === t || last.startsWith(t));
+      const mfull = fullWords.some(w => w === t || w.startsWith(t));
+      if (!mf && !ml && !mfull) { strictOk = false; break; }
     }
-    if (ok) results.push(entry);
+    if (strictOk) { strong.push(entry); continue; }
+
+    // Fuzzy check when strict fails: all tokens must match some part
+    let fuzzyOk = true;
+    let totalDist = 0;
+    for (const t of tokens) {
+      let best = Infinity;
+      if (first) best = Math.min(best, levenshtein(t, first));
+      if (last) best = Math.min(best, levenshtein(t, last));
+      for (const w of fullWords) best = Math.min(best, levenshtein(t, w));
+      const matched = (first && (first.startsWith(t) || first === t)) ||
+                      (last && (last.startsWith(t) || last === t)) ||
+                      fullWords.some(w => w.startsWith(t) || w === t) ||
+                      distanceOk(t, first || '') ||
+                      distanceOk(t, last || '') ||
+                      fullWords.some(w => distanceOk(t, w));
+      if (!matched) { fuzzyOk = false; break; }
+      totalDist += (best === Infinity ? 3 : best);
+    }
+    if (fuzzyOk) fuzzy.push({ entry, score: totalDist });
   }
-  // if too many matches and we had 3 tokens, try stricter using only last two
-  if (results.length > 5 && tokens.length >= 2) {
-    return matchDirectoryByNameTokens(tokens.slice(-2), directory);
-  }
-  return results;
+
+  if (strong.length) return strong;
+  if (fuzzy.length) return fuzzy.sort((a,b)=>a.score-b.score).slice(0, 15).map(x=>x.entry);
+  return [];
 }
 
 // === PantherBot v6 — EXTRA SMART with Context Awareness ===
@@ -620,6 +675,7 @@ function showThinking() {
 }
 
 // ===== Main handler =====
+let PB_PENDING = null;
 async function handleSend() {
   const userInput = document.getElementById('userInput');
   const chatMessages = document.getElementById('chatMessages');
@@ -632,6 +688,56 @@ async function handleSend() {
 
   const userText = userInput.value.trim();
   if (!userText) return;
+
+  // Pending disambiguation selection (e.g., choose a student)
+  if (PB_PENDING && PB_PENDING.type === 'grade') {
+    const raw = userText.trim();
+    const numMatch = raw.match(/^\s*(\d{1,2})\s*$/);
+    let chosen = null;
+    if (numMatch) {
+      const idx = parseInt(numMatch[1], 10) - 1;
+      if (idx >= 0 && idx < PB_PENDING.options.length) {
+        chosen = PB_PENDING.options[idx].entry;
+      }
+    } else {
+      // Try fuzzy match against option names
+      const q = raw.toLowerCase();
+      function lev(a,b){
+        a = String(a||'').toLowerCase(); b = String(b||'').toLowerCase();
+        const m=a.length,n=b.length; if(!m) return n; if(!n) return m; const dp=new Array(n+1); for(let j=0;j<=n;j++) dp[j]=j; for(let i=1;i<=m;i++){ let prev=i-1; dp[0]=i; for(let j=1;j<=n;j++){ const t=dp[j]; const c=a[i-1]===b[j-1]?0:1; dp[j]=Math.min(dp[j]+1, dp[j-1]+1, prev+c); prev=t; } } return dp[n];
+      }
+      let best = {i:-1, d:Infinity};
+      PB_PENDING.options.forEach((opt, i) => {
+        const name = (opt.displayName||'').toLowerCase();
+        const d = lev(q, name);
+        if (name.startsWith(q) || q.startsWith(name) || d < best.d) {
+          best = { i, d };
+        }
+      });
+      if (best.i >= 0 && best.d <= 3) {
+        chosen = PB_PENDING.options[best.i].entry;
+      }
+    }
+
+    addMessage('user', userText);
+    userInput.value = '';
+
+    if (!chosen) {
+      addMessage('bot', `Please reply with a number 1-${PB_PENDING.options.length} to choose a student.`);
+      return;
+    }
+
+    PB_PENDING = null;
+    const parts = getNameParts(chosen);
+    const fullName = (chosen.name || `${(chosen.first||chosen.firstname||'').trim()} ${(chosen.last||chosen.lastname||'').trim()}` ).trim() || `${(parts.first||'').trim()} ${(parts.last||'').trim()}`.trim();
+    const gradeText = formatGrade(chosen.grade ?? chosen.gradeLevel ?? chosen.year);
+    if (gradeText) {
+      addMessage('bot', `${fullName || 'That student'} is in ${gradeText}.`);
+    } else {
+      addMessage('bot', `I found ${fullName || 'that student'}, but their grade isn't listed.`);
+    }
+    return;
+  }
 
   // === HARD-CODED OVERRIDE FOR HEAD OF SCHOOL ===
   const headRegex = /\b(head of school|who\s+is\s+the\s+head|who\s+is\s+head|who\s+leads\s+the\s+school|who\s+is\s+in\s+charge\s+of\s+portledge)\b/i;
@@ -669,17 +775,24 @@ async function handleSend() {
         }
         return;
       }
-      // Multiple matches - ask which one
-      const options = matches.slice(0, 5).map(m => {
+      // Multiple matches - ask which one (numbered) and enable follow-up selection
+      const opts = matches.slice(0, 9).map(m => {
         const fn = String(m.first || m.firstname || '').trim();
         const ln = String(m.last || m.lastname || '').trim();
         const full = String(m.name || '').trim();
         const combined = `${fn} ${ln}`.trim();
-        return (full || combined) || 'Unknown';
+        const displayName = (full || combined) || 'Unknown';
+        const gradeText = formatGrade(m.grade ?? m.gradeLevel ?? m.year);
+        const email = String(m.email || m.mail || m.contact || '').trim();
+        return { displayName, gradeText, email, entry: m };
       });
-      const uniqueOptions = Array.from(new Set(options));
-      const list = uniqueOptions.map(n => `• ${n}`).join('\n');
-      addMessage('bot', `I found multiple matches. Which one did you mean?\n${list}`);
+      // Make unique by displayName to avoid duplicates
+      const seen = new Set();
+      const unique = [];
+      for (const o of opts) { if (!seen.has(o.displayName)) { seen.add(o.displayName); unique.push(o); } }
+      PB_PENDING = { type: 'grade', options: unique };
+      const list = unique.map((o, i) => `${i+1}) ${o.displayName}${o.gradeText ? ` (${o.gradeText})` : ''}${o.email ? ` — ${o.email}` : ''}`).join('\n');
+      addMessage('bot', `I found multiple matches. Reply with a number to choose:\n${list}`);
       return;
     }
     if (!hasDirectory) {
