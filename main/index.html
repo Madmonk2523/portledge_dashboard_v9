@@ -95,6 +95,10 @@
 @keyframes scaleIn{0%{opacity:0; transform:scale(0.95)}100%{opacity:1; transform:scale(1)}}
 @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
 @keyframes ripple{0%{transform:scale(0); opacity:1}100%{transform:scale(4); opacity:0}}
+@keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-20px)}60%{transform:translateY(-10px)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0px)}50%{transform:translateY(-10px)}}
+@keyframes confetti{0%{transform:translateY(0) rotateZ(0deg);opacity:1}100%{transform:translateY(100vh) rotateZ(720deg);opacity:0}}
 
 /* Smooth page transitions */
 .page{animation:fadeIn 0.4s var(--ease)}
@@ -2130,6 +2134,75 @@ body.theme-dark .btn-secondary{
   }
 }
 
+/* ===== Cool Features ===== */
+/* Confetti particles */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: #f0f;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti 3s linear forwards;
+}
+
+/* Keyboard shortcuts indicator */
+.kbd-hint {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s var(--ease);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.kbd-hint.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.kbd-hint kbd {
+  background: #334155;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  margin: 0 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Celebration mode for good grades */
+.grade-card.celebrate {
+  animation: bounce 0.6s ease-in-out;
+}
+
+/* Floating clock animation */
+.clock-wrap.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Enhanced hover effects */
+.gcard:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+  transition: all 0.3s var(--ease);
+}
+
+.slot:hover {
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  transition: all 0.3s var(--ease);
+}
+
 
 
 </style>
@@ -2178,6 +2251,7 @@ body.theme-dark .btn-secondary{
   <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-pressed="false">Dark Mode</button>
   <button id="customizeDashboardBtn" class="theme-toggle" title="Customize" style="margin-left:8px">⚙️ Customize</button>
   <button id="tempSettingsBtn" class="theme-toggle" title="Temp Settings" style="margin-left:8px">⏱️ Temp</button>
+  <button id="helpBtn" class="theme-toggle" title="Keyboard Shortcuts" style="margin-left:8px" onclick="showHelp()">❓</button>
 </div>
 
 
@@ -3904,7 +3978,174 @@ $('#closeModal').onclick=()=>{
   window.addEventListener('DOMContentLoaded', ()=>{
     const btn = document.getElementById('tempSettingsBtn');
     if (btn && !btn.__bound){ btn.__bound = true; btn.addEventListener('click', openTempModal); }
+    
+    // Initialize cool features
+    initCoolFeatures();
   });
+  
+  // ===== COOL FEATURES =====
+  function initCoolFeatures() {
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Alt+1,2,3 to switch tabs
+      if (e.altKey && ['1','2','3'].includes(e.key)) {
+        e.preventDefault();
+        const tabs = ['s-schedule', 's-grades', 's-chat'];
+        const tab = document.querySelector(`#nav-student .tab[data-page="${tabs[parseInt(e.key)-1]}"]`);
+        if (tab) tab.click();
+        showKeyboardHint(`Switched to tab ${e.key}`);
+      }
+      // Alt+T for today
+      if (e.altKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        const todayBtn = document.getElementById('s_today');
+        if (todayBtn) todayBtn.click();
+        showKeyboardHint('Jumped to today');
+      }
+      // Alt+Left/Right for day navigation
+      if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault();
+        document.getElementById('s_prev')?.click();
+        showKeyboardHint('Previous day');
+      }
+      if (e.altKey && e.key === 'ArrowRight') {
+        e.preventDefault();
+        document.getElementById('s_next')?.click();
+        showKeyboardHint('Next day');
+      }
+      // Konami code easter egg
+      konamiSequence.push(e.key);
+      if (konamiSequence.length > 10) konamiSequence.shift();
+      if (konamiSequence.join(',') === 'ArrowUp,ArrowUp,ArrowDown,ArrowDown,ArrowLeft,ArrowRight,ArrowLeft,ArrowRight,b,a') {
+        triggerEasterEgg();
+      }
+    });
+    
+    // Add floating animation to clock
+    const clockWrap = document.querySelector('.clock-wrap');
+    if (clockWrap) {
+      clockWrap.classList.add('float');
+    }
+    
+    // Check for good grades and celebrate
+    checkGradesForCelebration();
+  }
+  
+  let konamiSequence = [];
+  let keyboardHintTimeout;
+  
+  function showKeyboardHint(message) {
+    let hint = document.querySelector('.kbd-hint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'kbd-hint';
+      document.body.appendChild(hint);
+    }
+    hint.textContent = message;
+    hint.classList.add('show');
+    clearTimeout(keyboardHintTimeout);
+    keyboardHintTimeout = setTimeout(() => {
+      hint.classList.remove('show');
+    }, 2000);
+  }
+  
+  function createConfetti(x, y, count = 30) {
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3', '#ff9ff3'];
+    for (let i = 0; i < count; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = x + 'px';
+      confetti.style.top = y + 'px';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.transform = `translate(${(Math.random() - 0.5) * 200}px, 0)`;
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 3500);
+    }
+  }
+  
+  function checkGradesForCelebration() {
+    setTimeout(() => {
+      const gradeCards = document.querySelectorAll('.gcard');
+      gradeCards.forEach(card => {
+        const gradeText = card.querySelector('.ggrade')?.textContent || '';
+        const hasAPlus = gradeText.includes('A+');
+        const hasA = gradeText.includes('A') || gradeText.includes('95') || gradeText.includes('96') || gradeText.includes('97') || gradeText.includes('98') || gradeText.includes('99') || gradeText.includes('100');
+        
+        if (hasAPlus || hasA) {
+          card.addEventListener('click', function(e) {
+            const rect = card.getBoundingClientRect();
+            createConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 20);
+            card.classList.add('celebrate');
+            setTimeout(() => card.classList.remove('celebrate'), 600);
+          });
+        }
+      });
+    }, 1000);
+  }
+  
+  function triggerEasterEgg() {
+    // Konami code easter egg
+    const body = document.body;
+    body.style.transition = 'transform 0.5s ease-in-out';
+    body.style.transform = 'rotate(360deg)';
+    createConfetti(window.innerWidth / 2, window.innerHeight / 2, 100);
+    
+    // Play celebration sound if available
+    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTUIGWi777ebTA8MSKXh8LVjHAU2jdXvynssBSV7x/DdkEALFGCz6OupVRQKRp/g8r5sIQU=');
+    audio.volume = 0.3;
+    audio.play().catch(() => {});
+    
+    setTimeout(() => {
+      body.style.transform = '';
+    }, 500);
+    
+    showKeyboardHint('🎉 Konami Code Activated! 🎉');
+  }
+  
+  function showHelp() {
+    const helpContent = `
+      <div style="padding:20px">
+        <h2 style="margin-top:0">⌨️ Keyboard Shortcuts</h2>
+        <div style="display:grid;gap:12px;font-size:0.95rem">
+          <div><kbd>Alt</kbd> + <kbd>1</kbd> — Switch to Schedule tab</div>
+          <div><kbd>Alt</kbd> + <kbd>2</kbd> — Switch to Grades tab</div>
+          <div><kbd>Alt</kbd> + <kbd>3</kbd> — Switch to PantherBot tab</div>
+          <div><kbd>Alt</kbd> + <kbd>T</kbd> — Jump to Today</div>
+          <div><kbd>Alt</kbd> + <kbd>←</kbd> — Previous day</div>
+          <div><kbd>Alt</kbd> + <kbd>→</kbd> — Next day</div>
+        </div>
+        <h3 style="margin-top:24px">🎮 Easter Eggs</h3>
+        <div style="font-size:0.9rem;color:#64748b">
+          <p>• Click on grade cards with A's for confetti 🎉</p>
+          <p>• Try the Konami code... (↑↑↓↓←→←→BA)</p>
+        </div>
+        <button onclick="closeHelp()" style="margin-top:20px;padding:10px 20px;background:#3b82f6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600">Got it!</button>
+      </div>
+    `;
+    
+    let modal = document.getElementById('helpModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'helpModal';
+      modal.className = 'modal';
+      modal.innerHTML = `<div class="modal-content">${helpContent}</div>`;
+      document.body.appendChild(modal);
+    } else {
+      modal.querySelector('.modal-content').innerHTML = helpContent;
+    }
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  
+  function closeHelp() {
+    const modal = document.getElementById('helpModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
+  }
 </script>
 
 <!-- CUSTOMIZATION MODAL -->
