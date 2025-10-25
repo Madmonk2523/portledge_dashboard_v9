@@ -2297,13 +2297,16 @@ body.theme-dark .btn-secondary{
   display: flex;
   gap: 30px;
   justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.3);
 }
 
 canvas {
   border: 4px solid rgba(255,255,255,0.3);
   border-radius: 12px;
-  background: #000;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  position: relative;
 }
 
 .game-controls {
@@ -2312,6 +2315,8 @@ canvas {
   border-radius: 12px;
   color: white;
   text-align: center;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.3);
 }
 
 .game-controls button {
@@ -2325,11 +2330,70 @@ canvas {
   font-weight: 700;
   margin: 0 10px;
   transition: all 0.3s ease;
+  border: 2px solid rgba(255,255,255,0.2);
 }
 
 .game-controls button:hover {
   background: rgba(255,255,255,0.5);
   transform: scale(1.05);
+}
+
+.game-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.95);
+  padding: 40px 60px;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  z-index: 100;
+  border: 3px solid rgba(255,255,255,0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  backdrop-filter: blur(10px);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translate(-50%, -60%); opacity: 0; }
+  to { transform: translate(-50%, -50%); opacity: 1; }
+}
+
+.game-overlay h2 {
+  font-size: 3rem;
+  margin: 0 0 20px 0;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 4px 20px rgba(240, 147, 251, 0.5);
+}
+
+.game-overlay .score-display {
+  font-size: 2rem;
+  margin: 20px 0;
+  color: #4ecdc4;
+  text-shadow: 0 0 20px rgba(78, 205, 196, 0.8);
+}
+
+.game-overlay button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 15px 40px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-weight: 700;
+  margin: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.game-overlay button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
 }
 
 
@@ -4114,8 +4178,16 @@ $('#closeModal').onclick=()=>{
   
   // ===== COOL FEATURES =====
   function initCoolFeatures() {
+    // Load high scores from localStorage
+    snakeHighScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
+    best2048 = parseInt(localStorage.getItem('2048HighScore')) || 0;
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
+      // Check if logged in first
+      const isLoggedIn = !document.getElementById('dashboard-student').classList.contains('hidden');
+      if (!isLoggedIn) return;
+      
       // Alt+1,2,3,4 to switch tabs
       if (e.altKey && ['1','2','3','4'].includes(e.key)) {
         e.preventDefault();
@@ -4299,6 +4371,53 @@ $('#closeModal').onclick=()=>{
     }
   }
   
+  // ===== GAME OVERLAY HELPER =====
+  function showGameOver(gameName, message, score, highScore, restartCallback) {
+    const gameContainer = document.querySelector('.game-active');
+    if (!gameContainer) return;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'game-overlay';
+    overlay.innerHTML = `
+      <div style="text-align: center;">
+        <h2 style="font-size: 48px; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);">
+          ${message}
+        </h2>
+        <div style="margin: 30px 0; font-size: 32px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+          <div style="margin-bottom: 15px;">
+            <span style="color: #f7b731;">Score: </span>
+            <span style="font-weight: bold; font-size: 36px;">${score}</span>
+          </div>
+          ${highScore !== undefined ? `
+          <div>
+            <span style="color: #4ecdc4;">High Score: </span>
+            <span style="font-weight: bold; font-size: 36px;">${highScore}</span>
+          </div>
+          ` : ''}
+        </div>
+        <button onclick="this.parentElement.parentElement.remove(); ${restartCallback}()" 
+                style="padding: 15px 40px; font-size: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                       color: white; border: none; border-radius: 50px; cursor: pointer; 
+                       box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease;
+                       font-weight: bold; letter-spacing: 1px;">
+          PLAY AGAIN
+        </button>
+      </div>
+    `;
+    
+    // Add hover effect to button
+    overlay.querySelector('button').onmouseover = function() {
+      this.style.transform = 'scale(1.05)';
+      this.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.6)';
+    };
+    overlay.querySelector('button').onmouseout = function() {
+      this.style.transform = 'scale(1)';
+      this.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+    };
+    
+    gameContainer.appendChild(overlay);
+  }
+
   // ===== SNAKE GAME =====
   let snake, food, dx, dy, score, snakeHighScore = 0;
   
@@ -4335,20 +4454,26 @@ $('#closeModal').onclick=()=>{
       
       // Check wall collision
       if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-        if (score > snakeHighScore) snakeHighScore = score;
+        if (score > snakeHighScore) {
+          snakeHighScore = score;
+          localStorage.setItem('snakeHighScore', snakeHighScore);
+        }
         document.getElementById('snakeHigh').textContent = snakeHighScore;
-        alert('Game Over! Score: ' + score);
-        initSnake();
+        clearInterval(window.gameInterval);
+        showGameOver('Snake', 'Game Over!', score, snakeHighScore, 'initSnake');
         return;
       }
       
       // Check self collision
       for (let segment of snake) {
         if (head.x === segment.x && head.y === segment.y) {
-          if (score > snakeHighScore) snakeHighScore = score;
+          if (score > snakeHighScore) {
+            snakeHighScore = score;
+            localStorage.setItem('snakeHighScore', snakeHighScore);
+          }
           document.getElementById('snakeHigh').textContent = snakeHighScore;
-          alert('Game Over! Score: ' + score);
-          initSnake();
+          clearInterval(window.gameInterval);
+          showGameOver('Snake', 'Game Over!', score, snakeHighScore, 'initSnake');
           return;
         }
       }
@@ -4368,18 +4493,79 @@ $('#closeModal').onclick=()=>{
       }
       
       // Draw
-      ctx.fillStyle = '#000';
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#1a1a2e');
+      gradient.addColorStop(1, '#16213e');
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw snake
-      ctx.fillStyle = '#4ecdc4';
+      // Draw grid
+      ctx.strokeStyle = 'rgba(102, 126, 234, 0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < tileCount; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * gridSize, 0);
+        ctx.lineTo(i * gridSize, canvas.height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i * gridSize);
+        ctx.lineTo(canvas.width, i * gridSize);
+        ctx.stroke();
+      }
+      
+      // Draw snake with gradient and glow
       snake.forEach((segment, i) => {
-        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+        const alpha = 1 - (i / snake.length) * 0.5; // Fade tail
+        const snakeGradient = ctx.createLinearGradient(
+          segment.x * gridSize, segment.y * gridSize,
+          segment.x * gridSize + gridSize, segment.y * gridSize + gridSize
+        );
+        snakeGradient.addColorStop(0, `rgba(78, 205, 196, ${alpha})`);
+        snakeGradient.addColorStop(1, `rgba(69, 183, 209, ${alpha})`);
+        ctx.fillStyle = snakeGradient;
+        
+        // Add glow effect
+        ctx.shadowColor = '#4ecdc4';
+        ctx.shadowBlur = 15;
+        ctx.fillRect(segment.x * gridSize + 1, segment.y * gridSize + 1, gridSize - 2, gridSize - 2);
+        ctx.shadowBlur = 0;
+        
+        // Draw eyes on head
+        if (i === 0) {
+          ctx.fillStyle = '#000';
+          const eyeSize = 3;
+          const eyeOffset = 6;
+          if (dx === 1) { // Right
+            ctx.fillRect(segment.x * gridSize + gridSize - eyeOffset, segment.y * gridSize + 5, eyeSize, eyeSize);
+            ctx.fillRect(segment.x * gridSize + gridSize - eyeOffset, segment.y * gridSize + 12, eyeSize, eyeSize);
+          } else if (dx === -1) { // Left
+            ctx.fillRect(segment.x * gridSize + eyeOffset - eyeSize, segment.y * gridSize + 5, eyeSize, eyeSize);
+            ctx.fillRect(segment.x * gridSize + eyeOffset - eyeSize, segment.y * gridSize + 12, eyeSize, eyeSize);
+          } else if (dy === -1) { // Up
+            ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + eyeOffset - eyeSize, eyeSize, eyeSize);
+            ctx.fillRect(segment.x * gridSize + 12, segment.y * gridSize + eyeOffset - eyeSize, eyeSize, eyeSize);
+          } else if (dy === 1) { // Down
+            ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + gridSize - eyeOffset, eyeSize, eyeSize);
+            ctx.fillRect(segment.x * gridSize + 12, segment.y * gridSize + gridSize - eyeOffset, eyeSize, eyeSize);
+          }
+        }
       });
       
-      // Draw food
-      ctx.fillStyle = '#ff6b6b';
-      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+      // Draw food with pulsing glow
+      const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+      ctx.shadowColor = '#ff6b6b';
+      ctx.shadowBlur = 20 * pulse;
+      const foodGradient = ctx.createRadialGradient(
+        food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, 0,
+        food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2
+      );
+      foodGradient.addColorStop(0, '#ff6b6b');
+      foodGradient.addColorStop(1, '#c44569');
+      ctx.fillStyle = foodGradient;
+      ctx.beginPath();
+      ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2 - 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
     }, 100);
   }
   
@@ -4422,9 +4608,12 @@ $('#closeModal').onclick=()=>{
         
         if (isGameOver2048()) {
           setTimeout(() => {
-            if (score2048 > best2048) best2048 = score2048;
+            if (score2048 > best2048) {
+              best2048 = score2048;
+              localStorage.setItem('2048HighScore', best2048);
+            }
             document.getElementById('2048High').textContent = best2048;
-            alert('Game Over! Score: ' + score2048);
+            showGameOver('2048', 'Game Over!', score2048, best2048, 'init2048');
           }, 300);
         }
       }
@@ -4452,7 +4641,11 @@ $('#closeModal').onclick=()=>{
     const tileSize = 90;
     const gap = 10;
     
-    ctx.fillStyle = '#bbada0';
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#1a1a2e');
+    gradient.addColorStop(1, '#16213e');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     const colors = {
@@ -4467,12 +4660,25 @@ $('#closeModal').onclick=()=>{
         const x = j * (tileSize + gap) + gap;
         const y = i * (tileSize + gap) + gap;
         
+        // Draw tile with shadow
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 10;
         ctx.fillStyle = colors[value] || '#3c3a32';
         ctx.fillRect(x, y, tileSize, tileSize);
+        ctx.shadowBlur = 0;
         
         if (value > 0) {
+          // Add glow for high value tiles
+          if (value >= 128) {
+            ctx.shadowColor = colors[value];
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = colors[value];
+            ctx.fillRect(x, y, tileSize, tileSize);
+            ctx.shadowBlur = 0;
+          }
+          
           ctx.fillStyle = value <= 4 ? '#776e65' : '#f9f6f2';
-          ctx.font = value < 100 ? '48px Arial' : value < 1000 ? '42px Arial' : '36px Arial';
+          ctx.font = value < 100 ? 'bold 48px Arial' : value < 1000 ? 'bold 42px Arial' : 'bold 36px Arial';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(value, x + tileSize / 2, y + tileSize / 2);
@@ -4626,7 +4832,7 @@ $('#closeModal').onclick=()=>{
             flippedCards = [];
             
             if (matchedPairs === 8) {
-              setTimeout(() => alert(`You won in ${memoryMoves} moves!`), 300);
+              setTimeout(() => showGameOver('Memory Match', 'You Win!', memoryMoves, undefined, 'initMemory'), 300);
             }
           } else {
             setTimeout(() => {
@@ -4645,22 +4851,41 @@ $('#closeModal').onclick=()=>{
     const canvas = document.getElementById('memoryCanvas');
     const ctx = canvas.getContext('2d');
     
-    ctx.fillStyle = '#000';
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#1a1a2e');
+    gradient.addColorStop(1, '#16213e');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     for (let i = 0; i < 16; i++) {
       const x = (i % 4) * 100;
       const y = Math.floor(i / 4) * 100;
       
+      let cardGradient;
       if (memoryCards[i].matched) {
-        ctx.fillStyle = '#4ecdc4';
+        cardGradient = ctx.createLinearGradient(x, y, x + 90, y + 90);
+        cardGradient.addColorStop(0, '#4ecdc4');
+        cardGradient.addColorStop(1, '#45b7d1');
+        ctx.shadowColor = '#4ecdc4';
+        ctx.shadowBlur = 15;
       } else if (memoryCards[i].flipped) {
-        ctx.fillStyle = '#f7b731';
+        cardGradient = ctx.createLinearGradient(x, y, x + 90, y + 90);
+        cardGradient.addColorStop(0, '#f7b731');
+        cardGradient.addColorStop(1, '#f39c12');
+        ctx.shadowColor = '#f7b731';
+        ctx.shadowBlur = 10;
       } else {
-        ctx.fillStyle = '#667eea';
+        cardGradient = ctx.createLinearGradient(x, y, x + 90, y + 90);
+        cardGradient.addColorStop(0, '#667eea');
+        cardGradient.addColorStop(1, '#764ba2');
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 5;
       }
       
+      ctx.fillStyle = cardGradient;
       ctx.fillRect(x + 5, y + 5, 90, 90);
+      ctx.shadowBlur = 0;
       
       if (memoryCards[i].flipped || memoryCards[i].matched) {
         ctx.font = '48px Arial';
@@ -4669,10 +4894,13 @@ $('#closeModal').onclick=()=>{
         ctx.fillText(memoryCards[i].symbol, x + 50, y + 50);
       } else {
         ctx.fillStyle = '#fff';
-        ctx.font = '36px Arial';
+        ctx.font = 'bold 36px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 3;
         ctx.fillText('?', x + 50, y + 50);
+        ctx.shadowBlur = 0;
       }
     }
   }
@@ -4743,8 +4971,8 @@ $('#closeModal').onclick=()=>{
         breakoutLives--;
         document.getElementById('breakoutLives').textContent = breakoutLives;
         if (breakoutLives <= 0) {
-          alert('Game Over! Score: ' + breakoutScore);
-          initBreakout();
+          cancelAnimationFrame(window.gameAnimFrame);
+          showGameOver('Breakout', 'Game Over!', breakoutScore, undefined, 'initBreakout');
           return;
         }
         ball = {x: 200, y: 400, dx: 3, dy: -3, radius: 6};
@@ -4764,30 +4992,51 @@ $('#closeModal').onclick=()=>{
       
       // Check win
       if (bricks.every(b => !b.active)) {
-        alert('You Win! Score: ' + breakoutScore);
-        initBreakout();
+        cancelAnimationFrame(window.gameAnimFrame);
+        showGameOver('Breakout', 'Victory!', breakoutScore, undefined, 'initBreakout');
         return;
       }
       
-      // Draw
-      ctx.fillStyle = '#000';
+      // Draw with gradient background
+      const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      bgGradient.addColorStop(0, '#1a1a2e');
+      bgGradient.addColorStop(1, '#16213e');
+      ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw paddle
-      ctx.fillStyle = '#fff';
+      // Draw paddle with gradient and glow
+      const paddleGradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.width, paddle.y + paddle.height);
+      paddleGradient.addColorStop(0, '#667eea');
+      paddleGradient.addColorStop(1, '#764ba2');
+      ctx.fillStyle = paddleGradient;
+      ctx.shadowColor = '#667eea';
+      ctx.shadowBlur = 15;
       ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+      ctx.shadowBlur = 0;
       
-      // Draw ball
+      // Draw ball with glow
+      ctx.shadowColor = '#f7b731';
+      ctx.shadowBlur = 20;
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
+      const ballGradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.radius);
+      ballGradient.addColorStop(0, '#fff');
+      ballGradient.addColorStop(1, '#f7b731');
+      ctx.fillStyle = ballGradient;
       ctx.fill();
+      ctx.shadowBlur = 0;
       
-      // Draw bricks
+      // Draw bricks with shadows and gradients
       bricks.forEach(brick => {
         if (brick.active) {
-          ctx.fillStyle = brick.color;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+          ctx.shadowBlur = 5;
+          const brickGradient = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.height);
+          brickGradient.addColorStop(0, brick.color);
+          brickGradient.addColorStop(1, adjustBrightness(brick.color, -20));
+          ctx.fillStyle = brickGradient;
           ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+          ctx.shadowBlur = 0;
         }
       });
       
@@ -4796,6 +5045,19 @@ $('#closeModal').onclick=()=>{
     
     if (window.gameAnimFrame) cancelAnimationFrame(window.gameAnimFrame);
     gameLoop();
+  }
+  
+  // Helper function to adjust color brightness
+  function adjustBrightness(color, percent) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+      (B < 255 ? B < 1 ? 0 : B : 255))
+      .toString(16).slice(1);
   }
 </script>
 
