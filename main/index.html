@@ -2184,6 +2184,154 @@ body.theme-dark .btn-secondary{
   transition: all 0.3s var(--ease);
 }
 
+/* ===== PANTHER ARCADE STYLES ===== */
+#pantherArcade {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+}
+
+#pantherArcade.active {
+  display: flex;
+}
+
+.arcade-header {
+  padding: 20px;
+  background: rgba(0,0,0,0.3);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.arcade-title {
+  font-size: 2rem;
+  font-weight: 900;
+  text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.arcade-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.arcade-close:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
+.arcade-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.game-selection {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  max-width: 800px;
+}
+
+.game-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.game-card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.game-card h3 {
+  font-size: 1.8rem;
+  margin: 0 0 10px 0;
+  color: #667eea;
+}
+
+.game-card p {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.game-canvas-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.game-canvas-container.active {
+  display: flex;
+}
+
+.game-info {
+  background: rgba(255,255,255,0.2);
+  padding: 15px 30px;
+  border-radius: 12px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+}
+
+canvas {
+  border: 4px solid rgba(255,255,255,0.3);
+  border-radius: 12px;
+  background: #000;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.game-controls {
+  background: rgba(255,255,255,0.2);
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+}
+
+.game-controls button {
+  background: rgba(255,255,255,0.3);
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  margin: 0 10px;
+  transition: all 0.3s ease;
+}
+
+.game-controls button:hover {
+  background: rgba(255,255,255,0.5);
+  transform: scale(1.05);
+}
+
 
 
 </style>
@@ -4000,6 +4148,12 @@ $('#closeModal').onclick=()=>{
       if (konamiSequence.join(',') === 'ArrowUp,ArrowUp,ArrowDown,ArrowDown,ArrowLeft,ArrowRight,ArrowLeft,ArrowRight,b,a') {
         triggerEasterEgg();
       }
+      
+      // Panther Arcade activation (Alt+G but only outside school hours)
+      if (e.altKey && e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        checkAndOpenArcade();
+      }
     });
     
     // Add floating animation to clock
@@ -4088,6 +4242,561 @@ $('#closeModal').onclick=()=>{
       modal.style.display = 'none';
     }
   }
+  
+  // ===== PANTHER ARCADE =====
+  function checkAndOpenArcade() {
+    const now = new Date();
+    const day = now.getDay();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const time = hours + minutes / 60;
+    
+    // Check if weekend (0 = Sunday, 6 = Saturday)
+    const isWeekend = day === 0 || day === 6;
+    // Check if before 8:20 AM or after 3:30 PM
+    const isBeforeSchool = time < 8.333; // 8:20 AM
+    const isAfterSchool = time >= 15.5; // 3:30 PM
+    
+    if (isWeekend || isBeforeSchool || isAfterSchool) {
+      document.getElementById('pantherArcade').classList.add('active');
+      showKeyboardHint('🎮 PANTHER ARCADE ACTIVATED!');
+    } else {
+      showKeyboardHint('🚫 Arcade only available outside school hours!');
+    }
+  }
+  
+  function closeArcade() {
+    document.getElementById('pantherArcade').classList.remove('active');
+    backToSelection();
+  }
+  
+  function backToSelection() {
+    document.getElementById('gameSelection').style.display = 'grid';
+    document.querySelectorAll('.game-canvas-container').forEach(g => g.classList.remove('active'));
+    // Stop any running games
+    if (window.gameInterval) clearInterval(window.gameInterval);
+    if (window.gameAnimFrame) cancelAnimationFrame(window.gameAnimFrame);
+  }
+  
+  function startGame(gameType) {
+    document.getElementById('gameSelection').style.display = 'none';
+    document.getElementById(gameType + 'Game').classList.add('active');
+    
+    switch(gameType) {
+      case 'snake': initSnake(); break;
+      case '2048': init2048(); break;
+      case 'memory': initMemory(); break;
+      case 'breakout': initBreakout(); break;
+    }
+  }
+  
+  function resetGame(gameType) {
+    switch(gameType) {
+      case 'snake': initSnake(); break;
+      case '2048': init2048(); break;
+      case 'memory': initMemory(); break;
+      case 'breakout': initBreakout(); break;
+    }
+  }
+  
+  // ===== SNAKE GAME =====
+  let snake, food, dx, dy, score, snakeHighScore = 0;
+  
+  function initSnake() {
+    const canvas = document.getElementById('snakeCanvas');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
+    
+    snake = [{x: 10, y: 10}];
+    food = {x: 15, y: 15};
+    dx = 0;
+    dy = 0;
+    score = 0;
+    document.getElementById('snakeScore').textContent = score;
+    document.getElementById('snakeHigh').textContent = snakeHighScore;
+    
+    if (window.gameInterval) clearInterval(window.gameInterval);
+    
+    const snakeKeys = (e) => {
+      if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
+      if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
+      if (e.key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
+      if (e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
+    };
+    document.removeEventListener('keydown', snakeKeys);
+    document.addEventListener('keydown', snakeKeys);
+    
+    window.gameInterval = setInterval(() => {
+      // Move snake
+      if (dx === 0 && dy === 0) return; // Not started yet
+      
+      const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+      
+      // Check wall collision
+      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        if (score > snakeHighScore) snakeHighScore = score;
+        document.getElementById('snakeHigh').textContent = snakeHighScore;
+        alert('Game Over! Score: ' + score);
+        initSnake();
+        return;
+      }
+      
+      // Check self collision
+      for (let segment of snake) {
+        if (head.x === segment.x && head.y === segment.y) {
+          if (score > snakeHighScore) snakeHighScore = score;
+          document.getElementById('snakeHigh').textContent = snakeHighScore;
+          alert('Game Over! Score: ' + score);
+          initSnake();
+          return;
+        }
+      }
+      
+      snake.unshift(head);
+      
+      // Check food collision
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        document.getElementById('snakeScore').textContent = score;
+        food = {
+          x: Math.floor(Math.random() * tileCount),
+          y: Math.floor(Math.random() * tileCount)
+        };
+      } else {
+        snake.pop();
+      }
+      
+      // Draw
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw snake
+      ctx.fillStyle = '#4ecdc4';
+      snake.forEach((segment, i) => {
+        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+      });
+      
+      // Draw food
+      ctx.fillStyle = '#ff6b6b';
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+    }, 100);
+  }
+  
+  // ===== 2048 GAME =====
+  let grid2048, score2048, best2048 = 0;
+  
+  function init2048() {
+    const canvas = document.getElementById('2048Canvas');
+    const ctx = canvas.getContext('2d');
+    
+    grid2048 = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0]
+    ];
+    score2048 = 0;
+    document.getElementById('2048Score').textContent = score2048;
+    document.getElementById('2048High').textContent = best2048;
+    
+    addNew2048Tile();
+    addNew2048Tile();
+    draw2048();
+    
+    const keys2048 = (e) => {
+      if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+      e.preventDefault();
+      
+      let moved = false;
+      const oldGrid = JSON.stringify(grid2048);
+      
+      if (e.key === 'ArrowLeft') moved = moveLeft2048();
+      if (e.key === 'ArrowRight') moved = moveRight2048();
+      if (e.key === 'ArrowUp') moved = moveUp2048();
+      if (e.key === 'ArrowDown') moved = moveDown2048();
+      
+      if (moved && oldGrid !== JSON.stringify(grid2048)) {
+        addNew2048Tile();
+        draw2048();
+        
+        if (isGameOver2048()) {
+          setTimeout(() => {
+            if (score2048 > best2048) best2048 = score2048;
+            document.getElementById('2048High').textContent = best2048;
+            alert('Game Over! Score: ' + score2048);
+          }, 300);
+        }
+      }
+    };
+    document.removeEventListener('keydown', keys2048);
+    document.addEventListener('keydown', keys2048);
+  }
+  
+  function addNew2048Tile() {
+    const empty = [];
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (grid2048[i][j] === 0) empty.push({i, j});
+      }
+    }
+    if (empty.length > 0) {
+      const {i, j} = empty[Math.floor(Math.random() * empty.length)];
+      grid2048[i][j] = Math.random() < 0.9 ? 2 : 4;
+    }
+  }
+  
+  function draw2048() {
+    const canvas = document.getElementById('2048Canvas');
+    const ctx = canvas.getContext('2d');
+    const tileSize = 90;
+    const gap = 10;
+    
+    ctx.fillStyle = '#bbada0';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const colors = {
+      0: '#cdc1b4', 2: '#eee4da', 4: '#ede0c8', 8: '#f2b179',
+      16: '#f59563', 32: '#f67c5f', 64: '#f65e3b', 128: '#edcf72',
+      256: '#edcc61', 512: '#edc850', 1024: '#edc53f', 2048: '#edc22e'
+    };
+    
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        const value = grid2048[i][j];
+        const x = j * (tileSize + gap) + gap;
+        const y = i * (tileSize + gap) + gap;
+        
+        ctx.fillStyle = colors[value] || '#3c3a32';
+        ctx.fillRect(x, y, tileSize, tileSize);
+        
+        if (value > 0) {
+          ctx.fillStyle = value <= 4 ? '#776e65' : '#f9f6f2';
+          ctx.font = value < 100 ? '48px Arial' : value < 1000 ? '42px Arial' : '36px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(value, x + tileSize / 2, y + tileSize / 2);
+        }
+      }
+    }
+  }
+  
+  function moveLeft2048() {
+    let moved = false;
+    for (let i = 0; i < 4; i++) {
+      let row = grid2048[i].filter(v => v !== 0);
+      for (let j = 0; j < row.length - 1; j++) {
+        if (row[j] === row[j + 1]) {
+          row[j] *= 2;
+          score2048 += row[j];
+          document.getElementById('2048Score').textContent = score2048;
+          row.splice(j + 1, 1);
+        }
+      }
+      while (row.length < 4) row.push(0);
+      if (JSON.stringify(grid2048[i]) !== JSON.stringify(row)) moved = true;
+      grid2048[i] = row;
+    }
+    return moved;
+  }
+  
+  function moveRight2048() {
+    let moved = false;
+    for (let i = 0; i < 4; i++) {
+      let row = grid2048[i].filter(v => v !== 0);
+      for (let j = row.length - 1; j > 0; j--) {
+        if (row[j] === row[j - 1]) {
+          row[j] *= 2;
+          score2048 += row[j];
+          document.getElementById('2048Score').textContent = score2048;
+          row.splice(j - 1, 1);
+          j--;
+        }
+      }
+      while (row.length < 4) row.unshift(0);
+      if (JSON.stringify(grid2048[i]) !== JSON.stringify(row)) moved = true;
+      grid2048[i] = row;
+    }
+    return moved;
+  }
+  
+  function moveUp2048() {
+    let moved = false;
+    for (let j = 0; j < 4; j++) {
+      let col = [grid2048[0][j], grid2048[1][j], grid2048[2][j], grid2048[3][j]].filter(v => v !== 0);
+      for (let i = 0; i < col.length - 1; i++) {
+        if (col[i] === col[i + 1]) {
+          col[i] *= 2;
+          score2048 += col[i];
+          document.getElementById('2048Score').textContent = score2048;
+          col.splice(i + 1, 1);
+        }
+      }
+      while (col.length < 4) col.push(0);
+      for (let i = 0; i < 4; i++) {
+        if (grid2048[i][j] !== col[i]) moved = true;
+        grid2048[i][j] = col[i];
+      }
+    }
+    return moved;
+  }
+  
+  function moveDown2048() {
+    let moved = false;
+    for (let j = 0; j < 4; j++) {
+      let col = [grid2048[0][j], grid2048[1][j], grid2048[2][j], grid2048[3][j]].filter(v => v !== 0);
+      for (let i = col.length - 1; i > 0; i--) {
+        if (col[i] === col[i - 1]) {
+          col[i] *= 2;
+          score2048 += col[i];
+          document.getElementById('2048Score').textContent = score2048;
+          col.splice(i - 1, 1);
+          i--;
+        }
+      }
+      while (col.length < 4) col.unshift(0);
+      for (let i = 0; i < 4; i++) {
+        if (grid2048[i][j] !== col[i]) moved = true;
+        grid2048[i][j] = col[i];
+      }
+    }
+    return moved;
+  }
+  
+  function isGameOver2048() {
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (grid2048[i][j] === 0) return false;
+        if (j < 3 && grid2048[i][j] === grid2048[i][j + 1]) return false;
+        if (i < 3 && grid2048[i][j] === grid2048[i + 1][j]) return false;
+      }
+    }
+    return true;
+  }
+  
+  // ===== MEMORY MATCH GAME =====
+  let memoryCards, flippedCards, matchedPairs, memoryMoves;
+  
+  function initMemory() {
+    const canvas = document.getElementById('memoryCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const symbols = ['🎮', '🎯', '🎨', '🎭', '🎪', '🎸', '🎺', '🎻'];
+    memoryCards = [...symbols, ...symbols].sort(() => Math.random() - 0.5).map((sym, i) => ({
+      symbol: sym,
+      flipped: false,
+      matched: false,
+      index: i
+    }));
+    
+    flippedCards = [];
+    matchedPairs = 0;
+    memoryMoves = 0;
+    document.getElementById('memoryMoves').textContent = memoryMoves;
+    document.getElementById('memoryMatches').textContent = matchedPairs;
+    
+    drawMemory();
+    
+    canvas.onclick = (e) => {
+      if (flippedCards.length >= 2) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const col = Math.floor(x / 100);
+      const row = Math.floor(y / 100);
+      const index = row * 4 + col;
+      
+      if (index >= 0 && index < 16 && !memoryCards[index].flipped && !memoryCards[index].matched) {
+        memoryCards[index].flipped = true;
+        flippedCards.push(index);
+        drawMemory();
+        
+        if (flippedCards.length === 2) {
+          memoryMoves++;
+          document.getElementById('memoryMoves').textContent = memoryMoves;
+          
+          const [first, second] = flippedCards;
+          if (memoryCards[first].symbol === memoryCards[second].symbol) {
+            memoryCards[first].matched = true;
+            memoryCards[second].matched = true;
+            matchedPairs++;
+            document.getElementById('memoryMatches').textContent = matchedPairs;
+            flippedCards = [];
+            
+            if (matchedPairs === 8) {
+              setTimeout(() => alert(`You won in ${memoryMoves} moves!`), 300);
+            }
+          } else {
+            setTimeout(() => {
+              memoryCards[first].flipped = false;
+              memoryCards[second].flipped = false;
+              flippedCards = [];
+              drawMemory();
+            }, 800);
+          }
+        }
+      }
+    };
+  }
+  
+  function drawMemory() {
+    const canvas = document.getElementById('memoryCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = 0; i < 16; i++) {
+      const x = (i % 4) * 100;
+      const y = Math.floor(i / 4) * 100;
+      
+      if (memoryCards[i].matched) {
+        ctx.fillStyle = '#4ecdc4';
+      } else if (memoryCards[i].flipped) {
+        ctx.fillStyle = '#f7b731';
+      } else {
+        ctx.fillStyle = '#667eea';
+      }
+      
+      ctx.fillRect(x + 5, y + 5, 90, 90);
+      
+      if (memoryCards[i].flipped || memoryCards[i].matched) {
+        ctx.font = '48px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(memoryCards[i].symbol, x + 50, y + 50);
+      } else {
+        ctx.fillStyle = '#fff';
+        ctx.font = '36px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('?', x + 50, y + 50);
+      }
+    }
+  }
+  
+  // ===== BREAKOUT GAME =====
+  let paddle, ball, bricks, breakoutScore, breakoutLives;
+  
+  function initBreakout() {
+    const canvas = document.getElementById('breakoutCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    paddle = {x: 160, y: 470, width: 80, height: 10, speed: 8};
+    ball = {x: 200, y: 400, dx: 3, dy: -3, radius: 6};
+    breakoutScore = 0;
+    breakoutLives = 3;
+    
+    document.getElementById('breakoutScore').textContent = breakoutScore;
+    document.getElementById('breakoutLives').textContent = breakoutLives;
+    
+    bricks = [];
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 8; col++) {
+        bricks.push({
+          x: col * 50 + 5,
+          y: row * 20 + 30,
+          width: 45,
+          height: 15,
+          active: true,
+          color: ['#ff6b6b', '#f7b731', '#4ecdc4', '#45b7d1', '#5f27cd'][row]
+        });
+      }
+    }
+    
+    const keys = {};
+    document.addEventListener('keydown', e => keys[e.key] = true);
+    document.addEventListener('keyup', e => keys[e.key] = false);
+    
+    canvas.onmousemove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      paddle.x = e.clientX - rect.left - paddle.width / 2;
+      if (paddle.x < 0) paddle.x = 0;
+      if (paddle.x > canvas.width - paddle.width) paddle.x = canvas.width - paddle.width;
+    };
+    
+    function gameLoop() {
+      // Move paddle
+      if (keys['ArrowLeft'] && paddle.x > 0) paddle.x -= paddle.speed;
+      if (keys['ArrowRight'] && paddle.x < canvas.width - paddle.width) paddle.x += paddle.speed;
+      
+      // Move ball
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+      
+      // Ball collision with walls
+      if (ball.x < ball.radius || ball.x > canvas.width - ball.radius) ball.dx *= -1;
+      if (ball.y < ball.radius) ball.dy *= -1;
+      
+      // Ball collision with paddle
+      if (ball.y + ball.radius > paddle.y &&
+          ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+        ball.dy = -Math.abs(ball.dy);
+        const hitPos = (ball.x - paddle.x) / paddle.width - 0.5;
+        ball.dx = hitPos * 6;
+      }
+      
+      // Ball falls off bottom
+      if (ball.y > canvas.height) {
+        breakoutLives--;
+        document.getElementById('breakoutLives').textContent = breakoutLives;
+        if (breakoutLives <= 0) {
+          alert('Game Over! Score: ' + breakoutScore);
+          initBreakout();
+          return;
+        }
+        ball = {x: 200, y: 400, dx: 3, dy: -3, radius: 6};
+      }
+      
+      // Ball collision with bricks
+      bricks.forEach(brick => {
+        if (brick.active &&
+            ball.x > brick.x && ball.x < brick.x + brick.width &&
+            ball.y > brick.y && ball.y < brick.y + brick.height) {
+          ball.dy *= -1;
+          brick.active = false;
+          breakoutScore += 10;
+          document.getElementById('breakoutScore').textContent = breakoutScore;
+        }
+      });
+      
+      // Check win
+      if (bricks.every(b => !b.active)) {
+        alert('You Win! Score: ' + breakoutScore);
+        initBreakout();
+        return;
+      }
+      
+      // Draw
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw paddle
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+      
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      
+      // Draw bricks
+      bricks.forEach(brick => {
+        if (brick.active) {
+          ctx.fillStyle = brick.color;
+          ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+        }
+      });
+      
+      window.gameAnimFrame = requestAnimationFrame(gameLoop);
+    }
+    
+    if (window.gameAnimFrame) cancelAnimationFrame(window.gameAnimFrame);
+    gameLoop();
+  }
 </script>
 
 <!-- CUSTOMIZATION MODAL -->
@@ -4159,6 +4868,93 @@ $('#closeModal').onclick=()=>{
   </div>
   
 </div>
+
+<!-- PANTHER ARCADE (Secret Games) -->
+<div id="pantherArcade">
+  <div class="arcade-header">
+    <div class="arcade-title">🎮 PANTHER ARCADE</div>
+    <button class="arcade-close" onclick="closeArcade()">✕ Exit</button>
+  </div>
+  <div class="arcade-container">
+    <!-- Game Selection Screen -->
+    <div id="gameSelection" class="game-selection">
+      <div class="game-card" onclick="startGame('snake')">
+        <h3>🐍 Snake</h3>
+        <p>Classic snake game - eat food and grow!</p>
+      </div>
+      <div class="game-card" onclick="startGame('2048')">
+        <h3>🔢 2048</h3>
+        <p>Merge tiles to reach 2048!</p>
+      </div>
+      <div class="game-card" onclick="startGame('memory')">
+        <h3>🧠 Memory Match</h3>
+        <p>Find all the matching pairs!</p>
+      </div>
+      <div class="game-card" onclick="startGame('breakout')">
+        <h3>🧱 Breakout</h3>
+        <p>Break all the bricks!</p>
+      </div>
+    </div>
+
+    <!-- Snake Game Canvas -->
+    <div id="snakeGame" class="game-canvas-container">
+      <div class="game-info">
+        <div>Score: <span id="snakeScore">0</span></div>
+        <div>High Score: <span id="snakeHigh">0</span></div>
+      </div>
+      <canvas id="snakeCanvas" width="400" height="400"></canvas>
+      <div class="game-controls">
+        <p>Use Arrow Keys to move</p>
+        <button onclick="resetGame('snake')">Restart</button>
+        <button onclick="backToSelection()">Back</button>
+      </div>
+    </div>
+
+    <!-- 2048 Game Canvas -->
+    <div id="2048Game" class="game-canvas-container">
+      <div class="game-info">
+        <div>Score: <span id="2048Score">0</span></div>
+        <div>Best: <span id="2048High">0</span></div>
+      </div>
+      <canvas id="2048Canvas" width="400" height="400"></canvas>
+      <div class="game-controls">
+        <p>Use Arrow Keys to slide tiles</p>
+        <button onclick="resetGame('2048')">New Game</button>
+        <button onclick="backToSelection()">Back</button>
+      </div>
+    </div>
+
+    <!-- Memory Match Game Canvas -->
+    <div id="memoryGame" class="game-canvas-container">
+      <div class="game-info">
+        <div>Moves: <span id="memoryMoves">0</span></div>
+        <div>Matches: <span id="memoryMatches">0</span>/8</div>
+      </div>
+      <canvas id="memoryCanvas" width="400" height="400"></canvas>
+      <div class="game-controls">
+        <p>Click cards to find matches</p>
+        <button onclick="resetGame('memory')">New Game</button>
+        <button onclick="backToSelection()">Back</button>
+      </div>
+    </div>
+
+    <!-- Breakout Game Canvas -->
+    <div id="breakoutGame" class="game-canvas-container">
+      <div class="game-info">
+        <div>Score: <span id="breakoutScore">0</span></div>
+        <div>Lives: <span id="breakoutLives">3</span></div>
+      </div>
+      <canvas id="breakoutCanvas" width="400" height="500"></canvas>
+      <div class="game-controls">
+        <p>Use Arrow Keys or Mouse to move paddle</p>
+        <button onclick="resetGame('breakout')">Restart</button>
+        <button onclick="backToSelection()">Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
+
 
