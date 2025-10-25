@@ -7,6 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 <title>Portledge Dashboard — v11 (Role-Based)</title>
+<link rel="icon" href="data:," />
 
 <!-- PWA & Mobile Optimizations -->
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -2368,7 +2369,7 @@ body.theme-dark .btn-secondary{
 <!-- Teacher dashboard removed -->
 
 <!-- ===== Modal (reused by student grades if needed) ===== -->
-<div id="gradeModal" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="mTitle">
+<div id="gradeModal" class="modal hidden" role="dialog" aria-labelledby="mTitle">
   <div class="modal-content">
     <button id="closeModal" class="close-btn">Close</button>
     <h3 id="mTitle">Course Details</h3>
@@ -3702,8 +3703,17 @@ function initDirectory(inpSel, gridSel, infoSel, prevSel, nextSel, gradeSel){
 }
 
 /* ===== Simple modal reuse ===== */
-function openModal(){ const m=$('#gradeModal'); m.classList.remove('hidden'); m.setAttribute('aria-hidden','false'); }
-$('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden'); m.setAttribute('aria-hidden','true'); };
+function openModal(){ 
+  const m=$('#gradeModal'); 
+  m.classList.remove('hidden');
+  // Focus the close button when modal opens
+  const closeBtn = m.querySelector('#closeModal');
+  if(closeBtn) setTimeout(() => closeBtn.focus(), 100);
+}
+$('#closeModal').onclick=()=>{ 
+  const m=$('#gradeModal'); 
+  m.classList.add('hidden');
+};
 
 </script>
 
@@ -3834,7 +3844,11 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
 <script>
   // ===== Temp Settings Logic =====
   function openTempModal(){
-    const m=document.getElementById('tempModal'); if(!m) return; m.classList.remove('hidden'); m.setAttribute('aria-hidden','false');
+    const m=document.getElementById('tempModal'); if(!m) return; 
+    m.classList.remove('hidden');
+    // Focus management: Focus the first input when modal opens
+    const firstInput = m.querySelector('input, button');
+    if(firstInput) setTimeout(() => firstInput.focus(), 100);
     // Prefill
     const o = localStorage.getItem('pd_time_override');
     const inp = document.getElementById('tempOverride');
@@ -3852,7 +3866,14 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
       status.textContent = 'No override active.';
     }
   }
-  function closeTempModal(){ const m=document.getElementById('tempModal'); if(!m) return; m.classList.add('hidden'); m.setAttribute('aria-hidden','true'); }
+  function closeTempModal(){ 
+    const m=document.getElementById('tempModal'); 
+    if(!m) return; 
+    m.classList.add('hidden');
+    // Return focus to trigger button if exists
+    const triggerBtn = document.querySelector('[onclick*="openTempModal"]');
+    if(triggerBtn) triggerBtn.focus();
+  }
   function setTempNow(){
     const inp = document.getElementById('tempOverride');
     if(!inp) return;
@@ -3933,7 +3954,7 @@ $('#closeModal').onclick=()=>{ const m=$('#gradeModal'); m.classList.add('hidden
 <button id="backToTop" aria-label="Back to top">↑ Top</button>
 
 <!-- TEMP SETTINGS MODAL -->
-<div id="tempModal" class="modal hidden" aria-hidden="true">
+<div id="tempModal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
       <h2>⏱️ Temp Settings</h2>
