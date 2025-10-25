@@ -283,14 +283,31 @@ function getStudentContext() {
   const context = {
     currentTime: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
     currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+    studentName: null,
+    studentEmail: null,
+    studentGrade: null,
     schedule: null,
     nextClass: null,
     currentClass: null,
     grades: null,
+    assignments: null,
     recentActivity: null
   };
   
   try {
+    // Identify the current user from the directory
+    try {
+      const savedEmail = localStorage.getItem('portledge_saved_email');
+      if (savedEmail && typeof studentsAll !== 'undefined' && Array.isArray(studentsAll)) {
+        const me = studentsAll.find(s => s.email === savedEmail);
+        if (me) {
+          context.studentName = me.name || 'Student';
+          context.studentEmail = me.email || savedEmail;
+          context.studentGrade = me.gradeLevel ? `${me.gradeLevel}th grade` : null;
+        }
+      }
+    } catch {}
+
     // Get current/next class from the Next chip
     const nextUpText = document.getElementById('nextUpText')?.textContent;
     if (nextUpText && !nextUpText.includes('—')) {
@@ -328,22 +345,54 @@ function getStudentContext() {
       }
     }
     
-    // Get grades from the grades page
-    const gradesContainer = document.getElementById('s_grades_list');
-    if (gradesContainer) {
-      const gradeCards = gradesContainer.querySelectorAll('.gcard');
-      const gradesList = [];
-      gradeCards.forEach(card => {
-        const subject = card.querySelector('.gtitle')?.textContent;
-        const grade = card.querySelector('.gbig')?.textContent;
-        if (subject && grade) {
-          gradesList.push({ subject, grade });
+    // Get grades from the grades grid (more reliable)
+    try {
+      const gradesGrid = document.getElementById('gradesGrid');
+      if (gradesGrid) {
+        const gradeCards = gradesGrid.querySelectorAll('.gcard');
+        const gradesList = [];
+        gradeCards.forEach(card => {
+          const subject = card.querySelector('.gtitle')?.textContent?.trim();
+          const gradeText = card.querySelector('.ggrade')?.textContent?.trim(); // e.g., "A- • 92%"
+          const details = card.querySelector('.gsub')?.textContent?.trim(); // e.g., "Recent: Quiz Avg: 90% • HW Avg: 94%"
+          if (subject && gradeText) {
+            gradesList.push({ 
+              subject, 
+              grade: gradeText,
+              details: details || ''
+            });
+          }
+        });
+        if (gradesList.length > 0) {
+          context.grades = gradesList;
         }
-      });
-      if (gradesList.length > 0) {
-        context.grades = gradesList;
       }
-    }
+    } catch {}
+    
+    // Get assignments from the assignments list
+    try {
+      const assignmentsList = document.getElementById('assList');
+      if (assignmentsList) {
+        const assignmentItems = assignmentsList.querySelectorAll('.ass-item');
+        const assignmentsData = [];
+        assignmentItems.forEach(item => {
+          const title = item.querySelector('.atitle')?.textContent?.trim();
+          const meta = item.querySelector('.ameta')?.textContent?.trim(); // e.g., "Due Oct 28 • Chemistry"
+          const statusBadge = item.querySelector('.badge')?.textContent?.trim(); // e.g., "In Progress"
+          if (title) {
+            assignmentsData.push({
+              title,
+              meta: meta || '',
+              status: statusBadge || 'Unknown'
+            });
+          }
+        });
+        if (assignmentsData.length > 0) {
+          context.assignments = assignmentsData;
+        }
+      }
+    } catch {}
+    
   } catch (err) {
     console.error('Error gathering student context:', err);
   }
@@ -356,6 +405,16 @@ function formatContextForAI(context) {
   let text = `REAL-TIME STUDENT CONTEXT:\n`;
   text += `Current time: ${context.currentTime} on ${context.currentDate}\n\n`;
   
+  // Student identity
+  if (context.studentName) {
+    text += `STUDENT PROFILE:\n`;
+    text += `  Name: ${context.studentName}\n`;
+    if (context.studentEmail) text += `  Email: ${context.studentEmail}\n`;
+    if (context.studentGrade) text += `  Grade Level: ${context.studentGrade}\n`;
+    text += `\n`;
+  }
+  
+  // Current/next class
   if (context.currentClass) {
     text += `CURRENT CLASS: ${context.currentClass}\n`;
   }
@@ -363,6 +422,7 @@ function formatContextForAI(context) {
     text += `NEXT CLASS: ${context.nextClass}\n`;
   }
   
+  // Today's schedule
   if (context.schedule && context.schedule.length > 0) {
     text += `\nTODAY'S SCHEDULE:\n`;
     context.schedule.forEach(item => {
@@ -373,10 +433,24 @@ function formatContextForAI(context) {
     });
   }
   
+  // Grades
   if (context.grades && context.grades.length > 0) {
     text += `\nCURRENT GRADES:\n`;
     context.grades.forEach(g => {
-      text += `  ${g.subject}: ${g.grade}\n`;
+      text += `  ${g.subject}: ${g.grade}`;
+      if (g.details) text += ` — ${g.details}`;
+      text += `\n`;
+    });
+  }
+  
+  // Assignments/homework
+  if (context.assignments && context.assignments.length > 0) {
+    text += `\nASSIGNMENTS & HOMEWORK:\n`;
+    context.assignments.forEach(a => {
+      text += `  • ${a.title}`;
+      if (a.meta) text += ` (${a.meta})`;
+      if (a.status) text += ` — Status: ${a.status}`;
+      text += `\n`;
     });
   }
   
@@ -856,26 +930,31 @@ SCHEDULE TIMING RULES (CRITICAL):
 • For class duration questions, cite the Monday=40min (to fit all classes), Tues-Fri=50/70min rule
 
 INTELLIGENCE RULES:
-- For "my next class" or "my schedule" questions → Use REAL-TIME CONTEXT above with exact times
-- For "how long is class" or duration questions → Use SCHEDULE TIMING RULES (40min Monday, 50/70min Tues-Fri)
-- For "my grades" or "how am I doing" questions → Reference their actual CURRENT GRADES
+- For personal questions ("my", "I", "me") → Use STUDENT PROFILE and REAL-TIME CONTEXT
+- "my next class" or "my schedule" → Use REAL-TIME CONTEXT with exact times and teachers
+- "my grades" or "how am I doing" → Reference CURRENT GRADES with specific percentages
+- "my homework" or "assignments" → List ASSIGNMENTS & HOMEWORK with due dates
+- "who am I" or "what grade am I in" → Use STUDENT PROFILE
+- For "how long is class" or duration → Use SCHEDULE TIMING RULES (40min Monday, 50/70min Tues-Fri)
 - For handbook/policy questions → Use PORTLEDGE HANDBOOK KNOWLEDGE
 - Always consider current time and what's happening NOW
 
 ANSWER STYLE:
 - Match question complexity: Short Q = Short A (1-2 sentences), Complex Q = Detailed A
-- When using student's real data, be SPECIFIC (exact times, class names, actual grades)
+- When using student's personal data, be SPECIFIC and DIRECT (use their name, exact times, actual grades)
 - Be conversational and helpful, use 1-2 emojis naturally
+- For personal questions, answer as if you're their personal assistant who knows them
 
 EXAMPLES:
-❓ "What's my next class?" → Check NEXT CLASS and give specific answer with time
-❓ "How am I doing in Math?" → Check CURRENT GRADES and give their actual grade
+❓ "Who am I?" → "You're Chase Rubin Mallor, a 10th grader at Portledge."
+❓ "What's my next class?" → "Your next class is Chemistry at 10:30 AM with Ms. Johnson in Room 204."
+❓ "How am I doing in Algebra?" → "You're doing great! You have an A- (92%) in Algebra II with a quiz average of 90% and homework average of 94%."
+❓ "What homework do I have?" → List assignments with due dates from ASSIGNMENTS section
+❓ "What's my schedule today?" → List their TODAY'S SCHEDULE with times and teachers
 ❓ "What are school hours?" → "School runs 8:20 AM - 3:30 PM."
 ❓ "How long are classes on Monday?" → "All Monday classes are 40 minutes so you can attend every class in one day."
-❓ "How long are classes?" → "Monday classes are 40 minutes (to fit all classes). Tuesday-Friday classes are 50 or 70 minutes."
-❓ "Why are Monday classes shorter?" → "Monday uses 40-minute periods so students can attend every single class in one day."
 
-You're not just a handbook - you're a SMART assistant who knows THIS student's live info!`;
+You're not just a handbook - you're THIS STUDENT'S personal AI assistant who knows everything about them!`;
 
 
     const controller = new AbortController();
