@@ -7,6 +7,13 @@ async function getDirectory() {
   if (DIRECTORY_CACHE) return DIRECTORY_CACHE;
   let arr = Array.isArray(PORTLEDGE_DIRECTORY) ? [...PORTLEDGE_DIRECTORY] : [];
   try {
+    // Pull from global studentsAll defined in main/index.html (Directory page)
+    try {
+      if (typeof studentsAll !== 'undefined' && Array.isArray(studentsAll)) {
+        arr = [...arr, ...studentsAll];
+      }
+    } catch {}
+
     // main/index.html loads this file; JSON path is relative to the page
     const res = await fetch('../pantherbot/directory.json', { cache: 'no-store' });
     if (res.ok) {
@@ -45,21 +52,33 @@ function extractNameTokens(text) {
   return tokens.slice(-3); // keep last up to 3 tokens as likely name parts
 }
 
+function getNameParts(entry){
+  // Prefer explicit first/last but fall back to splitting name
+  let first = String(entry.first || entry.firstname || '').toLowerCase().trim();
+  let last = String(entry.last || entry.lastname || '').toLowerCase().trim();
+  const full = String(entry.name || `${first} ${last}` || '').toLowerCase().trim();
+  if ((!first || !last) && entry.name) {
+    const parts = String(entry.name).toLowerCase().trim().split(/\s+/).filter(Boolean);
+    if (!first && parts.length > 0) first = parts[0];
+    if (!last && parts.length > 1) last = parts[parts.length - 1];
+  }
+  return { first, last, full };
+}
+
 function matchDirectoryByNameTokens(tokens, directory) {
   if (!tokens || tokens.length === 0) return [];
   const tset = new Set(tokens);
   const results = [];
   for (const entry of directory) {
-    const first = String(entry.first || entry.firstname || '').toLowerCase().trim();
-    const last = String(entry.last || entry.lastname || '').toLowerCase().trim();
-    if (!first && !last) continue;
-    const nameTokens = new Set([first, last].filter(Boolean));
-    // basic match: all query tokens must be contained within first/last (prefix ok)
+    const { first, last, full } = getNameParts(entry);
+    if (!first && !last && !full) continue;
+    // basic match: all query tokens must match first or last (prefix ok) or appear in full name words
     let ok = true;
     for (const t of tset) {
-      const matchesFirst = first.startsWith(t) || first === t;
-      const matchesLast = last.startsWith(t) || last === t;
-      if (!matchesFirst && !matchesLast) { ok = false; break; }
+      const matchesFirst = first && (first.startsWith(t) || first === t);
+      const matchesLast = last && (last.startsWith(t) || last === t);
+      const matchesFull = full && full.split(/\s+/).some(w => w.startsWith(t) || w === t);
+      if (!matchesFirst && !matchesLast && !matchesFull) { ok = false; break; }
     }
     if (ok) results.push(entry);
   }
@@ -640,7 +659,8 @@ async function handleSend() {
       }
       if (matches.length === 1) {
         const m = matches[0];
-        const fullName = [m.first || m.firstname, m.last || m.lastname].filter(Boolean).join(' ').trim();
+        const parts = getNameParts(m);
+        const fullName = (m.name || `${(m.first||m.firstname||'').trim()} ${(m.last||m.lastname||'').trim()}` ).trim() || `${(parts.first||'').trim()} ${(parts.last||'').trim()}`.trim();
         const gradeText = formatGrade(m.grade ?? m.gradeLevel ?? m.year);
         if (gradeText) {
           addMessage('bot', `${fullName || 'That student'} is in ${gradeText}.`);
@@ -653,7 +673,9 @@ async function handleSend() {
       const options = matches.slice(0, 5).map(m => {
         const fn = String(m.first || m.firstname || '').trim();
         const ln = String(m.last || m.lastname || '').trim();
-        return `${fn} ${ln}`.trim();
+        const full = String(m.name || '').trim();
+        const combined = `${fn} ${ln}`.trim();
+        return (full || combined) || 'Unknown';
       });
       const uniqueOptions = Array.from(new Set(options));
       const list = uniqueOptions.map(n => `• ${n}`).join('\n');
