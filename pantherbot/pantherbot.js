@@ -1,6 +1,29 @@
 ﻿// Optional student directory import for grade lookups
 import { PORTLEDGE_DIRECTORY } from './directory.js';
 
+// Runtime loader to also fetch a JSON file if provided
+let DIRECTORY_CACHE = null;
+async function getDirectory() {
+  if (DIRECTORY_CACHE) return DIRECTORY_CACHE;
+  let arr = Array.isArray(PORTLEDGE_DIRECTORY) ? [...PORTLEDGE_DIRECTORY] : [];
+  try {
+    // main/index.html loads this file; JSON path is relative to the page
+    const res = await fetch('../pantherbot/directory.json', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        arr = [...arr, ...data];
+      } else if (data && Array.isArray(data.students)) {
+        arr = [...arr, ...data.students];
+      }
+    }
+  } catch (e) {
+    // 404 or JSON parse errors are fine; we'll just use the static array
+  }
+  DIRECTORY_CACHE = arr;
+  return DIRECTORY_CACHE;
+}
+
 function toOrdinal(n) {
   const s = ["th","st","nd","rd"], v = n % 100;
   return n + (s[(v-20)%10] || s[v] || s[0]);
@@ -603,11 +626,12 @@ async function handleSend() {
   // === DIRECTORY GRADE LOOKUP OVERRIDE ===
   // If the user asks about a person's grade, try to answer from the directory.
   const gradeIntent = /\b(what\s+grade\s+is|grade\s+level\s+of|which\s+grade\s+is|what\s+year\s+is)\b/i;
-  const hasDirectory = Array.isArray(PORTLEDGE_DIRECTORY);
-  if (gradeIntent.test(userText) && hasDirectory) {
+  if (gradeIntent.test(userText)) {
+    const directory = await getDirectory();
+    const hasDirectory = Array.isArray(directory) && directory.length > 0;
     const nameTokens = extractNameTokens(userText);
-    if (nameTokens.length > 0) {
-      const matches = matchDirectoryByNameTokens(nameTokens, PORTLEDGE_DIRECTORY);
+    if (hasDirectory && nameTokens.length > 0) {
+      const matches = matchDirectoryByNameTokens(nameTokens, directory);
       addMessage('user', userText);
       userInput.value = '';
       if (matches.length === 0) {
@@ -634,6 +658,12 @@ async function handleSend() {
       const uniqueOptions = Array.from(new Set(options));
       const list = uniqueOptions.map(n => `• ${n}`).join('\n');
       addMessage('bot', `I found multiple matches. Which one did you mean?\n${list}`);
+      return;
+    }
+    if (!hasDirectory) {
+      addMessage('user', userText);
+      userInput.value = '';
+      addMessage('bot', 'I don\'t have a directory loaded yet. Add entries to pantherbot/directory.js or drop a JSON file at pantherbot/directory.json and try again.');
       return;
     }
   }
