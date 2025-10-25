@@ -1,4 +1,53 @@
-﻿// === PantherBot v6 — EXTRA SMART with Context Awareness ===
+﻿// Optional student directory import for grade lookups
+import { PORTLEDGE_DIRECTORY } from './directory.js';
+
+function toOrdinal(n) {
+  const s = ["th","st","nd","rd"], v = n % 100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+
+function formatGrade(g) {
+  if (g == null) return '';
+  if (typeof g === 'number') return `${toOrdinal(g)} grade`;
+  const num = parseInt(String(g), 10);
+  if (!isNaN(num)) return `${toOrdinal(num)} grade`;
+  // fallback for labels like 'Kindergarten' or 'Pre-K'
+  return String(g);
+}
+
+function extractNameTokens(text) {
+  const stop = new Set(['what','which','grade','is','in','the','of','level','year','student','a','an','for','please','tell','me','and','do','you','know','who','s','whats','what\'s']);
+  const cleaned = text.toLowerCase().replace(/[^a-z\s]/g, ' ');
+  const tokens = cleaned.split(/\s+/).filter(t => t && !stop.has(t) && t.length >= 2);
+  return tokens.slice(-3); // keep last up to 3 tokens as likely name parts
+}
+
+function matchDirectoryByNameTokens(tokens, directory) {
+  if (!tokens || tokens.length === 0) return [];
+  const tset = new Set(tokens);
+  const results = [];
+  for (const entry of directory) {
+    const first = String(entry.first || entry.firstname || '').toLowerCase().trim();
+    const last = String(entry.last || entry.lastname || '').toLowerCase().trim();
+    if (!first && !last) continue;
+    const nameTokens = new Set([first, last].filter(Boolean));
+    // basic match: all query tokens must be contained within first/last (prefix ok)
+    let ok = true;
+    for (const t of tset) {
+      const matchesFirst = first.startsWith(t) || first === t;
+      const matchesLast = last.startsWith(t) || last === t;
+      if (!matchesFirst && !matchesLast) { ok = false; break; }
+    }
+    if (ok) results.push(entry);
+  }
+  // if too many matches and we had 3 tokens, try stricter using only last two
+  if (results.length > 5 && tokens.length >= 2) {
+    return matchDirectoryByNameTokens(tokens.slice(-2), directory);
+  }
+  return results;
+}
+
+// === PantherBot v6 — EXTRA SMART with Context Awareness ===
 // Updated: 2025-10-24 - Added schedule/grade context, enhanced intelligence
 
 // Lazy-load both handbooks
@@ -541,6 +590,53 @@ async function handleSend() {
 
   const userText = userInput.value.trim();
   if (!userText) return;
+
+  // === HARD-CODED OVERRIDE FOR HEAD OF SCHOOL ===
+  const headRegex = /\b(head of school|who\s+is\s+the\s+head|who\s+is\s+head|who\s+leads\s+the\s+school|who\s+is\s+in\s+charge\s+of\s+portledge)\b/i;
+  if (headRegex.test(userText)) {
+    addMessage('user', userText);
+    addMessage('bot', 'The Head of School is Mr. Simon Owen-Williams.');
+    userInput.value = '';
+    return;
+  }
+
+  // === DIRECTORY GRADE LOOKUP OVERRIDE ===
+  // If the user asks about a person's grade, try to answer from the directory.
+  const gradeIntent = /\b(what\s+grade\s+is|grade\s+level\s+of|which\s+grade\s+is|what\s+year\s+is)\b/i;
+  const hasDirectory = Array.isArray(PORTLEDGE_DIRECTORY);
+  if (gradeIntent.test(userText) && hasDirectory) {
+    const nameTokens = extractNameTokens(userText);
+    if (nameTokens.length > 0) {
+      const matches = matchDirectoryByNameTokens(nameTokens, PORTLEDGE_DIRECTORY);
+      addMessage('user', userText);
+      userInput.value = '';
+      if (matches.length === 0) {
+        addMessage('bot', "I couldn't find that name in the directory. Try the full first and last name.");
+        return;
+      }
+      if (matches.length === 1) {
+        const m = matches[0];
+        const fullName = [m.first || m.firstname, m.last || m.lastname].filter(Boolean).join(' ').trim();
+        const gradeText = formatGrade(m.grade ?? m.gradeLevel ?? m.year);
+        if (gradeText) {
+          addMessage('bot', `${fullName || 'That student'} is in ${gradeText}.`);
+        } else {
+          addMessage('bot', `I found ${fullName || 'that student'} in the directory, but their grade isn't listed.`);
+        }
+        return;
+      }
+      // Multiple matches - ask which one
+      const options = matches.slice(0, 5).map(m => {
+        const fn = String(m.first || m.firstname || '').trim();
+        const ln = String(m.last || m.lastname || '').trim();
+        return `${fn} ${ln}`.trim();
+      });
+      const uniqueOptions = Array.from(new Set(options));
+      const list = uniqueOptions.map(n => `• ${n}`).join('\n');
+      addMessage('bot', `I found multiple matches. Which one did you mean?\n${list}`);
+      return;
+    }
+  }
 
   if (handleSend.__pending) return;
   
