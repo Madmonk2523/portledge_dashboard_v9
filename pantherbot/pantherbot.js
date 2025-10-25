@@ -278,6 +278,17 @@ function getRandomPrompts(count = 6) {
 }
 
 // ===== CONTEXT GATHERING =====
+// Helper to get schedule for a specific day of the week
+function getScheduleForDay(dayName) {
+  // Try to access the global weeklySchedule data
+  try {
+    if (typeof weeklySchedule !== 'undefined' && weeklySchedule && weeklySchedule[dayName]) {
+      return weeklySchedule[dayName];
+    }
+  } catch {}
+  return null;
+}
+
 // Extract student's current schedule, grades, and real-time info
 function getStudentContext() {
   const context = {
@@ -287,6 +298,7 @@ function getStudentContext() {
     studentEmail: null,
     studentGrade: null,
     schedule: null,
+    weekSchedule: null, // All schedules for the week
     nextClass: null,
     currentClass: null,
     grades: null,
@@ -295,6 +307,23 @@ function getStudentContext() {
   };
   
   try {
+    // Get all weekly schedules if available
+    try {
+      const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+      const schedules = {};
+      let hasAny = false;
+      for (const day of weekDays) {
+        const daySched = getScheduleForDay(day);
+        if (daySched && daySched.length > 0) {
+          schedules[day] = daySched;
+          hasAny = true;
+        }
+      }
+      if (hasAny) {
+        context.weekSchedule = schedules;
+      }
+    } catch {}
+
     // Identify the current user from the directory
     try {
       const savedEmail = localStorage.getItem('portledge_saved_email');
@@ -431,6 +460,20 @@ function formatContextForAI(context) {
       if (item.room) text += ` [Room ${item.room}]`;
       text += ` [${item.status}]\n`;
     });
+  }
+  
+  // Full week schedule for day-specific queries
+  if (context.weekSchedule) {
+    text += `\nFULL WEEK SCHEDULE:\n`;
+    for (const [day, classes] of Object.entries(context.weekSchedule)) {
+      text += `  ${day.toUpperCase()}:\n`;
+      classes.forEach(c => {
+        text += `    ${c.start}-${c.end}: ${c.name}`;
+        if (c.teacher) text += ` (${c.teacher})`;
+        text += `\n`;
+      });
+    }
+    text += `\n`;
   }
   
   // Grades
@@ -932,6 +975,7 @@ SCHEDULE TIMING RULES (CRITICAL):
 INTELLIGENCE RULES:
 - For personal questions ("my", "I", "me") → Use STUDENT PROFILE and REAL-TIME CONTEXT
 - "my next class" or "my schedule" → Use REAL-TIME CONTEXT with exact times and teachers
+- For DAY-SPECIFIC questions (e.g., "Monday", "Friday", "what's my first class on Tuesday") → Use FULL WEEK SCHEDULE
 - "my grades" or "how am I doing" → Reference CURRENT GRADES with specific percentages
 - "my homework" or "assignments" → List ASSIGNMENTS & HOMEWORK with due dates
 - "who am I" or "what grade am I in" → Use STUDENT PROFILE
@@ -948,6 +992,8 @@ ANSWER STYLE:
 EXAMPLES:
 ❓ "Who am I?" → "You're Chase Rubin Mallor, a 10th grader at Portledge."
 ❓ "What's my next class?" → "Your next class is Chemistry at 10:30 AM with Ms. Johnson in Room 204."
+❓ "What's my first class on Friday?" → Check FULL WEEK SCHEDULE Friday section, list the first class with time
+❓ "Do I have Chemistry on Tuesday?" → Check FULL WEEK SCHEDULE Tuesday section, answer yes/no with time
 ❓ "How am I doing in Algebra?" → "You're doing great! You have an A- (92%) in Algebra II with a quiz average of 90% and homework average of 94%."
 ❓ "What homework do I have?" → List assignments with due dates from ASSIGNMENTS section
 ❓ "What's my schedule today?" → List their TODAY'S SCHEDULE with times and teachers
