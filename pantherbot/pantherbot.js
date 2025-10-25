@@ -373,17 +373,17 @@ function getStudentContext() {
     try {
       const assignmentsList = document.getElementById('assList');
       if (assignmentsList) {
-        const assignmentItems = assignmentsList.querySelectorAll('.ass-item');
+        const assignmentItems = assignmentsList.querySelectorAll('.card');
         const assignmentsData = [];
         assignmentItems.forEach(item => {
-          const title = item.querySelector('.atitle')?.textContent?.trim();
-          const meta = item.querySelector('.ameta')?.textContent?.trim(); // e.g., "Due Oct 28 • Chemistry"
-          const statusBadge = item.querySelector('.badge')?.textContent?.trim(); // e.g., "In Progress"
+          const title = item.querySelector('.h')?.textContent?.trim();
+          const meta = item.querySelector('.sub')?.textContent?.trim(); // e.g., "Algebra II • Due Oct 28..."
+          const statusTag = item.querySelector('.tag')?.textContent?.trim(); // e.g., "Doing"
           if (title) {
             assignmentsData.push({
               title,
               meta: meta || '',
-              status: statusBadge || 'Unknown'
+              status: statusTag || 'Unknown'
             });
           }
         });
