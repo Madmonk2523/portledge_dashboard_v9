@@ -817,21 +817,45 @@ async function handleSend() {
         chosen = PB_PENDING.options[idx].entry;
       }
     } else {
-      // Try fuzzy match against option names
+      // Try fuzzy match against option names and name parts
       const q = raw.toLowerCase();
       function lev(a,b){
         a = String(a||'').toLowerCase(); b = String(b||'').toLowerCase();
         const m=a.length,n=b.length; if(!m) return n; if(!n) return m; const dp=new Array(n+1); for(let j=0;j<=n;j++) dp[j]=j; for(let i=1;i<=m;i++){ let prev=i-1; dp[0]=i; for(let j=1;j<=n;j++){ const t=dp[j]; const c=a[i-1]===b[j-1]?0:1; dp[j]=Math.min(dp[j]+1, dp[j-1]+1, prev+c); prev=t; } } return dp[n];
       }
-      let best = {i:-1, d:Infinity};
+      let best = {i:-1, d:Infinity, score:0};
       PB_PENDING.options.forEach((opt, i) => {
         const name = (opt.displayName||'').toLowerCase();
-        const d = lev(q, name);
-        if (name.startsWith(q) || q.startsWith(name) || d < best.d) {
-          best = { i, d };
+        const nameParts = name.split(/\s+/).filter(p => p && p.length > 1);
+        
+        // Check full name match
+        let d = lev(q, name);
+        let score = 0;
+        
+        // Check if query matches any individual name part (first, middle, last)
+        for (const part of nameParts) {
+          if (part.startsWith(q) || q.startsWith(part)) {
+            score = 100; // Strong match
+            d = Math.min(d, lev(q, part));
+          } else {
+            const partDist = lev(q, part);
+            if (partDist <= 2) {
+              score = Math.max(score, 50 - partDist * 10);
+              d = Math.min(d, partDist);
+            }
+          }
+        }
+        
+        // Check prefix matches
+        if (name.startsWith(q) || q.startsWith(name)) {
+          score = Math.max(score, 75);
+        }
+        
+        if (score > best.score || (score === best.score && d < best.d)) {
+          best = { i, d, score };
         }
       });
-      if (best.i >= 0 && best.d <= 3) {
+      if (best.i >= 0 && (best.score >= 50 || best.d <= 3)) {
         chosen = PB_PENDING.options[best.i].entry;
       }
     }
