@@ -2294,21 +2294,226 @@ button:active, .btn:active, .tab:active {
 
 /* Slot glow on hover */
 .slot:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 0 0 2px var(--accent);
+  transform: translateX(8px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15), 0 0 0 3px var(--accent);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .slot.now:hover {
-  box-shadow: 0 12px 32px rgba(245,158,11,0.35), 0 0 20px rgba(245,158,11,0.4);
+  box-shadow: 0 16px 40px rgba(245,158,11,0.4), 0 0 30px rgba(245,158,11,0.5);
 }
 
 .slot.upcoming:hover {
-  box-shadow: 0 12px 32px rgba(59,130,246,0.35), 0 0 20px rgba(59,130,246,0.4);
+  box-shadow: 0 16px 40px rgba(59,130,246,0.4), 0 0 30px rgba(59,130,246,0.5);
 }
 
-.slot:hover {
-  transform: translateX(4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  transition: all 0.3s var(--ease);
+/* Advanced Animations */
+
+/* Morphing background gradient */
+@keyframes morphing-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.topbar {
+  background: linear-gradient(135deg, var(--navy), var(--navy-2), var(--accent), var(--navy-2), var(--navy));
+  background-size: 400% 400%;
+  animation: morphing-gradient 15s ease infinite;
+}
+
+/* Smooth page entrance */
+@keyframes pageEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.page {
+  animation: pageEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Text shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.brandstack h1 {
+  background: linear-gradient(90deg, #fff 0%, #a5b4fc 50%, #fff 100%);
+  background-size: 1000px 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+/* 3D flip effect on cards */
+.card, .gcard {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.card:hover, .gcard:hover {
+  transform: translateY(-8px) rotateX(2deg) rotateY(-2deg) scale(1.03);
+}
+
+/* Glowing border animation */
+@keyframes glowBorder {
+  0%, 100% {
+    border-color: var(--accent);
+    box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent);
+  }
+  50% {
+    border-color: var(--navy-2);
+    box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
+  }
+}
+
+.tab.active {
+  animation: glowBorder 2s ease-in-out infinite;
+}
+
+/* Floating particles effect */
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.6;
+  }
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+  top: 10%;
+  left: 10%;
+  animation: float-particle 4s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Enhanced button hover with neon glow */
+.btn.primary:hover, .gbtn:hover {
+  box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 30px var(--accent), 0 8px 24px rgba(59, 130, 246, 0.4);
+  transform: translateY(-4px) scale(1.05);
+  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
+
+/* Smooth rotation on logo hover */
+.logo {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logo:hover {
+  transform: rotate(360deg) scale(1.1);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.4);
+}
+
+/* Typewriter effect for clock */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.clock-wrap::after {
+  content: '|';
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+/* Progress bar fill animation */
+@keyframes fillProgress {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 100% 0%;
+  }
+}
+
+.gpa-fill, .bar {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd, #3b82f6);
+  background-size: 200% 100%;
+  animation: fillProgress 3s linear infinite;
+}
+
+/* Smooth modal entrance with backdrop blur */
+@keyframes modalEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-50px);
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    backdrop-filter: blur(10px);
+  }
+}
+
+.modal {
+  animation: modalEntrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(10px);
+}
+
+/* Pulsing notification effect */
+@keyframes pulse-notify {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.theme-toggle:hover, .signout:hover {
+  animation: pulse-notify 1s ease-out infinite;
+}
+
+/* Smooth text gradient */
+.gtitle, .cls {
+  background: linear-gradient(135deg, var(--ink), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced focus states with glow */
+button:focus-visible, .btn:focus-visible, .tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.6);
+  transform: scale(1.05);
 }
 
 
@@ -4120,7 +4325,7 @@ $('#closeModal').onclick=()=>{
       el.addEventListener('click', addRipple);
     });
     
-    // Parallax effect on scroll
+    // Enhanced parallax effect with depth
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) {
@@ -4128,8 +4333,8 @@ $('#closeModal').onclick=()=>{
           const scrolled = window.pageYOffset;
           const parallaxElements = document.querySelectorAll('.panel');
           parallaxElements.forEach((el, i) => {
-            const speed = 0.05 * (i + 1);
-            el.style.transform = `translateY(${scrolled * speed}px)`;
+            const speed = 0.02 * (i + 1);
+            el.style.transform = `translateY(${scrolled * speed}px) scale(${1 + scrolled * 0.0001})`;
           });
           ticking = false;
         });
@@ -4137,11 +4342,13 @@ $('#closeModal').onclick=()=>{
       }
     });
     
-    // Scroll reveal animations for cards
+    // Scroll reveal animations for cards with stagger
     const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('reveal');
+          setTimeout(() => {
+            entry.target.classList.add('reveal');
+          }, index * 50);
         }
       });
     }, { threshold: 0.1 });
@@ -4156,18 +4363,100 @@ $('#closeModal').onclick=()=>{
       slot.classList.add('fade-in-up');
     });
     
-    // Magnetic button effect
+    // Advanced magnetic button effect with rotation
     document.querySelectorAll('.btn.primary, .gbtn').forEach(button => {
       button.addEventListener('mousemove', (e) => {
         const rect = button.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
-        button.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) scale(1.05)`;
+        const rotateX = (y / rect.height) * 10;
+        const rotateY = -(x / rect.width) * 10;
+        button.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.08)`;
       });
       button.addEventListener('mouseleave', () => {
         button.style.transform = '';
       });
     });
+    
+    // Cursor trail effect
+    const createTrail = (e) => {
+      const trail = document.createElement('div');
+      trail.className = 'cursor-trail';
+      trail.style.left = e.pageX + 'px';
+      trail.style.top = e.pageY + 'px';
+      document.body.appendChild(trail);
+      setTimeout(() => trail.remove(), 500);
+    };
+    
+    let trailTimeout;
+    document.addEventListener('mousemove', (e) => {
+      clearTimeout(trailTimeout);
+      trailTimeout = setTimeout(() => createTrail(e), 50);
+    });
+    
+    // Add page entrance animation to all pages
+    document.querySelectorAll('.page').forEach(page => {
+      const observer = new MutationObserver(() => {
+        if (!page.classList.contains('hidden')) {
+          page.style.animation = 'none';
+          setTimeout(() => {
+            page.style.animation = 'pageEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          }, 10);
+        }
+      });
+      observer.observe(page, { attributes: true, attributeFilter: ['class'] });
+    });
+    
+    // Smooth color transition on theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        document.body.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+      });
+    }
+    
+    // Add tilt effect to cards on mouse move
+    document.querySelectorAll('.card, .gcard').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 10;
+        const rotateY = -(x - centerX) / 10;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px) scale(1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+    
+    // Add CSS for cursor trail
+    if (!document.getElementById('cursor-trail-style')) {
+      const style = document.createElement('style');
+      style.id = 'cursor-trail-style';
+      style.textContent = `
+        .cursor-trail {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: var(--accent);
+          pointer-events: none;
+          z-index: 9999;
+          opacity: 0.6;
+          animation: trailFade 0.5s ease-out forwards;
+        }
+        @keyframes trailFade {
+          to {
+            transform: scale(0);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
   }
   
 </script>
