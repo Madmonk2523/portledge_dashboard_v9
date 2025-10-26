@@ -2131,51 +2131,178 @@ body.theme-dark .btn-secondary{
   }
 }
 
-/* ===== Cool Features ===== */
-/* Keyboard shortcuts indicator */
-.kbd-hint {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: rgba(15, 23, 42, 0.95);
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.3s var(--ease);
-  pointer-events: none;
-  z-index: 9998;
-}
-
-.kbd-hint.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.kbd-hint kbd {
-  background: #334155;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  margin: 0 2px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
+/* ===== COOL ANIMATIONS & EFFECTS ===== */
 
 /* Floating clock animation */
 .clock-wrap.float {
   animation: float 3s ease-in-out infinite;
 }
 
-/* Enhanced hover effects */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Fade in up animation for elements */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s var(--ease) backwards;
+}
+
+/* Ripple effect on button clicks */
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(0);
+  animation: ripple 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Scroll reveal animation */
+.reveal {
+  animation: fadeInUp 0.8s var(--ease) forwards;
+}
+
+/* Card shine effect on hover */
+.card::after, .gcard::after, .person::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  bottom: -50%;
+  left: -50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.3) 50%, rgba(255,255,255,0));
+  transform: rotateZ(60deg) translate(-5em, 7.5em);
+  transition: all 0.6s var(--ease);
+  opacity: 0;
+}
+
+.card:hover::after, .gcard:hover::after, .person:hover::after {
+  transform: rotateZ(60deg) translate(1em, -9em);
+  opacity: 1;
+}
+
+/* Enhanced glow effects on interactive elements */
+.btn.primary:hover, .gbtn:hover {
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.2);
+  transform: translateY(-3px) scale(1.02);
+}
+
+/* Smooth tab transitions with underline */
+.tab {
+  position: relative;
+  overflow: visible;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: translateX(-50%);
+  transition: width 0.3s var(--ease);
+  border-radius: 2px;
+}
+
+.tab:hover::after {
+  width: 80%;
+}
+
+.tab.active::after {
+  width: 100%;
+  background: #fff;
+}
+
+body.theme-dark .tab.active::after {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+/* Pulse animation for status indicators */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+  }
+}
+
+.dot {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Gradient animation for panels */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.panel {
+  background-size: 200% 200%;
+}
+
+/* Button press animation */
+button:active, .btn:active, .tab:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Smooth color transitions */
+* {
+  transition: color 0.3s var(--ease), background-color 0.3s var(--ease);
+}
+
+/* Stagger animation classes */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* Enhanced hover effects for cards */
 .gcard:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-  transition: all 0.3s var(--ease);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.16);
+}
+
+/* Slot glow on hover */
+.slot:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 0 0 2px var(--accent);
+}
+
+.slot.now:hover {
+  box-shadow: 0 12px 32px rgba(245,158,11,0.35), 0 0 20px rgba(245,158,11,0.4);
+}
+
+.slot.upcoming:hover {
+  box-shadow: 0 12px 32px rgba(59,130,246,0.35), 0 0 20px rgba(59,130,246,0.4);
 }
 
 .slot:hover {
@@ -2232,7 +2359,6 @@ body.theme-dark .btn-secondary{
   <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-pressed="false">Dark Mode</button>
   <button id="customizeDashboardBtn" class="theme-toggle" title="Customize" style="margin-left:8px">⚙️ Customize</button>
   <button id="tempSettingsBtn" class="theme-toggle" title="Temp Settings" style="margin-left:8px">⏱️ Temp</button>
-  <button id="helpBtn" class="theme-toggle" title="Keyboard Shortcuts" style="margin-left:8px" onclick="showHelp()">❓</button>
 </div>
 
 
@@ -3960,134 +4086,90 @@ $('#closeModal').onclick=()=>{
     const btn = document.getElementById('tempSettingsBtn');
     if (btn && !btn.__bound){ btn.__bound = true; btn.addEventListener('click', openTempModal); }
     
-    // Initialize cool features
-    initCoolFeatures();
+    // Initialize cool animations
+    initCoolAnimations();
   });
   
-  // ===== COOL FEATURES =====
-  function initCoolFeatures() {
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      // Alt+1,2,3,4 to switch tabs
-      if (e.altKey && ['1','2','3','4'].includes(e.key)) {
-        e.preventDefault();
-        const tabs = ['s-schedule', 's-assign', 's-grades', 's-pantherbot'];
-        const tab = document.querySelector(`#nav-student .tab[data-page="${tabs[parseInt(e.key)-1]}"]`);
-        if (tab) tab.click();
-        showKeyboardHint(`Switched to tab ${e.key}`);
-      }
-      // Alt+T for today
-      if (e.altKey && e.key.toLowerCase() === 't') {
-        e.preventDefault();
-        const todayBtn = document.getElementById('s_today');
-        if (todayBtn) todayBtn.click();
-        showKeyboardHint('Jumped to today');
-      }
-      // Alt+Left/Right for day navigation
-      if (e.altKey && e.key === 'ArrowLeft') {
-        e.preventDefault();
-        document.getElementById('s_prev')?.click();
-        showKeyboardHint('Previous day');
-      }
-      if (e.altKey && e.key === 'ArrowRight') {
-        e.preventDefault();
-        document.getElementById('s_next')?.click();
-        showKeyboardHint('Next day');
-      }
-      // ??? easter egg
-      konamiSequence.push(e.key);
-      if (konamiSequence.length > 10) konamiSequence.shift();
-      if (konamiSequence.join(',') === 'ArrowUp,ArrowUp,ArrowDown,ArrowDown,ArrowLeft,ArrowRight,ArrowLeft,ArrowRight,b,a') {
-        triggerEasterEgg();
-      }
-    });
-    
+  // ===== COOL ANIMATIONS & EFFECTS =====
+  function initCoolAnimations() {
     // Add floating animation to clock
     const clockWrap = document.querySelector('.clock-wrap');
     if (clockWrap) {
       clockWrap.classList.add('float');
     }
-  }
-  
-  let konamiSequence = [];
-  let keyboardHintTimeout;
-  
-  function showKeyboardHint(message) {
-    let hint = document.querySelector('.kbd-hint');
-    if (!hint) {
-      hint = document.createElement('div');
-      hint.className = 'kbd-hint';
-      document.body.appendChild(hint);
-    }
-    hint.textContent = message;
-    hint.classList.add('show');
-    clearTimeout(keyboardHintTimeout);
-    keyboardHintTimeout = setTimeout(() => {
-      hint.classList.remove('show');
-    }, 2000);
-  }
-  
-  function triggerEasterEgg() {
-    // ??? easter egg
-    const body = document.body;
-    body.style.transition = 'transform 0.8s ease-in-out';
-    body.style.transform = 'rotateY(360deg)';
     
-    // Play celebration sound
-    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTUIGWi777ebTA8MSKXh8LVjHAU2jdXvynssBSV7x/DdkEALFGCz6OupVRQKRp/g8r5sIQU=');
-    audio.volume = 0.5;
-    audio.play().catch(() => {});
+    // Add ripple effect to all buttons and interactive elements
+    const addRipple = (e) => {
+      const button = e.currentTarget;
+      const ripple = document.createElement('span');
+      const rect = button.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      ripple.classList.add('ripple-effect');
+      
+      button.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    };
     
-    setTimeout(() => {
-      body.style.transform = '';
-    }, 800);
+    document.querySelectorAll('button, .tab, .btn, .chip').forEach(el => {
+      el.addEventListener('click', addRipple);
+    });
     
-    showKeyboardHint('🎉 ??? Activated! 🎉');
+    // Parallax effect on scroll
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrolled = window.pageYOffset;
+          const parallaxElements = document.querySelectorAll('.panel');
+          parallaxElements.forEach((el, i) => {
+            const speed = 0.05 * (i + 1);
+            el.style.transform = `translateY(${scrolled * speed}px)`;
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+    
+    // Scroll reveal animations for cards
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal');
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.card, .gcard, .person, .slot').forEach(el => {
+      revealObserver.observe(el);
+    });
+    
+    // Stagger animations for schedule slots
+    document.querySelectorAll('.slot').forEach((slot, i) => {
+      slot.style.animationDelay = `${i * 0.05}s`;
+      slot.classList.add('fade-in-up');
+    });
+    
+    // Magnetic button effect
+    document.querySelectorAll('.btn.primary, .gbtn').forEach(button => {
+      button.addEventListener('mousemove', (e) => {
+        const rect = button.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        button.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) scale(1.05)`;
+      });
+      button.addEventListener('mouseleave', () => {
+        button.style.transform = '';
+      });
+    });
   }
   
-  function showHelp() {
-    const helpContent = `
-      <div style="padding:20px">
-        <h2 style="margin-top:0">⌨️ Keyboard Shortcuts</h2>
-        <div style="display:grid;gap:12px;font-size:0.95rem">
-          <div><kbd>Alt</kbd> + <kbd>1</kbd> — Switch to Schedule tab</div>
-          <div><kbd>Alt</kbd> + <kbd>2</kbd> — Switch to Assignments tab</div>
-          <div><kbd>Alt</kbd> + <kbd>3</kbd> — Switch to Grades tab</div>
-          <div><kbd>Alt</kbd> + <kbd>4</kbd> — Switch to PantherBot tab</div>
-          <div><kbd>Alt</kbd> + <kbd>T</kbd> — Jump to Today</div>
-          <div><kbd>Alt</kbd> + <kbd>←</kbd> — Previous day</div>
-          <div><kbd>Alt</kbd> + <kbd>→</kbd> — Next day</div>
-        </div>
-        <h3 style="margin-top:24px">🎮 Easter Eggs</h3>
-        <div style="font-size:0.9rem;color:#64748b">
-          <p>• Try the ??? code... (↑↑↓↓←→←→BA)</p>
-          <p>• Screen flips and plays a celebration sound!</p>
-        </div>
-        <button onclick="closeHelp()" style="margin-top:20px;padding:10px 20px;background:#3b82f6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600">Got it!</button>
-      </div>
-    `;
-    
-    let modal = document.getElementById('helpModal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'helpModal';
-      modal.className = 'modal';
-      modal.innerHTML = `<div class="modal-content">${helpContent}</div>`;
-      document.body.appendChild(modal);
-    } else {
-      modal.querySelector('.modal-content').innerHTML = helpContent;
-    }
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-  }
-  
-  function closeHelp() {
-    const modal = document.getElementById('helpModal');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-    }
-  }
 </script>
 
 <!-- CUSTOMIZATION MODAL -->
