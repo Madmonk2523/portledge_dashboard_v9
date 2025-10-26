@@ -2343,7 +2343,7 @@ button:active, .btn:active, .tab:active {
 }
 
 .page {
-  animation: pageEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: pageEntrance 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Text shimmer effect */
@@ -2424,14 +2424,14 @@ button:active, .btn:active, .tab:active {
   text-shadow: 0 0 10px rgba(255,255,255,0.8);
 }
 
-/* Smooth rotation on logo hover */
+/* Logo hover - subtle scale only */
 .logo {
-  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.3s var(--ease);
 }
 
 .logo:hover {
-  transform: rotate(360deg) scale(1.1);
-  box-shadow: 0 8px 24px rgba(255,255,255,0.4);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.3);
 }
 
 /* Typewriter effect for clock */
@@ -2501,12 +2501,10 @@ button:active, .btn:active, .tab:active {
   animation: pulse-notify 1s ease-out infinite;
 }
 
-/* Smooth text gradient */
+/* Better text contrast - remove gradient on titles */
 .gtitle, .cls {
-  background: linear-gradient(135deg, var(--ink), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--ink);
+  /* Gradient removed for better readability */
 }
 
 /* Enhanced focus states with glow */
