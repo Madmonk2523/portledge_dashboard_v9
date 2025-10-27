@@ -652,8 +652,8 @@ function resetPantherBot(){
   if (cm) {
     cm.innerHTML = '';
     addMessage('bot', '👋 Hey there! I\'m PantherBot, your friendly Portledge assistant. Ask me anything about:\n• School rules & policies 📚\n• Athletics & sports 🏀\n• Dress code 👕\n• Academic requirements 📝\n\nWhat can I help you with today?');
-    // Refresh quick prompts with new random ones
-    showQuickPrompts();
+    // Refresh quick prompts disabled - using static chips in HTML
+    // showQuickPrompts(); // DISABLED
   }
 }
 
@@ -1185,8 +1185,8 @@ function initPantherBot() {
     voiceBtn.style.display = 'none';
   }
   
-  // Show quick prompts on load
-  showQuickPrompts();
+  // Quick prompts are now static in HTML, no need to show dynamically
+  // showQuickPrompts(); // DISABLED - using static chips in HTML instead
   
   loadHandbooks().then(() => getChunks());
 }
