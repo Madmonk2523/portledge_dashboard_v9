@@ -3433,7 +3433,7 @@ function handleLogin() {
     renderSchedule();  // ✅ Force schedule refresh right after login
     startClockAndProgress("08:20", "15:30"); // ✅ Enforce 8:20–3:30 gating instantly on login
   } else {
-    console.warn("Invalid login");
+    // Invalid login - show error message
     const errorDiv = $('#loginError');
     if (errorDiv) {
       errorDiv.textContent = '❌ Invalid email. Please use the correct Portledge email.';
