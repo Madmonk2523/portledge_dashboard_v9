@@ -2621,9 +2621,9 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       <section class="panel">
         <div class="p-body">
           <div class="summary">
-                <div class="day-progress-area" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
-                  <!-- Mini current class card (top-left) - always yellow/orange -->
-                  <div id="miniCurrent" class="slot slot-mini hidden now" style="margin-right:12px;">
+                <div class="day-progress-area" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;width:100%">
+                  <!-- Mini current class card (left) -->
+                  <div id="miniCurrent" class="slot slot-mini hidden now" style="margin-right:12px;min-width:180px;">
                     <div class="dot"></div>
                     <div class="slot-inner">
                       <div>
@@ -2635,12 +2635,11 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
                       </div>
                     </div>
                   </div>
-                  <div class="day-progress-wrap" style="display:none;flex:1;align-items:center">
+                  <div class="day-progress-wrap" style="display:none;flex:1;align-items:center;min-width:200px;">
                     <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
-                    <!-- Blank space for future content -->
                   </div>
                   <div style="flex:1"></div>
-                  <div class="legend" style="display:flex; gap:12px; align-items:center;">
+                  <div class="legend" style="display:flex; gap:12px; align-items:center; justify-content:flex-end; min-width:220px;">
                     <span class="lg"><i class="sw now"></i> Now</span>
                     <span class="lg"><i class="sw up"></i> Upcoming</span>
                     <span class="lg"><i class="sw done"></i> Done</span>
@@ -3337,7 +3336,9 @@ function updateProgressBar(entries, nowArg){
     }
 
     updateClock();
-    setInterval(updateClock, 15000); // Update every 15s for timely show/hide within school hours
+    if (!window.__progressBarInterval) {
+      window.__progressBarInterval = setInterval(updateClock, 5000); // Update every 5s for instant show/hide
+    }
   }
 
 /* ===== Helpers ===== */
