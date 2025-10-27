@@ -8,6 +8,26 @@
 <meta http-equiv="Expires" content="0" />
 <title>Portledge Dashboard — v11 (Role-Based)</title>
 <link rel="icon" href="data:," />
+<style>
+/* Login error message style - prevent button expansion */
+.login-error, .login-message, .error-message {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  max-width: 380px;
+  margin: 0 0 12px 0;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(185,28,28,0.08);
+  text-align: center;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+</style>
 
 <!-- PWA & Mobile Optimizations -->
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -624,11 +644,13 @@ body.theme-dark .theme-toggle{
 /* ===== Shared top bar ===== */
 .topbar{
   position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; gap:10px;
-  background:linear-gradient(90deg,var(--navy),#07386c 60%,var(--navy)); color:#fff; padding:10px 14px; box-shadow:0 2px 0 rgba(0,0,0,.06)
+  background:linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%);
+  color:#fff; padding:14px 16px; box-shadow:0 4px 12px rgba(0,0,0,.15);
+  backdrop-filter: blur(10px);
 }
 .brand{display:flex; align-items:center; gap:12px}
-.brand h1{margin:0; font-weight:900; letter-spacing:.2px; line-height:1.05; color:#0f172a; text-shadow:none; font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-size:2.1rem;}
-.pillars-line{margin:2px 0 0 0; font-size:13px; color:#334155; letter-spacing:.08em; text-shadow:none; font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-weight:700;}
+.brand h1{margin:0; font-weight:900; letter-spacing:.3px; line-height:1.1; color:#ffffff; text-shadow:0 2px 4px rgba(0,0,0,0.2); font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-size:1.75rem;}
+.pillars-line{margin:4px 0 0 0; font-size:12px; color:#e0e7ff; letter-spacing:.1em; text-shadow:0 1px 2px rgba(0,0,0,0.15); font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-weight:600;}
 .brandstack{display:flex; flex-direction:column}
 .logo{width:42px; height:42px; display:flex; align-items:center; justify-content:center; background:transparent}
 .logo img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2))}
@@ -2612,11 +2634,11 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
                     <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
                     <!-- Blank space for future content -->
                   </div>
-                  <div class="legend" style="margin-left:auto;">
-                    <span class="lg"><i class="sw now"></i> Now</span>
-                    <span class="lg"><i class="sw up"></i> Upcoming</span>
-                    <span class="lg"><i class="sw done"></i> Done</span>
-                  </div>
+                </div>
+                <div class="legend" style="display:flex; gap:12px; justify-content:flex-end; margin-top:8px;">
+                  <span class="lg"><i class="sw now"></i> Now</span>
+                  <span class="lg"><i class="sw up"></i> Upcoming</span>
+                  <span class="lg"><i class="sw done"></i> Done</span>
                 </div>
           </div>
         </div>
