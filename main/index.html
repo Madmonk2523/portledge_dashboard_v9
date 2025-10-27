@@ -22,10 +22,13 @@
   padding: 10px 16px;
   box-shadow: 0 2px 8px rgba(185,28,28,0.08);
   text-align: center;
-  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.2s, visibility 0.2s;
   position: relative;
   width: 100%;
   box-sizing: border-box;
+  min-height: 24px;
+  opacity: 0;
+  visibility: hidden;
 }
 </style>
 
@@ -3441,9 +3444,11 @@ function handleLogin() {
     const errorDiv = $('#loginError');
     if (errorDiv) {
       errorDiv.textContent = '❌ Invalid email. Please use the correct Portledge email.';
-      errorDiv.style.display = 'block';
+      errorDiv.style.visibility = 'visible';
+      errorDiv.style.opacity = '1';
       setTimeout(() => {
-        errorDiv.style.display = 'none';
+        errorDiv.style.visibility = 'hidden';
+        errorDiv.style.opacity = '0';
       }, 4000);
     }
     $('#loginCard').classList.remove('shake');
