@@ -756,7 +756,7 @@ body.theme-dark .theme-toggle{
 .slot-mini.hidden{display:none!important}
 
 /* Compact layout specifically for mini current-class card */
-.slot-mini .slot-inner{display:grid; grid-template-columns:150px 1fr; gap:16px; align-items:center; padding:12px 20px}
+.slot-mini .slot-inner{display:grid; grid-template-columns:150px 1fr; gap:16px; align-items:center; padding:12px 20px 12px 28px}
 /* Improve text formatting for mini card */
 .slot-mini .time{font-size:1rem; white-space:nowrap;}
 .slot-mini .cls{font-size:1.05rem; line-height:1.3; word-wrap:break-word;}
@@ -2035,6 +2035,17 @@ body.theme-dark .btn-secondary{
     margin: 0 8px;
   }
   
+  /* PantherBot layout - stack on mobile */
+  #page-s-pantherbot .container > div {
+    flex-direction: column !important;
+  }
+  
+  #page-s-pantherbot .container > div > div {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  
   .chat-header {
     padding: 16px;
     border-radius: 12px 12px 0 0;
@@ -2594,7 +2605,6 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       <div id="loginError" class="login-error" style="display:none"></div>
       <button id="loginBtn" class="login-btn">
         <span class="btn-text">Sign In</span>
-        <span class="btn-icon">→</span>
       </button>
       <button id="customizeLoginBtn" class="customize-btn" type="button">
         <span>⚙️ Customize</span>
@@ -2646,13 +2656,13 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
         <div class="p-body">
           <div class="summary">
                 <div class="day-progress-area" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;width:100%">
-                  <!-- Legend moved to top left -->
-                  <div class="legend" style="display:flex; gap:12px; align-items:center; min-width:220px; order:-1;">
+                  <!-- Legend moved to top right -->
+                  <div style="flex:1; min-width:100%;"></div>
+                  <div class="legend" style="display:flex; gap:12px; align-items:center; justify-content:flex-end; min-width:220px; order:999;">
                     <span class="lg"><i class="sw now"></i> Now</span>
                     <span class="lg"><i class="sw up"></i> Upcoming</span>
                     <span class="lg"><i class="sw done"></i> Done</span>
                   </div>
-                  <div style="flex:1; min-width:100%;"></div>
                   <!-- Mini current class card (bottom left) -->
                   <div id="miniCurrent" class="slot slot-mini hidden now">
                     <div class="dot"></div>
@@ -2779,25 +2789,24 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
 </main>
 
 <section id="page-s-pantherbot" class="page">
-  <div class="container" style="padding-top: 20px; max-width: 1000px; margin: 0 auto;">
-    <div class="hero" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-      <div style="text-align: left;">
-        <h2 style="margin: 0;">🐾 PantherBot</h2>
-        <div class="meta" style="margin-top: 4px;">Your AI-powered handbook assistant</div>
+  <div class="container" style="padding-top: 20px; max-width: 1400px; margin: 0 auto;">
+    <div style="display: flex; gap: 24px; align-items: flex-start; justify-content: space-between;">
+      <!-- Left: Quick Questions -->
+      <div style="flex: 0 0 280px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 1.1rem; color: #0f172a;">Quick Questions</h3>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button class="chip" data-q="How do I start a new club?" style="width: 100%; justify-content: flex-start; padding: 10px 14px;">How do I start a new club?</button>
+          <button class="chip" data-q="What are the graduation requirements?" style="width: 100%; justify-content: flex-start; padding: 10px 14px;">What are the graduation requirements?</button>
+          <button class="chip" data-q="What's the PE uniform?" style="width: 100%; justify-content: flex-start; padding: 10px 14px;">What's the PE uniform?</button>
+          <button class="chip" data-q="What are school hours?" style="width: 100%; justify-content: flex-start; padding: 10px 14px;">What are school hours?</button>
+          <button class="chip" data-q="What sports are offered?" style="width: 100%; justify-content: flex-start; padding: 10px 14px;">What sports are offered?</button>
+          <button class="chip" data-q="What's the athletic eligibility policy?" style="width: 100%; justify-content: flex-start; padding: 10px 14px;">What's the athletic eligibility policy?</button>
+        </div>
       </div>
-      <div>
-        <button id="newChatBtn" class="btn" title="Start a new chat">New chat</button>
-      </div>
-    </div>
-    <div class="pb-suggestions" style="justify-content: center; margin-bottom: 16px;">
-      <button class="chip" data-q="How do I start a new club?">How do I start a new club?</button>
-      <button class="chip" data-q="What are the graduation requirements?">What are the graduation requirements?</button>
-      <button class="chip" data-q="What's the PE uniform?">What's the PE uniform?</button>
-      <button class="chip" data-q="What are school hours?">What are school hours?</button>
-      <button class="chip" data-q="What sports are offered?">What sports are offered?</button>
-      <button class="chip" data-q="What's the athletic eligibility policy?">What's the athletic eligibility policy?</button>
-    </div>
-    <div class="chat-container">
+      
+      <!-- Center: Chat Container -->
+      <div style="flex: 1; max-width: 750px;">
+        <div class="chat-container">
     <div class="chat-messages" id="chatMessages">
       <div class="chat-message bot">
         👋 Hi, I’m <b>PantherBot</b> — your Portledge assistant. Ask me anything about school rules, dress code, or policies!
@@ -2809,6 +2818,15 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       <button id="sendBtn">Send</button>
     </div>
   </div>
+      </div>
+      
+      <!-- Right: Title and New Chat -->
+      <div style="flex: 0 0 280px; text-align: left;">
+        <h2 style="margin: 0 0 8px 0;">🐾 PantherBot</h2>
+        <div class="meta" style="margin-bottom: 16px;">Your AI-powered handbook assistant</div>
+        <button id="newChatBtn" class="btn" title="Start a new chat" style="width: 100%;">New chat</button>
+      </div>
+    </div>
   </div>
 </section>
 
