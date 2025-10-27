@@ -605,32 +605,33 @@ body.theme-dark .related-btn:hover{
 /* Ultra-premium theme toggle button */
 .theme-toggle{
   position:relative;
-  border:2px solid rgba(17, 24, 39, 0.5); 
-  background:rgba(255,255,255,0.85); 
+  border:2px solid #1e40af; 
+  background:#1e3a8a; 
   backdrop-filter:blur(10px);
-  color:#111827; 
+  color:#ffffff; 
   padding:10px 20px; 
   border-radius:30px; 
   font-weight:800; 
   font-size:0.9rem;
   cursor:pointer;
-  box-shadow:0 4px 15px rgba(0, 0, 0, 0.18);
+  box-shadow:0 4px 15px rgba(30,58,138,0.3);
   overflow:hidden;
-  text-shadow: 0 2px 6px rgba(255,255,255,0.25), 0 1px 2px rgba(0,0,0,0.18);
+  text-shadow:none;
+  transition:all 0.3s ease;
+}
+.theme-toggle:hover{
+  transform:translateY(-3px) scale(1.05);
+  background:#1e40af;
+  border-color:#2563eb;
+  box-shadow:0 8px 30px rgba(30,58,138,0.4);
 }
 .theme-toggle::before{
   content:'';
   position:absolute;
   inset:0;
-  background:linear-gradient(135deg, rgba(118, 75, 162, 0.3), rgba(102, 126, 234, 0.3));
+  background:linear-gradient(135deg, #2563eb, #1e40af);
   opacity:0;
   transition:opacity 0.3s ease;
-}
-.theme-toggle:hover{
-  transform:translateY(-3px) scale(1.05);
-  background:rgba(255,255,255,0.95);
-  border-color:rgba(17, 24, 39, 0.7);
-  box-shadow:0 8px 30px rgba(0, 0, 0, 0.22);
 }
 .theme-toggle:hover::before{opacity:1}
 .theme-toggle:active{
@@ -644,18 +645,19 @@ body.theme-dark .theme-toggle{
 /* ===== Shared top bar ===== */
 .topbar{
   position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; gap:10px;
-  background:linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%);
-  color:#fff; padding:14px 16px; box-shadow:0 4px 12px rgba(0,0,0,.15);
-  backdrop-filter: blur(10px);
+  background:#ffffff;
+  color:#1e3a8a; padding:14px 16px; box-shadow:0 2px 12px rgba(0,0,0,.08);
+  border-bottom: 3px solid #1e40af;
 }
 .brand{display:flex; align-items:center; gap:12px}
-.brand h1{margin:0; font-weight:900; letter-spacing:.3px; line-height:1.1; color:#ffffff; text-shadow:0 2px 4px rgba(0,0,0,0.2); font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-size:1.75rem;}
-.pillars-line{margin:4px 0 0 0; font-size:12px; color:#e0e7ff; letter-spacing:.1em; text-shadow:0 1px 2px rgba(0,0,0,0.15); font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-weight:600;}
+.brand h1{margin:0; font-weight:900; letter-spacing:.3px; line-height:1.1; color:#1e3a8a; text-shadow:none; font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-size:1.85rem;}
+.pillars-line{margin:4px 0 0 0; font-size:12px; color:#1e40af; letter-spacing:.1em; text-shadow:none; font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-weight:700;}
 .brandstack{display:flex; flex-direction:column}
-.logo{width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.15); border-radius:10px; padding:6px;}
-.logo img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3)) brightness(1.1);}
+.logo{width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-radius:12px; padding:6px; box-shadow:0 4px 12px rgba(30,58,138,0.3);}
+.logo img{width:100%; height:100%; object-fit:contain; filter:brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.2));}
 .top-actions{display:flex; gap:8px; align-items:center}
-.signout{border:1px solid rgba(17,24,39,0.5); background:rgba(255,255,255,0.85); color:#111827; padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer; text-shadow: 0 2px 6px rgba(255,255,255,0.25), 0 1px 2px rgba(0,0,0,0.18);}
+.signout{border:2px solid #1e40af; background:#1e3a8a; color:#ffffff; padding:10px 16px; border-radius:999px; font-weight:800; cursor:pointer; text-shadow:none; transition:all 0.3s ease; box-shadow:0 4px 12px rgba(30,58,138,0.3);}
+.signout:hover{background:#1e40af; transform:translateY(-2px); box-shadow:0 6px 16px rgba(30,58,138,0.4);}
 
 /* ===== Tabs ===== */
 .nav{position:sticky; top:58px; z-index:95; display:flex; gap:8px; padding:8px 12px; background:#fff; border-bottom:1px solid var(--rail); backdrop-filter:blur(10px); box-shadow:0 2px 8px rgba(0,0,0,0.04)}
@@ -3425,6 +3427,14 @@ function handleLogin() {
     startClockAndProgress("08:20", "15:30"); // ✅ Enforce 8:20–3:30 gating instantly on login
   } else {
     console.warn("Invalid login");
+    const errorDiv = $('#loginError');
+    if (errorDiv) {
+      errorDiv.textContent = '❌ Invalid email. Please use the correct Portledge email.';
+      errorDiv.style.display = 'block';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 4000);
+    }
     $('#loginCard').classList.remove('shake');
     void $('#loginCard').offsetWidth;
     $('#loginCard').classList.add('shake');
