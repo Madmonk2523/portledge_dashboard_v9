@@ -652,8 +652,8 @@ body.theme-dark .theme-toggle{
 .brand h1{margin:0; font-weight:900; letter-spacing:.3px; line-height:1.1; color:#ffffff; text-shadow:0 2px 4px rgba(0,0,0,0.2); font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-size:1.75rem;}
 .pillars-line{margin:4px 0 0 0; font-size:12px; color:#e0e7ff; letter-spacing:.1em; text-shadow:0 1px 2px rgba(0,0,0,0.15); font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-weight:600;}
 .brandstack{display:flex; flex-direction:column}
-.logo{width:42px; height:42px; display:flex; align-items:center; justify-content:center; background:transparent}
-.logo img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2))}
+.logo{width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.15); border-radius:10px; padding:6px;}
+.logo img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3)) brightness(1.1);}
 .top-actions{display:flex; gap:8px; align-items:center}
 .signout{border:1px solid rgba(17,24,39,0.5); background:rgba(255,255,255,0.85); color:#111827; padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer; text-shadow: 0 2px 6px rgba(255,255,255,0.25), 0 1px 2px rgba(0,0,0,0.18);}
 
@@ -2560,9 +2560,9 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       </div>
     </div>
     <div class="login-form">
-      <div id="loginError" class="login-error" style="display:none"></div>
       <label for="role" class="hint">Enter your Portledge email:</label>
       <input id="role" class="role-input" type="email" placeholder="yourname.year@portledge.org" autocomplete="email" />
+      <div id="loginError" class="login-error" style="display:none"></div>
       <button id="loginBtn" class="login-btn">
         <span class="btn-text">Sign In</span>
         <span class="btn-icon">→</span>
@@ -2616,7 +2616,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       <section class="panel">
         <div class="p-body">
           <div class="summary">
-                <div class="day-progress-area" style="display:flex;align-items:center;gap:12px;flex:1">
+                <div class="day-progress-area" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
                   <!-- Mini current class card (top-left) - always yellow/orange -->
                   <div id="miniCurrent" class="slot slot-mini hidden now" style="margin-right:12px;">
                     <div class="dot"></div>
@@ -2634,11 +2634,12 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
                     <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
                     <!-- Blank space for future content -->
                   </div>
-                </div>
-                <div class="legend" style="display:flex; gap:12px; justify-content:flex-end; margin-top:8px;">
-                  <span class="lg"><i class="sw now"></i> Now</span>
-                  <span class="lg"><i class="sw up"></i> Upcoming</span>
-                  <span class="lg"><i class="sw done"></i> Done</span>
+                  <div style="flex:1"></div>
+                  <div class="legend" style="display:flex; gap:12px; align-items:center;">
+                    <span class="lg"><i class="sw now"></i> Now</span>
+                    <span class="lg"><i class="sw up"></i> Upcoming</span>
+                    <span class="lg"><i class="sw done"></i> Done</span>
+                  </div>
                 </div>
           </div>
         </div>
