@@ -872,7 +872,9 @@ body.theme-dark .theme-toggle{
   align-items:center;
   gap:16px;
   border:2px solid #e2e8f0;
-  background:linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
   border-radius:20px;
   box-shadow:0 6px 16px rgba(0,0,0,0.06);
   padding:20px 24px;
@@ -935,7 +937,9 @@ body.theme-dark .theme-toggle{
   transition:all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position:relative;
   overflow:hidden;
-  display:flex;
+    display: block;
+    width: 100%;
+    text-align: center;
   flex-direction:column;
   height:100%;
 }
