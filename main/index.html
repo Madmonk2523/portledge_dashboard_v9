@@ -743,17 +743,20 @@ body.theme-dark .theme-toggle{
 
 /* Mini current class card — identical styling to main slot */
 .slot-mini{
-  position:relative; padding-left:70px; margin:6px 0; /* tighter vertical for header */
+  position:relative; padding-left:60px; margin:2px 12px 2px 0; /* even tighter vertical for header, margin-right for spacing */
   border:2px solid #e2e8f0; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius:24px; box-shadow:0 8px 20px rgba(0,0,0,.08);
   transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow:hidden;
-  display:block; flex:0 1 680px; max-width:680px;
+  display:block; flex:0 1 auto; max-width:480px;
 }
 /* Use the same grid and typography as main slot (inherit global .slot-inner, .time, .cls, .meta) */
 /* No overrides needed for .slot-mini .slot-inner/.time/.cls/.meta */
 /* Dot uses global sizing/position */
 .slot-mini::before{border-radius:24px 0 0 24px}
 .slot-mini.hidden{display:none!important}
+
+/* Compact layout specifically for mini current-class card */
+.slot-mini .slot-inner{display:grid; grid-template-columns:140px 1fr; gap:12px; align-items:center; padding:10px 18px}
 
 /* Big date + day navigation - Premium upgrade */
 .bigdate{font-weight:900; font-size:1.8rem; text-align:center; margin:16px 0 12px 0; color:#0f172a; letter-spacing:-0.02em; text-shadow:0 2px 4px rgba(0,0,0,0.05)}
@@ -871,7 +874,8 @@ body.theme-dark .theme-toggle{
   display:flex;
   align-items:center;
   gap:16px;
-  border:2px solid #e2e8f0;
+    gap: 8px;
+    text-align: center;
     flex-direction: column;
     gap: 2px;
     text-align: center;
@@ -937,7 +941,9 @@ body.theme-dark .theme-toggle{
   transition:all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position:relative;
   overflow:hidden;
-    display: block;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
     width: 100%;
     text-align: center;
   flex-direction:column;
@@ -1149,10 +1155,7 @@ body.theme-dark .modal .close-btn:hover{
   background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
   cursor:pointer;
   transition:all 0.3s ease;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
+  display:block;
   box-shadow:0 8px 20px rgba(102, 126, 234, 0.4);
   position:relative;
   overflow:hidden;
@@ -1178,16 +1181,26 @@ body.theme-dark .modal .close-btn:hover{
 .login-btn:active{
   transform:translateY(0);
 }
-.btn-text, .btn-icon{
-  position:relative;
-  z-index:1;
+.btn-text{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:2;
+  pointer-events:none;
+  white-space:nowrap;
 }
 .btn-icon{
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:2;
   font-size:1.4rem;
-  transition:transform 0.3s ease;
+  transition:transform 0.25s ease;
 }
 .login-btn:hover .btn-icon{
-  transform:translateX(4px);
+  transform:translateY(-50%) translateX(4px);
 }
 .shake{animation:shake .4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both}
 @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
@@ -2630,7 +2643,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
           <div class="summary">
                 <div class="day-progress-area" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;width:100%">
                   <!-- Mini current class card (left) -->
-                  <div id="miniCurrent" class="slot slot-mini hidden now" style="margin-right:12px;min-width:180px;">
+                  <div id="miniCurrent" class="slot slot-mini hidden now">
                     <div class="dot"></div>
                     <div class="slot-inner">
                       <div>
