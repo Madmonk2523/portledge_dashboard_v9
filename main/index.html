@@ -2553,14 +2553,13 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       </div>
     </div>
     <div class="login-form">
+      <div id="loginError" class="login-error" style="display:none"></div>
       <label for="role" class="hint">Enter your Portledge email:</label>
       <input id="role" class="role-input" type="email" placeholder="yourname.year@portledge.org" autocomplete="email" />
-      
       <button id="loginBtn" class="login-btn">
         <span class="btn-text">Sign In</span>
         <span class="btn-icon">→</span>
       </button>
-      
       <button id="customizeLoginBtn" class="customize-btn" type="button">
         <span>⚙️ Customize</span>
       </button>
