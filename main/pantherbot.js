@@ -195,45 +195,27 @@ const PORTLEDGE_KB = {
 };
 
 // ===== QUICK CHAT PROMPTS =====
-// 50 randomized questions users can ask (shuffled on page load)
+// Conservative list - only questions definitely answerable from handbook/schedule
 const QUICK_PROMPTS = [
-  // Policies & Rules - Based on handbook data
-  "Can I use my phone during class?",
-  "What's the academic integrity policy?",
-  "What happens if I'm caught cheating?",
-  "What's the attendance policy?",
-  "What's the tardy policy?",
-  "Can I leave campus during lunch?",
-  "What are the consequences for plagiarism?",
-  "What's the honor code?",
-  "What happens if I'm late?",
-  
-  // Dress Code - Based on handbook data
+  // Dress Code - Core handbook topics
   "What can I wear on Friday?",
   "Can I wear jeans?",
-  "What shoes are allowed?",
   "Can I wear shorts?",
-  "Can I wear leggings?",
-  "What's dress-down Friday?",
   "Can I wear a hoodie?",
   "Are hats allowed?",
   
   // Schedule & Timing - Based on actual schedule data
   "What are school hours?",
   "How long are classes?",
-  "How long are Monday classes?",
   "What's my schedule today?",
   "What time does school end?",
-  "Why are Monday classes shorter?",
-  "What's my next class?",
-  "When does lunch start?",
   
-  // Academics - Based on handbook/grading data
-  "What's the GPA scale?",
-  "How do I check my grades?",
-  "What's the homework policy?",
-  "What's the make-up work policy?",
-  "What are the graduation requirements?"
+  // Basic Policies - Core handbook topics
+  "Can I use my phone during class?",
+  "What's the attendance policy?",
+  "What happens if I'm late?",
+  "Can I leave campus during lunch?",
+  "What's the honor code?"
 ];
 
 // Shuffle array utility
@@ -1300,16 +1282,12 @@ function showQuickPrompts() {
 function initWelcomeChips(){
   const el = document.getElementById('welcomeChips');
   if (!el) return;
-  // Only include topics from handbook and schedule data the bot actually has
+  // Conservative list - only topics definitely in handbook or schedule
   const pool = [
-    'Dress code rules','Uniform guidelines','Hoodies allowed?','Friday dress code','Jeans allowed?','Shorts policy','Leggings policy','Hat policy','Shoe policy',
-    'Late to class','Attendance policy','Tardy consequences','Absence policy','What if I\'m late?',
-    'Homework policy','Grading scale','GPA calculation','Grade checking','Make-up work',
-    'Academic integrity','Honor code','Cheating policy','Plagiarism consequences',
-    'Phone use in class','Laptop policy','Technology rules',
-    'Lunch campus policy','Can I leave campus?',
-    'School hours','Class length','Monday schedule','Next class?','Today\'s schedule','Bell schedule','When does school end?',
-    'Graduation requirements'
+    'Dress code','Friday dress','Jeans allowed?','Shorts allowed?','Hoodies allowed?','Hats allowed?',
+    'Late to class','Attendance policy','What if I\'m late?',
+    'Phone use','Honor code','Can I leave campus?',
+    'School hours','Class length','Today\'s schedule','When does school end?'
   ];
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   const show = shuffled.slice(0, 6);
