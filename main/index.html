@@ -133,6 +133,12 @@
 .btn:active, .daybtn:active{transform:translateY(0) scale(0.98) !important}
 .tab:active{transform:scale(0.95)}
 
+/* Prevent New Chat button from scaling on any interaction */
+#newChatBtn:active, #newChatBtn:focus, #newChatBtn:hover {
+  transform: translateY(-3px) !important;
+  scale: 1 !important;
+}
+
 /* Subtle gradient animation on login screen */
 #login{animation:shimmer 20s linear infinite; background-size:200% 100%}
 
@@ -2451,6 +2457,12 @@ button:active, .btn:active, .tab:active {
   transition: transform 0.1s ease;
 }
 
+/* Lock New Chat button size - no scaling ever */
+#newChatBtn:active {
+  transform: translateY(-3px) !important;
+  scale: 1 !important;
+}
+
 /* Smooth color transitions */
 * {
   transition: color 0.3s var(--ease), background-color 0.3s var(--ease);
@@ -4510,7 +4522,7 @@ $('#closeModal').onclick=()=>{
               </p>
             </div>
           `;
-          showSuggestedPrompts();
+          // Don't hide suggestions on new chat - keep them visible
           updateChatCounter();
         }
       }
