@@ -1972,7 +1972,6 @@ body.theme-dark .btn-secondary{
   color:#334155;
   font-weight:600;
 }
-  }
   
   /* Hero section */
   .hero {
@@ -2231,6 +2230,9 @@ body.theme-dark .btn-secondary{
   /* Fix grid layouts */
   .grid3 {
     gap: 12px;
+  }
+}
+
 /* ===== iPhone Pro Max specific (430px width) ===== */
 @media (max-width: 430px) {
   body {
@@ -2952,7 +2954,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
           <!-- Six randomized question suggestions inside the card -->
           <div id="welcomeChips" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 6px;"></div>
           <p style="text-align:center; margin-top:24px; color:#94a3b8; font-size:14px;">
-            💡 <em>Just type your question below or click a suggestion above!</em>
+            💡 <em>Just type your question below or click a suggestion below!</em>
           </p>
         </div>
       </div>
@@ -3974,11 +3976,11 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
           <h3 class="gtitle">${g.course}</h3>
           <div class="ggrade">${g.letter} • ${g.grade}%</div>
         </div>
-        <div class="bar-wrap"><div class="bar" id="bar-${i}" style="background:${letterGrad(g.letter)}"></div></div>
+        <div class="bar-wrap"><div class="bar" id="bar-${i}" data-letter="${g.letter}"></div></div>
         <div class="gsub">Recent: ${g.details.slice(0,2).join(' • ')}</div>
         <button class="gbtn" data-course="${g.course}">View details</button>
       </div>`).join('');
-    grades.forEach((g,i)=> { const el = $('#bar-'+i); if(el) el.style.width=`${g.grade}%`; });
+    grades.forEach((g,i)=> { const el = $('#bar-'+i); if(el) { el.style.width=`${g.grade}%`; el.style.background = letterGrad(g.letter); } });
     $$('.gbtn').forEach(btn=> btn.onclick=()=>{
       $('#mTitle').textContent=`${btn.dataset.course} — Details`;
       $('#mBody').innerHTML=`<div><b>Current:</b> ${grades.find(x=>x.course===btn.dataset.course).grade}%</div>`;
@@ -4807,7 +4809,8 @@ $('#closeModal').onclick=()=>{
       `;
       document.head.appendChild(style);
     }
-  }
+  };
+  // end initCoolAnimations
   
 </script>
 
@@ -4862,7 +4865,7 @@ $('#closeModal').onclick=()=>{
   <div class="modal-content">
     <div class="modal-header">
       <h2>⏱️ Temp Settings</h2>
-      <button class="modal-close" onclick="closeTempModal()">×</button>
+      <button class="modal-close"  onclick="closeTempModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="customize-section">
