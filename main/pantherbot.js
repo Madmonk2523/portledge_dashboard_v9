@@ -778,14 +778,14 @@ function decorateBotMessageElement(el, text){
 
   el.appendChild(span);
   el.appendChild(copy);
-  // Optional source/citation label
-  const citeText = el.dataset && el.dataset.citation ? String(el.dataset.citation) : '';
-  if (citeText) {
-    const cite = document.createElement('div');
-    cite.className = 'msg-citation';
-    cite.textContent = citeText;
-    el.appendChild(cite);
-  }
+  // Citation display removed per user request - kept internal tracking only
+  // const citeText = el.dataset && el.dataset.citation ? String(el.dataset.citation) : '';
+  // if (citeText) {
+  //   const cite = document.createElement('div');
+  //   cite.className = 'msg-citation';
+  //   cite.textContent = citeText;
+  //   el.appendChild(cite);
+  // }
   // Reactions removed per request
 }
 
@@ -821,7 +821,7 @@ function showThinking() {
   return el;
 }
 
-// Append a small source label to the most recent bot message
+// Append a small source label to the most recent bot message (hidden from display but tracked internally)
 function annotateLastBotMessage(citation) {
   if (!citation) return;
   const chatMessages = document.getElementById('chatMessages');
@@ -829,11 +829,13 @@ function annotateLastBotMessage(citation) {
   const bots = chatMessages.querySelectorAll('.chat-message.bot');
   if (!bots.length) return;
   const el = bots[bots.length - 1];
+  // Store citation internally but don't display it to user
   try { el.dataset.citation = citation; } catch {}
-  const cite = document.createElement('div');
-  cite.className = 'msg-citation';
-  cite.textContent = citation;
-  el.appendChild(cite);
+  // Citation display removed per user request
+  // const cite = document.createElement('div');
+  // cite.className = 'msg-citation';
+  // cite.textContent = citation;
+  // el.appendChild(cite);
 }
 
 // ===== Main handler =====
