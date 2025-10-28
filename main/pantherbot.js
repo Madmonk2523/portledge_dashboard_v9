@@ -618,6 +618,24 @@ async function getRelevantContext(userText, recentHistory, maxChars = 3500){
   return out || "";
 }
 
+// Detailed variant that also returns ranked metadata for citation building
+async function getRelevantContextDetailed(userText, recentHistory, maxChars = 3500){
+  const chunks = await getChunks();
+  const allQueries = [userText, ...recentHistory.filter(m=>m.role==='user').map(m=>m.content)];
+  const combinedQ = allQueries.join(' ');
+  const qTokens = normalize(combinedQ);
+  const ranked = chunks
+    .map(chunk => ({ ...chunk, score: scoreChunk(qTokens, chunk.text) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+  let out = '';
+  for (const r of ranked){
+    if ((out + "\n\n" + r.text).length > maxChars) break;
+    out += (out ? "\n\n" : "") + r.text;
+  }
+  return { context: out || '', ranked };
+}
+
 // ===== Chat memory =====
 const HISTORY_KEY = 'pd_pb_history_v1';
 let chatHistory = [];
@@ -786,6 +804,14 @@ function decorateBotMessageElement(el, text){
 
   el.appendChild(span);
   el.appendChild(copy);
+  // Optional source/citation label
+  const citeText = el.dataset && el.dataset.citation ? String(el.dataset.citation) : '';
+  if (citeText) {
+    const cite = document.createElement('div');
+    cite.className = 'msg-citation';
+    cite.textContent = citeText;
+    el.appendChild(cite);
+  }
   // Reactions removed per request
 }
 
@@ -819,6 +845,21 @@ function showThinking() {
   chatMessages.appendChild(el);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   return el;
+}
+
+// Append a small source label to the most recent bot message
+function annotateLastBotMessage(citation) {
+  if (!citation) return;
+  const chatMessages = document.getElementById('chatMessages');
+  if (!chatMessages) return;
+  const bots = chatMessages.querySelectorAll('.chat-message.bot');
+  if (!bots.length) return;
+  const el = bots[bots.length - 1];
+  try { el.dataset.citation = citation; } catch {}
+  const cite = document.createElement('div');
+  cite.className = 'msg-citation';
+  cite.textContent = citation;
+  el.appendChild(cite);
 }
 
 // ===== Main handler =====
@@ -915,6 +956,7 @@ async function handleSend() {
   if (headRegex.test(userText)) {
     addMessage('user', userText);
     addMessage('bot', 'The Head of School is Mr. Simon Owen-Williams.');
+    annotateLastBotMessage('Sourced from: School info');
     userInput.value = '';
     return;
   }
@@ -932,6 +974,7 @@ async function handleSend() {
       userInput.value = '';
       if (matches.length === 0) {
         addMessage('bot', "I couldn't find that name in the directory. Try the full first and last name.");
+        annotateLastBotMessage('Sourced from: Directory');
         return;
       }
       if (matches.length === 1) {
@@ -944,6 +987,7 @@ async function handleSend() {
         } else {
           addMessage('bot', `I found ${fullName || 'that student'} in the directory, but their grade isn't listed.`);
         }
+        annotateLastBotMessage('Sourced from: Directory');
         return;
       }
       // Multiple matches - ask which one (numbered) and enable follow-up selection
@@ -964,12 +1008,14 @@ async function handleSend() {
       PB_PENDING = { type: 'grade', options: unique };
       const list = unique.map((o, i) => `${i+1}) ${o.displayName}${o.gradeText ? ` (${o.gradeText})` : ''}${o.email ? ` — ${o.email}` : ''}`).join('\n');
       addMessage('bot', `I found multiple matches. Reply with a number to choose:\n${list}`);
+      annotateLastBotMessage('Sourced from: Directory');
       return;
     }
     if (!hasDirectory) {
       addMessage('user', userText);
       userInput.value = '';
       addMessage('bot', 'I don\'t have a directory loaded yet. Add entries to pantherbot/directory.js or drop a JSON file at pantherbot/directory.json and try again.');
+      annotateLastBotMessage('Sourced from: Directory');
       return;
     }
   }
@@ -1004,21 +1050,40 @@ async function handleSend() {
     
     const historyMsgs = getRecentHistory(3);
     
-    const context = await getRelevantContext(userText, historyMsgs, 3500).catch(err => {
+    const detailed = await getRelevantContextDetailed(userText, historyMsgs, 3500).catch(err => {
       console.error('Context retrieval error:', err);
-      return '';
+      return { context: '', ranked: [] };
     });
+    const context = detailed.context || '';
+    const ranked = Array.isArray(detailed.ranked) ? detailed.ranked : [];
+    const srcSet = new Set(ranked.map(r => r.source).filter(Boolean));
+    let handbooksLabel = '';
+    if (srcSet.has('student') && srcSet.has('athletics')) handbooksLabel = 'Handbooks (Student & Athletics)';
+    else if (srcSet.has('student')) handbooksLabel = 'Student Handbook';
+    else if (srcSet.has('athletics')) handbooksLabel = 'Athletics Handbook';
+    const scheduleIntent = /(schedule|class|period|today|tomorrow|monday|tuesday|wednesday|thursday|friday|next\s+class|first\s+class|advisory)/i;
+    const personalIntent = /\b(my|me|i|mine)\b/i;
+    const labelParts = [];
+    if (handbooksLabel) labelParts.push(handbooksLabel);
+    if (scheduleIntent.test(userText)) labelParts.push('Schedule');
+    if (personalIntent.test(userText)) labelParts.push('Student context');
+    const sourceLabel = labelParts.length ? `Sourced from: ${labelParts.join(', ')}` : '';
     
     // Gather real-time student context
     const studentContext = getStudentContext();
     const contextText = formatContextForAI(studentContext);
     
-    const systemPrompt = `You are PantherBot, Portledge School's intelligent AI assistant with access to the student's REAL-TIME schedule and grades.
+  const systemPrompt = `You are PantherBot, Portledge School's intelligent AI assistant with access to the student's REAL-TIME schedule and grades.
 
 ${contextText}
 
 PORTLEDGE HANDBOOK KNOWLEDGE:
 ${context}
+
+STRICT SOURCE-FIRST POLICY (CRITICAL):
+- Only answer using the provided CONTEXT above (handbooks) and the REAL-TIME STUDENT CONTEXT. Do NOT invent facts.
+- If the answer isn't clearly supported by those sources, say you couldn't find it in the provided sources and ask a short clarifying question.
+- Prefer quoting or paraphrasing the relevant handbook sections when applicable.
 
 SCHEDULE TIMING RULES (CRITICAL):
 • MONDAY: All classes are 40 minutes long so students can attend EVERY class in one day
@@ -1100,10 +1165,12 @@ You're not just a handbook - you're THIS STUDENT'S personal AI assistant who kno
 
     if (thinkingEl) {
       if (thinkingEl._ticker) { try { clearInterval(thinkingEl._ticker); } catch{} }
+      if (sourceLabel) { try { thinkingEl.dataset.citation = sourceLabel; } catch {} }
       decorateBotMessageElement(thinkingEl, reply);
       addToHistory('assistant', reply);
     } else {
       addMessage('bot', reply);
+      if (sourceLabel) annotateLastBotMessage(sourceLabel);
     }
     
     const related = generateRelatedQuestions(userText, reply);

@@ -2382,6 +2382,11 @@ body.theme-dark .btn-secondary{
   transform: translateY(-3px) scale(1.02);
 }
 
+/* Do not scale the New Chat button on hover */
+#newChatBtn:hover {
+  transform: translateY(-3px);
+}
+
 /* Smooth tab transitions with underline */
 .tab {
   position: relative;
@@ -2595,6 +2600,9 @@ button:active, .btn:active, .tab:active {
   text-shadow: 0 0 10px rgba(255,255,255,0.8);
 }
 
+/* Override: do not scale the New Chat button on hover (keep consistent size) */
+#newChatBtn:hover { transform: translateY(-3px) !important; }
+
 /* Logo hover - subtle scale only */
 .logo {
   transition: all 0.3s var(--ease);
@@ -2682,7 +2690,8 @@ button:active, .btn:active, .tab:active {
 button:focus-visible, .btn:focus-visible, .tab:focus-visible {
   outline: none;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.6);
-  transform: scale(1.05);
+  /* Avoid scaling on focus to prevent size jump, keep just the glow */
+  /* transform: scale(1.05); */
 }
 
 
@@ -4703,8 +4712,9 @@ $('#closeModal').onclick=()=>{
       slot.classList.add('fade-in-up');
     });
     
-    // Advanced magnetic button effect with rotation
+    // Advanced magnetic button effect with rotation (exclude New Chat button to avoid unintended scaling)
     document.querySelectorAll('.btn.primary, .gbtn').forEach(button => {
+      if (button.id === 'newChatBtn') return; // do not apply magnetic scaling/tilt to New Chat
       button.addEventListener('mousemove', (e) => {
         const rect = button.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
@@ -4872,4 +4882,3 @@ $('#closeModal').onclick=()=>{
 </div>
 </body>
 </html>
-
