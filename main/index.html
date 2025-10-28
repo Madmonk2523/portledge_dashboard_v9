@@ -1599,11 +1599,6 @@ body.theme-dark .btn-secondary{
 }
 .pb-chip:hover{ background:#e8f2ff; border-color:#bfdbfe; color:#1d4ed8; transform: translateY(-1px); }
 
-  /* Neon prompt bar */
-  .neon-prompts{
-    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center;
-    margin: 6px auto 16px; padding: 8px 6px; max-width: 1000px;
-  }
   .neon-chip{
     padding:8px 12px; border-radius:999px; font-size:12px; font-weight:800; letter-spacing:.2px;
     color:#0ea5e9; background:rgba(14,165,233,0.08);
@@ -1642,6 +1637,9 @@ body.theme-dark .btn-secondary{
   text-align: left;
   align-self: flex-start;
 }
+
+/* Center the initial welcome card bubble */
+.chat-message.welcome-message { align-self: center; max-width: 960px; width: 100%; }
 
 /* Typing indicator state */
 .chat-message.bot.typing {
@@ -2914,9 +2912,6 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
     <!-- Suggested prompts removed for compactness -->
 
   <div class="container" style="padding-top: 20px; max-width: 1200px; margin: 0 auto;">
-    <!-- Neon prompts bar -->
-    <div id="neonPrompts" class="neon-prompts"></div>
-
     <div class="chat-container">
       <div class="chat-messages" id="chatMessages">
         <div class="chat-message bot welcome-message">
@@ -2945,6 +2940,8 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
               <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Activities, events, resources</p>
             </div>
           </div>
+          <!-- Six randomized question suggestions inside the card -->
+          <div id="welcomeChips" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 6px;"></div>
           <p style="text-align:center; margin-top:24px; color:#94a3b8; font-size:14px;">
             💡 <em>Just type your question below or click a suggestion above!</em>
           </p>
@@ -2956,6 +2953,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
     </div>
     <div class="chat-input" style="max-width: 960px; margin: 0 auto;">
       <input type="text" id="userInput" placeholder="Ask me anything about Portledge..." />
+      <button id="voiceBtn" title="Voice input" aria-label="Voice input">🎤</button>
       <button id="sendBtn">Send</button>
     </div>
   </div>
@@ -4404,43 +4402,7 @@ $('#closeModal').onclick=()=>{
       });
     });
 
-    // Voice-to-text toggle
-    let recognition = null;
-    let listening = false;
-    const voiceBtn = document.getElementById('voiceBtn');
-    const userInput = document.getElementById('userInput');
-    if (voiceBtn && userInput) {
-      voiceBtn.addEventListener('click', () => {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-          alert('Speech recognition not supported in this browser.');
-          return;
-        }
-        if (!recognition) {
-          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-          recognition = new SpeechRecognition();
-          recognition.continuous = false;
-          recognition.interimResults = false;
-          recognition.lang = 'en-US';
-          recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript;
-            userInput.value = transcript;
-          };
-          recognition.onend = function() {
-            listening = false;
-            voiceBtn.classList.remove('listening');
-          };
-        }
-        if (!listening) {
-          recognition.start();
-          listening = true;
-          voiceBtn.classList.add('listening');
-        } else {
-          recognition.stop();
-          listening = false;
-          voiceBtn.classList.remove('listening');
-        }
-      });
-    }
+    // Voice-to-text handled in main/pantherbot.js
 
     // Back to top button
     const btt = document.getElementById('backToTop');
