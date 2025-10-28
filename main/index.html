@@ -1569,6 +1569,36 @@ body.theme-dark .btn-secondary{
   }
 }
 
+/* PantherBot layout grid to use side space */
+.pb-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 1024px){
+  .pb-grid { grid-template-columns: 1fr 320px; }
+}
+
+.pb-sidebar {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  height: 100%;
+}
+.pb-side-section { margin-bottom: 12px; }
+.pb-side-title {
+  font-size: 14px; font-weight: 800; color: #1e293b; margin: 0 0 8px 0;
+}
+.pb-chip {
+  display: inline-block; margin: 6px 6px 0 0; padding: 6px 10px;
+  font-size: 12px; font-weight: 700; color: #334155; background: #f8fafc;
+  border: 1px solid #e2e8f0; border-radius: 999px; cursor: pointer;
+  transition: all .18s ease;
+}
+.pb-chip:hover{ background:#e8f2ff; border-color:#bfdbfe; color:#1d4ed8; transform: translateY(-1px); }
+
 .chat-message.user {
   color: #ffffff;
   font-weight: 600;
@@ -2851,7 +2881,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
     </div>
   </div>
   
-  <div class="container" style="max-width: 950px; margin: 0 auto;">
+  <div class="container" style="max-width: 1200px; margin: 0 auto;">
     <!-- Chat Controls Header -->
     <div style="display:flex; gap:12px; margin-bottom:16px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
       <div style="display:flex; gap:10px;">
@@ -2863,9 +2893,11 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
 
     <!-- Suggested prompts removed for compactness -->
 
-  <div class="container" style="padding-top: 20px; max-width: 900px; margin: 0 auto;">
-    <div class="chat-container">
-      <div class="chat-messages" id="chatMessages">
+  <div class="container" style="padding-top: 20px; max-width: 1200px; margin: 0 auto;">
+    <div class="pb-grid">
+      <div>
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
         <div class="chat-message bot welcome-message">
           <div style="text-align:center; padding:20px 0;">
             <div style="font-size:64px; margin-bottom:16px;">🐾</div>
@@ -2896,14 +2928,33 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
             💡 <em>Just type your question below or click a suggestion above!</em>
           </p>
         </div>
+          </div>
+          <div class="chat-message bot">
+            👋 Hi, I’m <b>PantherBot</b> — your Portledge assistant. Ask me anything about school rules, dress code, or policies!
+          </div>
+        </div>
+        <div class="chat-input">
+          <input type="text" id="userInput" placeholder="Ask me anything about Portledge..." />
+          <button id="sendBtn">Send</button>
+        </div>
       </div>
-      <div class="chat-message bot">
-        👋 Hi, I’m <b>PantherBot</b> — your Portledge assistant. Ask me anything about school rules, dress code, or policies!
-      </div>
-    </div>
-    <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Ask me anything about Portledge..." />
-      <button id="sendBtn">Send</button>
+      <aside class="pb-sidebar">
+        <div class="pb-side-section">
+          <div class="pb-side-title">Quick questions</div>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the dress code policy?'; document.getElementById('sendBtn').click();">Dress code</button>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the attendance policy?'; document.getElementById('sendBtn').click();">Attendance</button>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='How does the grading system work?'; document.getElementById('sendBtn').click();">Grading</button>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the plagiarism policy?'; document.getElementById('sendBtn').click();">Plagiarism</button>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the late work policy?'; document.getElementById('sendBtn').click();">Late work</button>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the device policy (phones/laptops)?'; document.getElementById('sendBtn').click();">Devices</button>
+        </div>
+        <div class="pb-side-section">
+          <div class="pb-side-title">Handbook topics</div>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='Explain academic integrity at Portledge.'; document.getElementById('sendBtn').click();">Integrity</button>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='Summarize the honor code.'; document.getElementById('sendBtn').click();">Honor code</button>
+          <button class="pb-chip" onclick="document.getElementById('userInput').value='What are the discipline procedures?'; document.getElementById('sendBtn').click();">Discipline</button>
+        </div>
+      </aside>
     </div>
   </div>
 </section>
