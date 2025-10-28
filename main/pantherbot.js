@@ -1321,4 +1321,7 @@ function initWelcomeChips(){
   });
 }
 
+// Make initWelcomeChips globally available so it can be called from index.html
+window.initWelcomeChips = initWelcomeChips;
+
 document.addEventListener('DOMContentLoaded', () => { loadHistory(); initPantherBot(); initWelcomeChips(); });

@@ -4514,11 +4514,16 @@ $('#closeModal').onclick=()=>{
                   <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Activities, events, resources</p>
                 </div>
               </div>
+              <div id="welcomeChips" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 6px;"></div>
               <p style="text-align:center; margin-top:24px; color:#94a3b8; font-size:14px;">
                 💡 <em>Just type your question below or click a suggestion above!</em>
               </p>
             </div>
           `;
+          // Re-initialize welcome chips after creating new welcome message
+          if (typeof initWelcomeChips === 'function') {
+            initWelcomeChips();
+          }
           // Show suggestions when starting new chat
           showSuggestedPrompts();
           updateChatCounter();
