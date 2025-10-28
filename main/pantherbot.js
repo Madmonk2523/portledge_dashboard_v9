@@ -15,7 +15,8 @@ async function getDirectory() {
     } catch {}
 
     // main/index.html loads this file; JSON path is relative to the page
-    const res = await fetch('../pantherbot/directory.json', { cache: 'no-store' });
+  // Try optional JSON next to this file to avoid cross-folder 404s
+  const res = await fetch('./directory.json', { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data)) {

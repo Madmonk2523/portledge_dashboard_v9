@@ -2648,7 +2648,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
   <div class="login-card" id="loginCard">
     <div class="login-head">
       <div class="login-logo">
-          <img src="portledge_crest.png" alt="Portledge crest" onerror="if(!this.dataset.fallback){this.dataset.fallback='svg';this.src='portledge_crest.svg';}else{this.style.display='none';}">
+    <img src="portledge_crest.png" alt="Portledge crest" onerror="this.style.display='none';">
       </div>
       <div>
         <h2 class="login-title">Welcome Back</h2>
@@ -2672,7 +2672,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
 <!-- ===== STUDENT DASHBOARD ===== -->
 <header id="top-student" class="topbar hidden" role="banner">
   <div class="brand">
-    <div class="logo"><img src="portledge_crest.png" alt="Portledge crest" onerror="if(!this.dataset.fallback){this.dataset.fallback='svg';this.src='portledge_crest.svg';}else{this.style.display='none';}"></div>
+  <div class="logo"><img src="portledge_crest.png" alt="Portledge crest" onerror="this.style.display='none';"></div>
     <div class="brandstack">
       <h1>Portledge Dashboard — Student</h1>
       <div class="pillars-line">Kindness • Honor • Purpose • Respect</div>
@@ -2858,46 +2858,10 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
         <button id="newChatBtn" class="btn primary" style="display:flex; align-items:center; gap:8px;">
           <span style="font-size:18px;">💬</span> New Chat
         </button>
-        <button id="clearChatBtn" class="btn" style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:16px;">🗑️</span> Clear
-        </button>
-        <button id="exportChatBtn" class="btn" style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:16px;">📥</span> Export
-        </button>
-      </div>
-      <div style="color:#64748b; font-size:14px; font-weight:600;">
-        <span id="chatCounter">0 messages</span>
       </div>
     </div>
 
-    <!-- Suggested Prompts -->
-    <div id="suggestedPrompts" class="suggested-prompts">
-      <h3 style="font-size:18px; font-weight:800; color:#1e293b; margin-bottom:16px; text-align:center;">
-        ✨ Try asking about...
-      </h3>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
-        <button class="prompt-card" data-prompt="What is the dress code policy?">
-          <span style="font-size:24px; margin-bottom:8px;">👔</span>
-          <strong>Dress Code</strong>
-          <p>Learn about uniform requirements</p>
-        </button>
-        <button class="prompt-card" data-prompt="Tell me about the honor code">
-          <span style="font-size:24px; margin-bottom:8px;">⭐</span>
-          <strong>Honor Code</strong>
-          <p>Understand our core values</p>
-        </button>
-        <button class="prompt-card" data-prompt="What are the attendance policies?">
-          <span style="font-size:24px; margin-bottom:8px;">📅</span>
-          <strong>Attendance</strong>
-          <p>Check attendance rules</p>
-        </button>
-        <button class="prompt-card" data-prompt="How does the grading system work?">
-          <span style="font-size:24px; margin-bottom:8px;">📊</span>
-          <strong>Grading System</strong>
-          <p>Learn about assessments</p>
-        </button>
-      </div>
-    </div>
+    <!-- Suggested prompts removed for compactness -->
 
   <div class="container" style="padding-top: 20px; max-width: 900px; margin: 0 auto;">
     <div class="chat-container">
@@ -2939,7 +2903,6 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
     </div>
     <div class="chat-input">
       <input type="text" id="userInput" placeholder="Ask me anything about Portledge..." />
-      <button id="voiceBtn" title="Voice input" aria-label="Voice input">🎤</button>
       <button id="sendBtn">Send</button>
     </div>
   </div>
