@@ -1526,12 +1526,12 @@ body.theme-dark .btn-secondary{
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 520px;
+  height: 560px;
   background: #ffffff;
   border-radius: 14px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
-  max-width: 760px;
+  max-width: 960px;
   margin: 0 auto;
   border: 1px solid #e2e8f0;
 }
@@ -1598,6 +1598,26 @@ body.theme-dark .btn-secondary{
   transition: all .18s ease;
 }
 .pb-chip:hover{ background:#e8f2ff; border-color:#bfdbfe; color:#1d4ed8; transform: translateY(-1px); }
+
+  /* Neon prompt bar */
+  .neon-prompts{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center;
+    margin: 6px auto 16px; padding: 8px 6px; max-width: 1000px;
+  }
+  .neon-chip{
+    padding:8px 12px; border-radius:999px; font-size:12px; font-weight:800; letter-spacing:.2px;
+    color:#0ea5e9; background:rgba(14,165,233,0.08);
+    border:1px solid rgba(14,165,233,0.45);
+    box-shadow:0 0 12px rgba(14,165,233,0.35), inset 0 0 8px rgba(14,165,233,0.12);
+    cursor:pointer; transition:transform .15s ease, box-shadow .2s ease, background .2s, border-color .2s;
+  }
+  .neon-chip:hover{
+    transform: translateY(-1px);
+    background: rgba(59,130,246,0.12);
+    border-color: rgba(59,130,246,0.7);
+    box-shadow:0 0 16px rgba(59,130,246,0.55), 0 0 28px rgba(14,165,233,0.25);
+    color:#3b82f6;
+  }
 
 .chat-message.user {
   color: #ffffff;
@@ -2874,7 +2894,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
 </main>
 
 <section id="page-s-pantherbot" class="page">
-  <div class="hero container">
+  <div class="hero container" style="text-align:center;">
     <div>
       <h2>🐾 PantherBot AI Assistant</h2>
       <div class="meta">Your intelligent companion for all things Portledge</div>
@@ -2894,10 +2914,11 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
     <!-- Suggested prompts removed for compactness -->
 
   <div class="container" style="padding-top: 20px; max-width: 1200px; margin: 0 auto;">
-    <div class="pb-grid">
-      <div>
-        <div class="chat-container">
-          <div class="chat-messages" id="chatMessages">
+    <!-- Neon prompts bar -->
+    <div id="neonPrompts" class="neon-prompts"></div>
+
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
         <div class="chat-message bot welcome-message">
           <div style="text-align:center; padding:20px 0;">
             <div style="font-size:64px; margin-bottom:16px;">🐾</div>
@@ -2928,33 +2949,14 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
             💡 <em>Just type your question below or click a suggestion above!</em>
           </p>
         </div>
-          </div>
-          <div class="chat-message bot">
-            👋 Hi, I’m <b>PantherBot</b> — your Portledge assistant. Ask me anything about school rules, dress code, or policies!
-          </div>
-        </div>
-        <div class="chat-input">
-          <input type="text" id="userInput" placeholder="Ask me anything about Portledge..." />
-          <button id="sendBtn">Send</button>
-        </div>
       </div>
-      <aside class="pb-sidebar">
-        <div class="pb-side-section">
-          <div class="pb-side-title">Quick questions</div>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the dress code policy?'; document.getElementById('sendBtn').click();">Dress code</button>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the attendance policy?'; document.getElementById('sendBtn').click();">Attendance</button>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='How does the grading system work?'; document.getElementById('sendBtn').click();">Grading</button>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the plagiarism policy?'; document.getElementById('sendBtn').click();">Plagiarism</button>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the late work policy?'; document.getElementById('sendBtn').click();">Late work</button>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='What is the device policy (phones/laptops)?'; document.getElementById('sendBtn').click();">Devices</button>
-        </div>
-        <div class="pb-side-section">
-          <div class="pb-side-title">Handbook topics</div>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='Explain academic integrity at Portledge.'; document.getElementById('sendBtn').click();">Integrity</button>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='Summarize the honor code.'; document.getElementById('sendBtn').click();">Honor code</button>
-          <button class="pb-chip" onclick="document.getElementById('userInput').value='What are the discipline procedures?'; document.getElementById('sendBtn').click();">Discipline</button>
-        </div>
-      </aside>
+      <div class="chat-message bot">
+        👋 Hi, I’m <b>PantherBot</b> — your Portledge assistant. Ask me anything about school rules, dress code, or policies!
+      </div>
+    </div>
+    <div class="chat-input" style="max-width: 960px; margin: 0 auto;">
+      <input type="text" id="userInput" placeholder="Ask me anything about Portledge..." />
+      <button id="sendBtn">Send</button>
     </div>
   </div>
 </section>

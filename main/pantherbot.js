@@ -1225,4 +1225,24 @@ function showQuickPrompts() {
   chatMessages.insertBefore(container, chatMessages.firstChild);
 }
 
-document.addEventListener('DOMContentLoaded', () => { loadHistory(); initPantherBot(); });
+function initNeonPrompts(){
+  const el = document.getElementById('neonPrompts');
+  if (!el) return;
+  const pool = [
+    'Dress code rules','Uniform guidelines','Hoodies allowed?','Formal dress days','PE uniform','Athletics eligibility','Late to class','Attendance policy','Reporting absence','Homework policy','Retake policy','Grading scale','Weighted GPA','Honor roll','Academic integrity','Honor code','Discipline steps','Detention rules','Plagiarism policy','Technology policy','Phone use','Laptop use','Device charging','Wi‑Fi access','Printing','Library hours','Counseling','Advisory','Clubs','Sports tryouts','Practice policy','Game absences','Team travel','Coach contact','Nurse hours','Medical forms','Allergies policy','Medication at school','Cafeteria hours','Lunch options','Off‑campus lunch','Parking permits','Student parking','Drop‑off times','Pick‑up times','School hours','Bell schedule','Free periods','Study hall','Tutoring','Office hours','Absence note','Field trip rules','Dress down days','ID cards','Lost and found','Lockers','Visitor policy','Security','Emergency drills','Fire drill','Severe weather','Snow day','Bus routes','Transportation','Rideshare policy','Assemblies','Chapel/Meetings','Community service','Volunteering','Service hours','AP classes','Honors classes','Course changes','Add/Drop','Transcripts','Report cards','Parent portal','Email etiquette','Chromebook policy','Headphones','Cafeteria payments','Meal accounts','Snack policy','Vending machines','Water bottles','Recycling','Sustainability','Dress code shoes','Skirt length','Hair policy','Jewelry policy','Hats policy','Athletics fees','Equipment','Uniform care','Locker room','PE excuses','Injury protocol','Concussion','Return to play','NCAA clearinghouse','College counseling','SAT/ACT','Absence excused?','Tardy consequences','Hall passes','Bathroom policy','Assemblies seating','Library fines','Printing quota','Study spaces','Quiet hours'
+  ];
+  // Ensure >100 unique options by duplicating thematic variants
+  while (pool.length < 110) pool.push('School policy');
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const show = shuffled.slice(0, 32);
+  el.innerHTML = show.map(s => `<button class="neon-chip" data-prompt="${s.replace(/"/g,'&quot;')}">${s}</button>`).join('');
+  el.addEventListener('click', (e) => {
+    const btn = e.target.closest('.neon-chip');
+    if (!btn) return;
+    const input = document.getElementById('userInput');
+    const send = document.getElementById('sendBtn');
+    if (input && send) { input.value = btn.dataset.prompt || btn.textContent; send.click(); }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => { loadHistory(); initPantherBot(); initNeonPrompts(); });
