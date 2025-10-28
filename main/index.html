@@ -2517,11 +2517,7 @@ button:active, .btn:active, .tab:active {
   }
 }
 
-.topbar {
-  background: linear-gradient(135deg, var(--navy), var(--navy-2), var(--accent), var(--navy-2), var(--navy));
-  background-size: 400% 400%;
-  animation: morphing-gradient 15s ease infinite;
-}
+/* Removed animated gradient from topbar - keeping solid background for readability */
 
 /* Smooth page entrance */
 @keyframes pageEntrance {
@@ -2966,7 +2962,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
           <!-- Six randomized question suggestions inside the card -->
           <div id="welcomeChips" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 6px;"></div>
           <p style="text-align:center; margin-top:24px; color:#94a3b8; font-size:14px;">
-            💡 <em>Just type your question below or click a suggestion below!</em>
+            💡 <em>Just type your question below or click a suggestion above!</em>
           </p>
         </div>
       </div>
