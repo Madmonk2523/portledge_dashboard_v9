@@ -1,10 +1,6 @@
 {
-  "routes": [
-    { "src": "/portledge_crest.png", "dest": "/portledge_crest.png" },
-    { "src": "/portledge_crest.svg", "dest": "/portledge_crest.svg" },
-    { "src": "/pantherbot/(.*)", "dest": "/pantherbot/$1" },
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/main/(.*)", "dest": "/main/$1" },
-    { "src": "/", "dest": "/main/index.html" }
+  "rewrites": [
+    { "source": "/", "destination": "/main/index.html" },
+    { "source": "/index.html", "destination": "/main/index.html" }
   ]
 }
