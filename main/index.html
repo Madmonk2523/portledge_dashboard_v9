@@ -2775,7 +2775,14 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       <div class="meta" id="s_daySummary">—</div>
     </div>
     <div class="schedule-wrap">
-      <section class="panel">
+      <section class="panel" style="position:relative;">
+        <!-- Legend at absolute top right of schedule box -->
+        <div class="legend" style="position:absolute; top:16px; right:16px; z-index:10; display:flex; gap:12px; align-items:center;">
+          <span class="lg"><i class="sw now"></i> Now</span>
+          <span class="lg"><i class="sw up"></i> Upcoming</span>
+          <span class="lg"><i class="sw done"></i> Done</span>
+        </div>
+        
         <div class="p-body">
           <div class="summary">
                 <div class="day-progress-area" style="display:flex;align-items:flex-start;gap:8px;flex-wrap:nowrap;width:100%;justify-content:space-between;">
@@ -2791,12 +2798,6 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
                         <div class="meta" id="miniMeta"></div>
                       </div>
                     </div>
-                  </div>
-                  <!-- Legend at top right -->
-                  <div class="legend" style="display:flex; gap:12px; align-items:center; margin-left:auto;">
-                    <span class="lg"><i class="sw now"></i> Now</span>
-                    <span class="lg"><i class="sw up"></i> Upcoming</span>
-                    <span class="lg"><i class="sw done"></i> Done</span>
                   </div>
                   <div class="day-progress-wrap" style="display:none;flex:1;align-items:center;min-width:200px;">
                     <div class="day-progress" style="flex:1;margin-right:8px"><i style="width:0%"></i></div>
