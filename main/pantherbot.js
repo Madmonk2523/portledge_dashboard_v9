@@ -1149,9 +1149,10 @@ function initPantherBot() {
     newChatBtn.__bound = true;
   }
   
-  // Voice input
+  // Voice input (guarded: only if button exists AND API supported)
   const voiceBtn = document.getElementById('voiceBtn');
-  if (voiceBtn && 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const hasSpeech = ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
+  if (voiceBtn && hasSpeech) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
