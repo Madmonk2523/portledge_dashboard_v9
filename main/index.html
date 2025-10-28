@@ -708,7 +708,7 @@ body.theme-dark .theme-toggle{
 /* Segmented progress: green fill for done, blue marker for now */
 .p-done{position:absolute; left:0; top:0; background:linear-gradient(90deg, #3b82f6, #60a5fa); width:0%; box-shadow:0 2px 8px rgba(59,130,246,0.25)}
 .p-now{position:absolute; top:0; width:6px; background:#facc15; border-radius:4px; box-shadow:0 0 0 2px #fff inset, 0 0 16px rgba(250,204,21,.8)}
-.legend{display:flex; gap:16px; flex-wrap:wrap; padding:12px 18px; background:rgba(255,255,255,0.95); border-radius:16px; border:2px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.legend{display:flex; gap:16px; flex-wrap:wrap; padding:12px 18px; background:rgba(255,255,255,0.95); border-radius:16px; border:2px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.08); align-self:flex-start; margin-left:auto;}
 .lg{display:flex; align-items:center; gap:10px; font-size:14px; color:#1e293b; font-weight:700; letter-spacing:0.01em}
 .sw{width:16px; height:16px; border-radius:6px; display:inline-block; box-shadow:0 3px 8px rgba(0,0,0,0.25)}
 /* New color key: done=green, now=yellow, up=blue */
@@ -4518,7 +4518,8 @@ $('#closeModal').onclick=()=>{
               </p>
             </div>
           `;
-          // Don't hide suggestions on new chat - keep them visible
+          // Show suggestions when starting new chat
+          showSuggestedPrompts();
           updateChatCounter();
         }
       }
@@ -4570,7 +4571,9 @@ $('#closeModal').onclick=()=>{
     const chatObserver = new MutationObserver(() => {
       updateChatCounter();
       const messages = document.querySelectorAll('#chatMessages .chat-message');
-      if (messages.length > 1) {
+      // Only hide suggestions if there's more than just the welcome message (i.e., actual conversation started)
+      const hasUserMessages = Array.from(messages).some(msg => msg.classList.contains('user'));
+      if (hasUserMessages) {
         hideSuggestedPrompts();
       }
     });
