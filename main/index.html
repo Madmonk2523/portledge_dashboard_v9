@@ -1466,6 +1466,59 @@ body.theme-dark .btn-secondary{
 .pb-suggestions{display:flex; flex-wrap:wrap; gap:8px; margin:10px auto 8px; max-width:850px}
 .pb-suggestions .chip{cursor:pointer}
 
+/* PantherBot Enhanced Features */
+.suggested-prompts{
+  margin-bottom:24px;
+  padding:24px;
+  background:linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-radius:20px;
+  border:2px solid #e2e8f0;
+  box-shadow:0 4px 16px rgba(0,0,0,0.06);
+}
+
+.prompt-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+  background:white;
+  border:2px solid #e2e8f0;
+  border-radius:16px;
+  cursor:pointer;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+
+.prompt-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 24px rgba(59,130,246,0.15);
+  border-color:#3b82f6;
+  background:linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+}
+
+.prompt-card strong{
+  font-size:16px;
+  color:#1e293b;
+  margin-bottom:6px;
+  font-weight:800;
+}
+
+.prompt-card p{
+  font-size:13px;
+  color:#64748b;
+  margin:0;
+  line-height:1.4;
+}
+
+.welcome-message{
+  max-width:100% !important;
+  background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border:2px solid #e2e8f0 !important;
+  padding:24px !important;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08) !important;
+}
+
 /* Back to top button */
 #backToTop{position:fixed; right:16px; bottom:16px; z-index:1100; border:0; border-radius:999px; padding:10px 12px; font-weight:900; background:linear-gradient(90deg,var(--navy),var(--navy-2)); color:#fff; box-shadow:0 10px 30px rgba(0,0,0,.25); cursor:pointer; display:none}
 
@@ -2791,15 +2844,101 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
 </main>
 
 <section id="page-s-pantherbot" class="page">
+  <div class="hero container">
+    <div>
+      <h2>🐾 PantherBot AI Assistant</h2>
+      <div class="meta">Your intelligent companion for all things Portledge</div>
+    </div>
+  </div>
+  
+  <div class="container" style="max-width: 950px; margin: 0 auto;">
+    <!-- Chat Controls Header -->
+    <div style="display:flex; gap:12px; margin-bottom:16px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+      <div style="display:flex; gap:10px;">
+        <button id="newChatBtn" class="btn primary" style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:18px;">💬</span> New Chat
+        </button>
+        <button id="clearChatBtn" class="btn" style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px;">🗑️</span> Clear
+        </button>
+        <button id="exportChatBtn" class="btn" style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px;">📥</span> Export
+        </button>
+      </div>
+      <div style="color:#64748b; font-size:14px; font-weight:600;">
+        <span id="chatCounter">0 messages</span>
+      </div>
+    </div>
+
+    <!-- Suggested Prompts -->
+    <div id="suggestedPrompts" class="suggested-prompts">
+      <h3 style="font-size:18px; font-weight:800; color:#1e293b; margin-bottom:16px; text-align:center;">
+        ✨ Try asking about...
+      </h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+        <button class="prompt-card" data-prompt="What is the dress code policy?">
+          <span style="font-size:24px; margin-bottom:8px;">👔</span>
+          <strong>Dress Code</strong>
+          <p>Learn about uniform requirements</p>
+        </button>
+        <button class="prompt-card" data-prompt="Tell me about the honor code">
+          <span style="font-size:24px; margin-bottom:8px;">⭐</span>
+          <strong>Honor Code</strong>
+          <p>Understand our core values</p>
+        </button>
+        <button class="prompt-card" data-prompt="What are the attendance policies?">
+          <span style="font-size:24px; margin-bottom:8px;">📅</span>
+          <strong>Attendance</strong>
+          <p>Check attendance rules</p>
+        </button>
+        <button class="prompt-card" data-prompt="How does the grading system work?">
+          <span style="font-size:24px; margin-bottom:8px;">📊</span>
+          <strong>Grading System</strong>
+          <p>Learn about assessments</p>
+        </button>
+      </div>
+    </div>
+
   <div class="container" style="padding-top: 20px; max-width: 900px; margin: 0 auto;">
     <div class="chat-container">
-    <div class="chat-messages" id="chatMessages">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-message bot welcome-message">
+          <div style="text-align:center; padding:20px 0;">
+            <div style="font-size:64px; margin-bottom:16px;">🐾</div>
+            <h3 style="font-size:24px; font-weight:900; color:#1e293b; margin:0 0 12px 0;">Welcome to PantherBot!</h3>
+            <p style="font-size:16px; color:#64748b; line-height:1.6; margin:0;">
+              I'm your AI-powered assistant for all things Portledge. I can help you with:
+            </p>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+            <div style="padding:12px; background:#f0f9ff; border-radius:12px; border-left:4px solid #3b82f6;">
+              <strong style="color:#1e40af;">📚 School Policies</strong>
+              <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Handbook, rules, procedures</p>
+            </div>
+            <div style="padding:12px; background:#f0fdf4; border-radius:12px; border-left:4px solid #22c55e;">
+              <strong style="color:#15803d;">🎯 Academic Info</strong>
+              <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Grading, courses, requirements</p>
+            </div>
+            <div style="padding:12px; background:#fef3c7; border-radius:12px; border-left:4px solid #eab308;">
+              <strong style="color:#a16207;">👔 Dress Code</strong>
+              <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Uniform guidelines, standards</p>
+            </div>
+            <div style="padding:12px; background:#fce7f3; border-radius:12px; border-left:4px solid #ec4899;">
+              <strong style="color:#be185d;">🏫 Campus Life</strong>
+              <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Activities, events, resources</p>
+            </div>
+          </div>
+          <p style="text-align:center; margin-top:24px; color:#94a3b8; font-size:14px;">
+            💡 <em>Just type your question below or click a suggestion above!</em>
+          </p>
+        </div>
+      </div>
       <div class="chat-message bot">
         👋 Hi, I’m <b>PantherBot</b> — your Portledge assistant. Ask me anything about school rules, dress code, or policies!
       </div>
     </div>
     <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Ask about the handbook..." />
+      <input type="text" id="userInput" placeholder="Ask me anything about Portledge..." />
       <button id="voiceBtn" title="Voice input" aria-label="Voice input">🎤</button>
       <button id="sendBtn">Send</button>
     </div>
@@ -4319,6 +4458,132 @@ $('#closeModal').onclick=()=>{
   });
 
   // Offline support removed per request
+</script>
+
+<script>
+  // ===== PantherBot Enhanced Features =====
+  (function() {
+    let messageCount = 0;
+
+    function updateChatCounter() {
+      const counter = document.getElementById('chatCounter');
+      if (counter) {
+        const messages = document.querySelectorAll('#chatMessages .chat-message').length - 1; // Exclude welcome message
+        messageCount = Math.max(0, messages);
+        counter.textContent = `${messageCount} message${messageCount !== 1 ? 's' : ''}`;
+      }
+    }
+
+    function hideSuggestedPrompts() {
+      const prompts = document.getElementById('suggestedPrompts');
+      if (prompts) prompts.style.display = 'none';
+    }
+
+    function showSuggestedPrompts() {
+      const prompts = document.getElementById('suggestedPrompts');
+      if (prompts) prompts.style.display = 'block';
+    }
+
+    // New Chat Button
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('#newChatBtn')) {
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+          chatMessages.innerHTML = `
+            <div class="chat-message bot welcome-message">
+              <div style="text-align:center; padding:20px 0;">
+                <div style="font-size:64px; margin-bottom:16px;">🐾</div>
+                <h3 style="font-size:24px; font-weight:900; color:#1e293b; margin:0 0 12px 0;">Welcome to PantherBot!</h3>
+                <p style="font-size:16px; color:#64748b; line-height:1.6; margin:0;">
+                  I'm your AI-powered assistant for all things Portledge. I can help you with:
+                </p>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+                <div style="padding:12px; background:#f0f9ff; border-radius:12px; border-left:4px solid #3b82f6;">
+                  <strong style="color:#1e40af;">📚 School Policies</strong>
+                  <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Handbook, rules, procedures</p>
+                </div>
+                <div style="padding:12px; background:#f0fdf4; border-radius:12px; border-left:4px solid #22c55e;">
+                  <strong style="color:#15803d;">🎯 Academic Info</strong>
+                  <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Grading, courses, requirements</p>
+                </div>
+                <div style="padding:12px; background:#fef3c7; border-radius:12px; border-left:4px solid #eab308;">
+                  <strong style="color:#a16207;">👔 Dress Code</strong>
+                  <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Uniform guidelines, standards</p>
+                </div>
+                <div style="padding:12px; background:#fce7f3; border-radius:12px; border-left:4px solid #ec4899;">
+                  <strong style="color:#be185d;">🏫 Campus Life</strong>
+                  <p style="font-size:13px; color:#64748b; margin:4px 0 0 0;">Activities, events, resources</p>
+                </div>
+              </div>
+              <p style="text-align:center; margin-top:24px; color:#94a3b8; font-size:14px;">
+                💡 <em>Just type your question below or click a suggestion above!</em>
+              </p>
+            </div>
+          `;
+          showSuggestedPrompts();
+          updateChatCounter();
+        }
+      }
+
+      // Clear Chat Button
+      if (e.target.closest('#clearChatBtn')) {
+        if (confirm('Are you sure you want to clear the chat history?')) {
+          document.getElementById('newChatBtn').click();
+        }
+      }
+
+      // Export Chat Button
+      if (e.target.closest('#exportChatBtn')) {
+        const messages = document.querySelectorAll('#chatMessages .chat-message');
+        let exportText = '=== PantherBot Chat Export ===\n';
+        exportText += `Date: ${new Date().toLocaleString()}\n`;
+        exportText += `Total Messages: ${messages.length}\n\n`;
+        
+        messages.forEach((msg, idx) => {
+          const isBot = msg.classList.contains('bot');
+          const sender = isBot ? 'PantherBot' : 'You';
+          const text = msg.textContent.trim();
+          exportText += `[${sender}]: ${text}\n\n`;
+        });
+
+        const blob = new Blob([exportText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pantherbot-chat-${Date.now()}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      // Prompt Card Click
+      const promptCard = e.target.closest('.prompt-card');
+      if (promptCard) {
+        const prompt = promptCard.dataset.prompt;
+        const userInput = document.getElementById('userInput');
+        if (userInput) {
+          userInput.value = prompt;
+          hideSuggestedPrompts();
+          document.getElementById('sendBtn').click();
+        }
+      }
+    });
+
+    // Monitor chat changes
+    const chatObserver = new MutationObserver(() => {
+      updateChatCounter();
+      const messages = document.querySelectorAll('#chatMessages .chat-message');
+      if (messages.length > 1) {
+        hideSuggestedPrompts();
+      }
+    });
+
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+      chatObserver.observe(chatMessages, { childList: true, subtree: true });
+      updateChatCounter();
+    }
+  })();
 </script>
 
 <script type="module" src="../pantherbot/pantherbot.js?v=20251023v51ultra"></script>
