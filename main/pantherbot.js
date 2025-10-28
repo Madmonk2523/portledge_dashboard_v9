@@ -197,69 +197,43 @@ const PORTLEDGE_KB = {
 // ===== QUICK CHAT PROMPTS =====
 // 50 randomized questions users can ask (shuffled on page load)
 const QUICK_PROMPTS = [
-  // Policies & Rules (15)
+  // Policies & Rules - Based on handbook data
   "Can I use my phone during class?",
   "What's the academic integrity policy?",
   "What happens if I'm caught cheating?",
   "What's the attendance policy?",
-  "How many absences are allowed?",
   "What's the tardy policy?",
   "Can I leave campus during lunch?",
-  "What's the parking policy?",
   "What are the consequences for plagiarism?",
-  "What's the social media policy?",
-  "Can I use my laptop in class?",
   "What's the honor code?",
   "What happens if I'm late?",
-  "What's the policy on outside food?",
-  "Can I bring guests to school?",
   
-  // Dress Code (10)
+  // Dress Code - Based on handbook data
   "What can I wear on Friday?",
   "Can I wear jeans?",
   "What shoes are allowed?",
   "Can I wear shorts?",
-  "What's the dress code for awards night?",
   "Can I wear leggings?",
   "What's dress-down Friday?",
   "Can I wear a hoodie?",
-  "What should I wear to graduation?",
   "Are hats allowed?",
   
-  // Academics (10)
+  // Schedule & Timing - Based on actual schedule data
   "What are school hours?",
   "How long are classes?",
   "How long are Monday classes?",
-  "How long are classes on Tuesday?",
+  "What's my schedule today?",
+  "What time does school end?",
+  "Why are Monday classes shorter?",
+  "What's my next class?",
+  "When does lunch start?",
+  
+  // Academics - Based on handbook/grading data
   "What's the GPA scale?",
   "How do I check my grades?",
   "What's the homework policy?",
-  "Can I get extra help?",
   "What's the make-up work policy?",
-  "How do I request a transcript?",
-  "What are the graduation requirements?",
-  "Can I drop a class?",
-  
-  // Athletics & Activities (8)
-  "What sports are offered?",
-  "How do I try out for a team?",
-  "What's the athletic eligibility policy?",
-  "Can I play multiple sports?",
-  "What's the concussion protocol?",
-  "What clubs are available?",
-  "How do I start a new club?",
-  "What's the PE uniform?",
-  
-  // Schedule & Logistics (9)
-  "When is early dismissal?",
-  "What happens on a snow day?",
-  "When is late start?",
-  "What's a delayed opening?",
-  "How do I get to school?",
-  "What time does school end?",
-  "When are parent-teacher conferences?",
-  "Why are Monday classes shorter?",
-  "What's my schedule today?"
+  "What are the graduation requirements?"
 ];
 
 // Shuffle array utility
@@ -1324,11 +1298,17 @@ function showQuickPrompts() {
 function initWelcomeChips(){
   const el = document.getElementById('welcomeChips');
   if (!el) return;
+  // Only include topics from handbook and schedule data the bot actually has
   const pool = [
-    'Dress code rules','Uniform guidelines','Hoodies allowed?','Formal dress days','PE uniform','Athletics eligibility','Late to class','Attendance policy','Reporting absence','Homework policy','Retake policy','Grading scale','Weighted GPA','Honor roll','Academic integrity','Honor code','Discipline steps','Detention rules','Plagiarism policy','Technology policy','Phone use','Laptop use','Device charging','Wi‑Fi access','Printing','Library hours','Counseling','Advisory','Clubs','Sports tryouts','Practice policy','Game absences','Team travel','Coach contact','Nurse hours','Medical forms','Allergies policy','Medication at school','Cafeteria hours','Lunch options','Off‑campus lunch','Parking permits','Student parking','Drop‑off times','Pick‑up times','School hours','Bell schedule','Free periods','Study hall','Tutoring','Office hours','Absence note','Field trip rules','Dress down days','ID cards','Lost and found','Lockers','Visitor policy','Security','Emergency drills','Fire drill','Severe weather','Snow day','Bus routes','Transportation','Rideshare policy','Assemblies','Chapel/Meetings','Community service','Volunteering','Service hours','AP classes','Honors classes','Course changes','Add/Drop','Transcripts','Report cards','Parent portal','Email etiquette','Chromebook policy','Headphones','Cafeteria payments','Meal accounts','Snack policy','Vending machines','Water bottles','Recycling','Sustainability','Dress code shoes','Skirt length','Hair policy','Jewelry policy','Hats policy','Athletics fees','Equipment','Uniform care','Locker room','PE excuses','Injury protocol','Concussion','Return to play','NCAA clearinghouse','College counseling','SAT/ACT','Absence excused?','Tardy consequences','Hall passes','Bathroom policy','Assemblies seating','Library fines','Printing quota','Study spaces','Quiet hours'
+    'Dress code rules','Uniform guidelines','Hoodies allowed?','Friday dress code','Jeans allowed?','Shorts policy','Leggings policy','Hat policy','Shoe policy',
+    'Late to class','Attendance policy','Tardy consequences','Absence policy','What if I\'m late?',
+    'Homework policy','Grading scale','GPA calculation','Grade checking','Make-up work',
+    'Academic integrity','Honor code','Cheating policy','Plagiarism consequences',
+    'Phone use in class','Laptop policy','Technology rules',
+    'Lunch campus policy','Can I leave campus?',
+    'School hours','Class length','Monday schedule','Next class?','Today\'s schedule','Bell schedule','When does school end?',
+    'Graduation requirements'
   ];
-  // Ensure >100 unique options by duplicating thematic variants
-  while (pool.length < 110) pool.push('School policy');
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   const show = shuffled.slice(0, 6);
   el.innerHTML = show.map(s => `<button class="neon-chip" data-prompt="${s.replace(/"/g,'&quot;')}">${s}</button>`).join('');
