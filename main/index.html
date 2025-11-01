@@ -2770,8 +2770,9 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       <div class="dir-tools">
         <input id="dirSearch" class="input" placeholder="Search name, subject, email…"/>
         <select id="dirGrade" class="input">
+          <option value="" selected>All Grades</option>
           <option value="9">Grade 9</option>
-          <option value="10" selected>Grade 10</option>
+          <option value="10">Grade 10</option>
           <option value="11">Grade 11</option>
           <option value="12">Grade 12</option>
         </select>
@@ -3598,6 +3599,14 @@ function initStudent(){
       // hard fallback to ensure visibility
       p.style.display = on? 'block':'none';
     });
+    
+    // Initialize directory when directory tab is clicked
+    if (id === 's-directory') {
+      setTimeout(() => {
+        console.log('Directory tab activated, initializing...');
+        initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
+      }, 50);
+    }
   }));
 
   // Demo data — student schedule
@@ -3783,18 +3792,34 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
   }
   renderGrades();
 
-  // Directory (student)
-  setTimeout(() => {
-    // Ensure students data is loaded, then initialize directory
-    console.log('Initializing directory with', studentsAll.length, 'students and', teachers.length, 'teachers');
-    initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
-  }, 100);
+  // Directory (student) - Initialize when DOM is ready and on tab switch
+  function initDirectoryWhenReady() {
+    console.log('Attempting to initialize directory...');
+    const dirSection = document.getElementById('page-s-directory');
+    if (dirSection) {
+      console.log('Directory section found, initializing with', studentsAll.length, 'students and', teachers.length, 'teachers');
+      initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
+    } else {
+      console.log('Directory section not found, retrying...');
+      setTimeout(initDirectoryWhenReady, 100);
+    }
+  }
+  
+  // Initialize immediately and also when directory tab is clicked
+  setTimeout(initDirectoryWhenReady, 100);
 
 
 
 /* ===== TEACHER DASHBOARD LOGIC ===== */
 
 /* ===== Directory (shared impl) ===== */
+
+// Global function to reinitialize directory for debugging
+window.reinitDirectory = function() {
+  console.log('Manual directory reinitialization...');
+  initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
+};
+
 const teachers=[
   {name:'Roger LaFlair', subject:'Chemistry', email:'rlaflair@portledge.org'},
   {name:'Jessica Schulteisz', subject:'Advisor', email:'jschulteisz@portledge.org'},
@@ -4124,26 +4149,38 @@ function initDirectory(inpSel, gridSel, infoSel, prevSel, nextSel, gradeSel){
     if(tabStud) tabStud.classList.toggle('active', kind==='students'); 
   }
   function render(){
-    const q=(inp.value||'').toLowerCase().trim();
+    console.log('Directory render called:', {kind, page, hasGrid: !!grid, hasInfo: !!info});
+    
+    if (!grid || !info) {
+      console.error('Missing grid or info elements');
+      return;
+    }
+    
+    const q=(inp ? inp.value : '').toLowerCase().trim();
     const hasTeach = typeof teachers !== 'undefined' && Array.isArray(teachers);
     const hasStud = typeof studentsAll !== 'undefined' && Array.isArray(studentsAll);
     const src= kind==='teachers' ? (hasTeach?teachers:[]) : (hasStud?studentsAll:[]);
-    if(kind==='students' && gradeEl){
-      const g = (gradeEl.value||'').trim();
-      if(!g){ grid.innerHTML=''; info.textContent='Select a grade to view students'; return; }
-    }
+    
+    console.log('Directory data:', {kind, hasTeach, hasStud, srcLength: src.length});
+    
+    // For students, always show all grades if no specific filter is selected
     const list=src.filter(x=> (x.name+' '+(x.subject||'')+' '+(x.email||'')+(x.gradeLevel?' Grade '+x.gradeLevel:'')).toLowerCase().includes(q));
-    const filtered = (kind==='students' && gradeEl && gradeEl.value)
+    const filtered = (kind==='students' && gradeEl && gradeEl.value && gradeEl.value !== '')
       ? list.filter(x=> x.gradeLevel===Number(gradeEl.value))
       : list;
-    const total=filtered.length, maxPage=Math.max(1,Math.ceil(total/perPage)); if(page>maxPage) page=maxPage;
+      
+    const total=filtered.length, maxPage=Math.max(1,Math.ceil(total/perPage)); 
+    if(page>maxPage) page=maxPage;
     const slice=filtered.slice((page-1)*perPage,(page-1)*perPage+perPage);
+    
     grid.innerHTML = slice.map(x=>`
       <div class="person">
         <div><div class="name">${x.name}</div><div class="meta">${kind==='teachers'?(x.subject||''):`Grade ${x.gradeLevel}`}</div></div>
         <div>${x.email?`<a class="mail" href="mailto:${x.email}">Email</a>`:''}</div>
       </div>`).join('');
     info.textContent = `Page ${page} of ${maxPage} • ${total} ${kind}`;
+    
+    console.log('Directory rendered:', {total, slice: slice.length});
   }
   if(tabTeach) tabTeach.onclick=()=>{ console.log('Teachers tab clicked'); kind='teachers'; page=1; syncTabs(); render(); };
   if(tabStud) tabStud.onclick =()=>{ console.log('Students tab clicked'); kind='students'; page=1; syncTabs(); render(); };
