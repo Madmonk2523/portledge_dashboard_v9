@@ -3601,8 +3601,10 @@ function initStudent(){
     // Initialize directory when directory tab is clicked
     if (id === 's-directory') {
       setTimeout(() => {
-        console.log('Directory tab activated, initializing...');
-        initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
+        console.log('Directory tab activated, setting up...');
+        if (typeof window.setupDirectory === 'function') {
+          window.setupDirectory();
+        }
       }, 50);
     }
   }));
@@ -3790,21 +3792,155 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
   }
   renderGrades();
 
-  // Directory (student) - Initialize when DOM is ready and on tab switch
-  function initDirectoryWhenReady() {
-    console.log('Attempting to initialize directory...');
-    const dirSection = document.getElementById('page-s-directory');
-    if (dirSection) {
-      console.log('Directory section found, initializing with', studentsAll.length, 'students and', teachers.length, 'teachers');
-      initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
-    } else {
-      console.log('Directory section not found, retrying...');
-      setTimeout(initDirectoryWhenReady, 100);
-    }
-  }
+  // Directory (student) - Simple initialization
+  console.log('Setting up directory...');
   
-  // Initialize immediately and also when directory tab is clicked
-  setTimeout(initDirectoryWhenReady, 100);
+  // Set up directory functionality immediately
+  window.directoryInitialized = false;
+  
+  window.setupDirectory = function() {
+    if (window.directoryInitialized) return;
+    
+    console.log('Initializing directory with data:', {
+      students: studentsAll ? studentsAll.length : 0,
+      teachers: teachers ? teachers.length : 0
+    });
+    
+    const btnStud = document.getElementById('btnStud');
+    const btnTeach = document.getElementById('btnTeach');
+    const dirSearch = document.getElementById('dirSearch');
+    const dirGrade = document.getElementById('dirGrade');
+    const dirGrid = document.getElementById('dirGrid');
+    const pageInfo = document.getElementById('pageInfo');
+    const prevPage = document.getElementById('prevPage');
+    const nextPage = document.getElementById('nextPage');
+    
+    if (!btnStud || !btnTeach || !dirGrid) {
+      console.log('Directory elements not ready, retrying...');
+      setTimeout(setupDirectory, 100);
+      return;
+    }
+    
+    console.log('All directory elements found, setting up...');
+    window.directoryInitialized = true;
+    
+    let currentKind = 'students';
+    let currentPage = 1;
+    const perPage = 8;
+    
+    function renderDirectory() {
+      console.log('Rendering directory:', currentKind);
+      
+      const searchTerm = dirSearch ? dirSearch.value.toLowerCase().trim() : '';
+      const selectedGrade = dirGrade ? dirGrade.value : '';
+      
+      let data = [];
+      if (currentKind === 'students' && studentsAll) {
+        data = studentsAll.slice();
+      } else if (currentKind === 'teachers' && teachers) {
+        data = teachers.slice();
+      }
+      
+      // Filter by search term
+      if (searchTerm) {
+        data = data.filter(item => {
+          const searchText = (item.name + ' ' + (item.email || '') + ' ' + (item.subject || '') + ' Grade ' + (item.gradeLevel || '')).toLowerCase();
+          return searchText.includes(searchTerm);
+        });
+      }
+      
+      // Filter by grade for students
+      if (currentKind === 'students' && selectedGrade) {
+        data = data.filter(item => item.gradeLevel === parseInt(selectedGrade));
+      }
+      
+      // Pagination
+      const total = data.length;
+      const maxPage = Math.max(1, Math.ceil(total / perPage));
+      if (currentPage > maxPage) currentPage = maxPage;
+      
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      const pageData = data.slice(start, end);
+      
+      // Update grid
+      dirGrid.innerHTML = pageData.map(item => `
+        <div class="person">
+          <div>
+            <div class="name">${item.name}</div>
+            <div class="meta">${currentKind === 'teachers' ? (item.subject || '') : `Grade ${item.gradeLevel}`}</div>
+          </div>
+          <div>${item.email ? `<a class="mail" href="mailto:${item.email}">Email</a>` : ''}</div>
+        </div>
+      `).join('');
+      
+      // Update page info
+      if (pageInfo) {
+        pageInfo.textContent = `Page ${currentPage} of ${maxPage} • ${total} ${currentKind}`;
+      }
+      
+      // Update tab states
+      btnStud.classList.toggle('active', currentKind === 'students');
+      btnTeach.classList.toggle('active', currentKind === 'teachers');
+      
+      console.log('Directory rendered:', { total, pageData: pageData.length, currentKind, currentPage });
+    }
+    
+    // Event listeners
+    btnStud.onclick = () => {
+      console.log('Students button clicked');
+      currentKind = 'students';
+      currentPage = 1;
+      renderDirectory();
+    };
+    
+    btnTeach.onclick = () => {
+      console.log('Teachers button clicked');
+      currentKind = 'teachers';
+      currentPage = 1;
+      renderDirectory();
+    };
+    
+    if (dirSearch) {
+      dirSearch.oninput = () => {
+        currentPage = 1;
+        renderDirectory();
+      };
+    }
+    
+    if (dirGrade) {
+      dirGrade.onchange = () => {
+        currentPage = 1;
+        renderDirectory();
+      };
+    }
+    
+    if (prevPage) {
+      prevPage.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderDirectory();
+        }
+      };
+    }
+    
+    if (nextPage) {
+      nextPage.onclick = () => {
+        const total = currentKind === 'students' ? studentsAll.length : teachers.length;
+        const maxPage = Math.ceil(total / perPage);
+        if (currentPage < maxPage) {
+          currentPage++;
+          renderDirectory();
+        }
+      };
+    }
+    
+    // Initial render
+    renderDirectory();
+  }; // End of setupDirectory function
+  
+  // Try to set up immediately and on directory tab activation
+  setTimeout(window.setupDirectory, 100);
 
 
 
@@ -3815,7 +3951,10 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
 // Global function to reinitialize directory for debugging
 window.reinitDirectory = function() {
   console.log('Manual directory reinitialization...');
-  initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
+  window.directoryInitialized = false;
+  if (typeof window.setupDirectory === 'function') {
+    window.setupDirectory();
+  }
 };
 
 const teachers=[
