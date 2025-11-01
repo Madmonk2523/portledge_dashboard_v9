@@ -1340,244 +1340,8 @@ body.theme-dark .modal .close-btn:hover{
 .shake{animation:shake .4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both}
 @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
 
-/* Customize button */
-.customize-btn{
-  border:2px solid rgba(102, 126, 234, 0.4);
-  background:linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  backdrop-filter:blur(10px);
-  color:#667eea;
-  padding:12px 18px;
-  border-radius:12px;
-  font-weight:700;
-  font-size:0.95rem;
-  cursor:pointer;
-  transition:all 0.3s ease;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  margin-top:8px;
-}
-.customize-btn:hover{
-  background:linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-  border-color:rgba(102, 126, 234, 0.6);
-  transform:translateY(-2px);
-  box-shadow:0 4px 15px rgba(102, 126, 234, 0.3);
-  color:#764ba2;
-}
-body.theme-dark .customize-btn{
-  color:#e8f0ff;
-  border-color:rgba(102, 126, 234, 0.5);
-}
-body.theme-dark .customize-btn:hover{
-  color:#fff;
-}
 
-/* Customization Modal */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.8);
-  backdrop-filter:blur(10px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:10000;
-  animation:fadeIn 0.3s ease;
-}
-@keyframes fadeIn{
-  from{opacity:0}
-  to{opacity:1}
-}
-.modal-content{
-  background:rgba(255,255,255,0.95);
-  backdrop-filter:blur(20px);
-  border-radius:20px;
-  width:min(600px,90vw);
-  max-height:85vh;
-  overflow-y:auto;
-  box-shadow:0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(102, 126, 234, 0.3);
-  animation:slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@keyframes slideUp{
-  from{transform:translateY(50px) scale(0.9); opacity:0}
-  to{transform:translateY(0) scale(1); opacity:1}
-}
-.modal-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:24px 28px;
-  border-bottom:2px solid rgba(102, 126, 234, 0.2);
-}
-.modal-header h2{
-  margin:0;
-  font-size:1.5rem;
-  background:linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-.modal-close{
-  background:none;
-  border:none;
-  font-size:2rem;
-  cursor:pointer;
-  color:#666;
-  transition:all 0.2s ease;
-  padding:0;
-  width:40px;
-  height:40px;
-  display:grid;
-  place-items:center;
-  border-radius:50%;
-}
-.modal-close:hover{
-  background:rgba(102, 126, 234, 0.1);
-  color:#667eea;
-  transform:rotate(90deg);
-}
-.modal-body{
-  padding:24px 28px;
-  max-height:calc(85vh - 180px);
-  overflow-y:auto;
-}
-.customize-section{
-  margin-bottom:28px;
-  padding-bottom:24px;
-  border-bottom:1px solid rgba(0,0,0,0.08);
-}
-.customize-section:last-child{
-  border-bottom:none;
-}
-.customize-section h3{
-  margin:0 0 16px 0;
-  font-size:1.1rem;
-  color:#333;
-}
-.color-picker-group{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:16px;
-}
-.color-picker-group label{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  font-weight:600;
-  color:#555;
-}
-.color-picker-group input[type="color"]{
-  width:100%;
-  height:50px;
-  border:2px solid rgba(102, 126, 234, 0.2);
-  border-radius:10px;
-  cursor:pointer;
-  transition:all 0.3s ease;
-}
-.color-picker-group input[type="color"]:hover{
-  border-color:rgba(102, 126, 234, 0.6);
-  box-shadow:0 4px 15px rgba(102, 126, 234, 0.2);
-}
-.custom-select{
-  width:100%;
-  padding:12px 16px;
-  border:2px solid rgba(102, 126, 234, 0.2);
-  border-radius:10px;
-  font-size:1rem;
-  background:#fff;
-  cursor:pointer;
-  transition:all 0.3s ease;
-}
-.custom-select:focus{
-  outline:none;
-  border-color:rgba(102, 126, 234, 0.6);
-  box-shadow:0 0 20px rgba(102, 126, 234, 0.2);
-}
-.schedule-times{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:14px;
-}
-.schedule-times label{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  font-weight:600;
-  color:#555;
-  font-size:0.9rem;
-}
-.schedule-times input[type="time"]{
-  padding:10px 12px;
-  border:2px solid rgba(102, 126, 234, 0.2);
-  border-radius:8px;
-  font-size:1rem;
-  transition:all 0.3s ease;
-}
-.schedule-times input[type="time"]:focus{
-  outline:none;
-  border-color:rgba(102, 126, 234, 0.6);
-  box-shadow:0 0 15px rgba(102, 126, 234, 0.2);
-}
-.modal-footer{
-  padding:20px 28px;
-  border-top:2px solid rgba(102, 126, 234, 0.2);
-  display:flex;
-  gap:12px;
-  justify-content:flex-end;
-}
-.btn-primary,.btn-secondary{
-  padding:12px 24px;
-  border-radius:10px;
-  font-weight:700;
-  font-size:1rem;
-  cursor:pointer;
-  transition:all 0.3s ease;
-  border:none;
-}
-.btn-primary{
-  background:linear-gradient(135deg, #667eea, #764ba2);
-  color:#fff;
-  box-shadow:0 4px 15px rgba(102, 126, 234, 0.4);
-}
-.btn-primary:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 20px rgba(102, 126, 234, 0.6);
-}
-.btn-secondary{
-  background:rgba(0,0,0,0.05);
-  color:#555;
-}
-.btn-secondary:hover{
-  background:rgba(0,0,0,0.1);
-}
-body.theme-dark .modal-content{
-  background:rgba(15, 23, 41, 0.98);
-  color:#e8f0ff;
-}
-body.theme-dark .modal-header{
-  border-bottom-color:rgba(102, 126, 234, 0.3);
-}
-body.theme-dark .customize-section{
-  border-bottom-color:rgba(102, 126, 234, 0.15);
-}
-body.theme-dark .customize-section h3{
-  color:#e8f0ff;
-}
-body.theme-dark .color-picker-group label,
-body.theme-dark .schedule-times label{
-  color:#b4c0e0;
-}
-body.theme-dark .custom-select,
-body.theme-dark .schedule-times input[type="time"]{
-  background:rgba(12, 22, 48, 0.8);
-  color:#e8f0ff;
-  border-color:rgba(102, 126, 234, 0.3);
-}
-body.theme-dark .btn-secondary{
-  background:rgba(102, 126, 234, 0.15);
-  color:#e8f0ff;
-}
+
 
 /* ===== Hide/Show helpers ===== */
 .hidden{display:none !important}
@@ -2249,10 +2013,7 @@ body.theme-dark .btn-secondary{
     border-radius: 12px;
   }
   
-  .customize-btn {
-    padding: 12px;
-    font-size: 15px;
-  }
+
   
   /* PantherBot Chat - Mobile Optimized */
   .chat-container {
@@ -2847,9 +2608,6 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
       <button id="loginBtn" class="login-btn">
         <span class="btn-text">Sign In</span>
       </button>
-      <button id="customizeLoginBtn" class="customize-btn" type="button">
-        <span>⚙️ Customize</span>
-      </button>
     </div>
   </div>
 </section>
@@ -2866,7 +2624,6 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
   <div class="top-actions">
   <button class="signout" id="signOutStudent">Sign Out</button>
   <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-pressed="false">Dark Mode</button>
-  <button id="customizeDashboardBtn" class="theme-toggle" title="Customize" style="margin-left:8px">⚙️ Customize</button>
   <button id="tempSettingsBtn" class="theme-toggle" title="Temp Settings" style="margin-left:8px">⏱️ Temp</button>
 </div>
 
@@ -3764,97 +3521,7 @@ function handleLogin() {
   }
 }
 
-// ===== CUSTOMIZATION SYSTEM =====
-const CUSTOMIZATION_KEY = 'portledge_customizations';
 
-function openCustomizeModal() {
-  document.getElementById('customizeModal').style.display = 'flex';
-  loadCustomizeValues();
-}
-
-function closeCustomizeModal() {
-  document.getElementById('customizeModal').style.display = 'none';
-}
-
-function loadCustomizeValues() {
-  const saved = JSON.parse(localStorage.getItem(CUSTOMIZATION_KEY) || '{}');
-  
-  // Load colors
-  document.getElementById('accentColor').value = saved.accentColor || '#667eea';
-  document.getElementById('secondaryColor').value = saved.secondaryColor || '#764ba2';
-  
-  // Load login background
-  document.getElementById('loginBg').value = saved.loginBg || 'gradient1';
-}
-
-function saveCustomizations() {
-  const customizations = {
-    accentColor: document.getElementById('accentColor').value,
-    secondaryColor: document.getElementById('secondaryColor').value,
-    loginBg: document.getElementById('loginBg').value,
-  };
-  
-  localStorage.setItem(CUSTOMIZATION_KEY, JSON.stringify(customizations));
-  applyCustomizations(customizations);
-  closeCustomizeModal();
-  
-  // Show success message
-  alert('✅ Customizations saved! Refresh to see all changes.');
-}
-
-function resetCustomizations() {
-  if(confirm('Reset all customizations to default?')){
-    localStorage.removeItem(CUSTOMIZATION_KEY);
-    loadCustomizeValues();
-    applyCustomizations({});
-    alert('✅ Reset to defaults!');
-  }
-}
-
-function loadUserCustomizations() {
-  const saved = JSON.parse(localStorage.getItem(CUSTOMIZATION_KEY) || '{}');
-  applyCustomizations(saved);
-}
-
-function applyCustomizations(custom) {
-  const root = document.documentElement;
-  
-  // Apply color theme
-  if(custom.accentColor){
-    root.style.setProperty('--accent', custom.accentColor);
-  }
-  if(custom.secondaryColor){
-    root.style.setProperty('--secondary', custom.secondaryColor);
-  }
-  
-  // Apply login background
-  const loginBgMap = {
-    gradient1: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    gradient2: 'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)',
-    gradient3: 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)',
-    gradient4: 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)',
-    gradient5: 'linear-gradient(135deg, #ff00cc 0%, #333399 100%)'
-  };
-  
-  const loginSection = document.getElementById('login');
-  if(loginSection && custom.loginBg){
-    loginSection.style.background = loginBgMap[custom.loginBg] || loginBgMap.gradient1;
-  }
-}
-
-// Attach customize button click
-document.addEventListener('DOMContentLoaded', () => {
-  const customizeBtn = document.getElementById('customizeLoginBtn');
-  if(customizeBtn){
-    customizeBtn.addEventListener('click', openCustomizeModal);
-  }
-  
-  // Dashboard customize button
-  const customizeDashboardBtn = document.getElementById('customizeDashboardBtn');
-  if(customizeDashboardBtn){
-    customizeDashboardBtn.addEventListener('click', openCustomizeModal);
-  }
-});
 
 // ===== Load saved email on page load (auto) =====
 window.addEventListener('DOMContentLoaded', () => {
@@ -4118,8 +3785,10 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
 
   // Directory (student)
   setTimeout(() => {
-  initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
-}, 50);
+    // Ensure students data is loaded, then initialize directory
+    console.log('Initializing directory with', studentsAll.length, 'students and', teachers.length, 'teachers');
+    initDirectory('#dirSearch', '#dirGrid', '#pageInfo', '#prevPage', '#nextPage', '#dirGrade');
+  }, 100);
 
 
 
@@ -4440,8 +4109,20 @@ function initDirectory(inpSel, gridSel, infoSel, prevSel, nextSel, gradeSel){
   const isTeacher = gridSel.startsWith('#t_');
   const tabTeach = isTeacher ? $('#t_btnTeach') : $('#btnTeach');
   const tabStud  = isTeacher ? $('#t_btnStud')  : $('#btnStud');
+  
+  console.log('Directory buttons found:', {
+    tabTeach: !!tabTeach,
+    tabStud: !!tabStud,
+    inp: !!inp,
+    grid: !!grid,
+    prev: !!prev,
+    next: !!next
+  });
 
-  function syncTabs(){ tabTeach.classList.toggle('active', kind==='teachers'); tabStud.classList.toggle('active', kind==='students'); }
+  function syncTabs(){ 
+    if(tabTeach) tabTeach.classList.toggle('active', kind==='teachers'); 
+    if(tabStud) tabStud.classList.toggle('active', kind==='students'); 
+  }
   function render(){
     const q=(inp.value||'').toLowerCase().trim();
     const hasTeach = typeof teachers !== 'undefined' && Array.isArray(teachers);
@@ -4464,12 +4145,12 @@ function initDirectory(inpSel, gridSel, infoSel, prevSel, nextSel, gradeSel){
       </div>`).join('');
     info.textContent = `Page ${page} of ${maxPage} • ${total} ${kind}`;
   }
-  tabTeach.onclick=()=>{ kind='teachers'; page=1; syncTabs(); render(); };
-  tabStud.onclick =()=>{ kind='students'; page=1; syncTabs(); render(); };
-  inp.oninput = ()=>{ page=1; render(); };
+  if(tabTeach) tabTeach.onclick=()=>{ console.log('Teachers tab clicked'); kind='teachers'; page=1; syncTabs(); render(); };
+  if(tabStud) tabStud.onclick =()=>{ console.log('Students tab clicked'); kind='students'; page=1; syncTabs(); render(); };
+  if(inp) inp.oninput = ()=>{ page=1; render(); };
   if(gradeEl) gradeEl.onchange = ()=>{ page=1; render(); };
-  prev.onclick = ()=>{ page=Math.max(1,page-1); render(); };
-  next.onclick = ()=>{ page=page+1; render(); };
+  if(prev) prev.onclick = ()=>{ page=Math.max(1,page-1); render(); };
+  if(next) next.onclick = ()=>{ page=page+1; render(); };
   syncTabs(); render();
   // If data not yet loaded (due to script order), try a delayed re-render once
   setTimeout(()=>{ render(); }, 50);
@@ -4948,50 +4629,6 @@ $('#closeModal').onclick=()=>{
   // end initCoolAnimations
   
 </script>
-
-<!-- CUSTOMIZATION MODAL -->
-<div id="customizeModal" class="modal" style="display:none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>⚙️ Customize Your Experience</h2>
-      <button class="modal-close" onclick="closeCustomizeModal()">×</button>
-    </div>
-    
-    <div class="modal-body">
-      <!-- Dashboard Colors -->
-      <div class="customize-section">
-        <h3>🎨 Dashboard Theme</h3>
-        <div class="color-picker-group">
-          <label>
-            Accent Color:
-            <input type="color" id="accentColor" value="#667eea" />
-          </label>
-          <label>
-            Secondary Color:
-            <input type="color" id="secondaryColor" value="#764ba2" />
-          </label>
-        </div>
-      </div>
-      
-      <!-- Login Background -->
-      <div class="customize-section">
-        <h3>🌌 Login Background</h3>
-        <select id="loginBg" class="custom-select">
-          <option value="gradient1">Purple Gradient (Default)</option>
-          <option value="gradient2">Ocean Blue</option>
-          <option value="gradient3">Sunset Orange</option>
-          <option value="gradient4">Forest Green</option>
-          <option value="gradient5">Neon City</option>
-        </select>
-      </div>
-    </div>
-    
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="resetCustomizations()">Reset to Default</button>
-      <button class="btn-primary" onclick="saveCustomizations()">Save Changes</button>
-    </div>
-  </div>
-</div>
 
 <button id="backToTop" aria-label="Back to top">↑ Top</button>
 
