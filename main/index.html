@@ -3633,28 +3633,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
           </select>
         </div>
         
-        <div class="filter-group">
-          <label class="filter-label">Department</label>
-          <select id="dirDepartment" class="filter-select">
-            <option value="" selected>All Departments</option>
-            <option value="English">English</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Science">Science</option>
-            <option value="History">History</option>
-            <option value="Arts">Arts</option>
-            <option value="Physical Education">Physical Education</option>
-          </select>
-        </div>
 
-        <div class="filter-group">
-          <label class="filter-label">Sort By</label>
-          <select id="dirSort" class="filter-select">
-            <option value="name">Name (A-Z)</option>
-            <option value="name-desc">Name (Z-A)</option>
-            <option value="grade">Grade Level</option>
-            <option value="department">Department</option>
-          </select>
-        </div>
 
         <div class="filter-actions">
           <button id="resetFilters" class="filter-btn secondary">
@@ -4872,7 +4851,6 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
         <p><strong>Current Grade:</strong> ${grade.grade}% (${getLetterGrade(grade.grade)})</p>
         <p><strong>GPA Points:</strong> ${toGpa(grade.grade).toFixed(1)}</p>
         <p><strong>Class Average:</strong> ${grade.classAvg || '85%'}</p>
-        <p><strong>Rank:</strong> ${grade.rank || '12/28'}</p>
         <hr style="margin: 1rem 0;">
         <p><strong>Recent Assignments:</strong></p>
         <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
@@ -4942,11 +4920,23 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
 
     if (refreshBtn) {
       refreshBtn.addEventListener('click', () => {
-        // Add refresh animation
+        // Add refresh animation and feedback
         refreshBtn.style.transform = 'rotate(360deg)';
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<span class="btn-icon">🔄</span>Refreshing...';
+        
         setTimeout(() => {
           refreshBtn.style.transform = 'rotate(0deg)';
+          refreshBtn.disabled = false;
+          refreshBtn.innerHTML = '<span class="btn-icon">🔄</span>Refresh';
           renderGrades();
+          
+          // Show success message briefly
+          const originalText = refreshBtn.innerHTML;
+          refreshBtn.innerHTML = '<span class="btn-icon">✅</span>Updated!';
+          setTimeout(() => {
+            refreshBtn.innerHTML = originalText;
+          }, 1000);
         }, 500);
       });
     }
@@ -4982,8 +4972,6 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     perPage: 12,
     search: '',
     grade: '',
-    department: '',
-    sort: 'name',
     view: 'cards' // 'cards' or 'list'
   };
 
@@ -5029,30 +5017,11 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
       );
     }
 
-    // Apply department filter (for teachers)
-    if (directoryState.kind === 'teachers' && directoryState.department) {
-      data = data.filter(person => 
-        person.subject === directoryState.department
-      );
-    }
-
-    // Apply sorting
+    // Always sort by last name (A-Z)
     data.sort((a, b) => {
-      switch (directoryState.sort) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'name-desc':
-          return b.name.localeCompare(a.name);
-        case 'grade':
-          if (directoryState.kind === 'students') {
-            return (a.gradeLevel || 0) - (b.gradeLevel || 0);
-          }
-          return a.name.localeCompare(b.name);
-        case 'department':
-          return (a.subject || '').localeCompare(b.subject || '');
-        default:
-          return 0;
-      }
+      const lastNameA = a.name.split(' ').pop() || '';
+      const lastNameB = b.name.split(' ').pop() || '';
+      return lastNameA.localeCompare(lastNameB);
     });
 
     filteredDirectoryData = data;
@@ -5263,7 +5232,6 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
       if (person.courses) details += `<p><strong>Courses:</strong> ${person.courses.join(', ')}</p>`;
     } else {
       if (person.subject) details += `<p><strong>Subject:</strong> ${person.subject}</p>`;
-      if (person.department) details += `<p><strong>Department:</strong> ${person.department}</p>`;
       if (person.room) details += `<p><strong>Room:</strong> ${person.room}</p>`;
       if (person.officeHours) details += `<p><strong>Office Hours:</strong> ${person.officeHours}</p>`;
     }
@@ -5326,22 +5294,7 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
       };
     }
 
-    const dirDepartment = $('#dirDepartment');
-    if (dirDepartment) {
-      dirDepartment.onchange = (e) => {
-        directoryState.department = e.target.value;
-        directoryState.page = 1;
-        renderDirectory();
-      };
-    }
 
-    const dirSort = $('#dirSort');
-    if (dirSort) {
-      dirSort.onchange = (e) => {
-        directoryState.sort = e.target.value;
-        renderDirectory();
-      };
-    }
 
     // View toggle buttons
     const cardView = $('#cardView');
@@ -5371,14 +5324,10 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
       resetFilters.onclick = () => {
         directoryState.search = '';
         directoryState.grade = '';
-        directoryState.department = '';
-        directoryState.sort = 'name';
         directoryState.page = 1;
         
         if (dirSearch) dirSearch.value = '';
         if (dirGrade) dirGrade.value = '';
-        if (dirDepartment) dirDepartment.value = '';
-        if (dirSort) dirSort.value = 'name';
         
         renderDirectory();
       };
@@ -5390,13 +5339,13 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
       exportDirectory.onclick = () => {
         const csvHeaders = directoryState.kind === 'students' 
           ? 'Name,Grade Level,Email,Advisor\\n'
-          : 'Name,Subject,Email,Room,Department\\n';
+          : 'Name,Subject,Email,Room\\n';
         
         const csvData = filteredDirectoryData.map(person => {
           if (directoryState.kind === 'students') {
             return `"${person.name}",${person.gradeLevel},"${person.email || ''}","${person.advisor || ''}"`;
           } else {
-            return `"${person.name}","${person.subject || ''}","${person.email || ''}","${person.room || ''}","${person.department || ''}"`;
+            return `"${person.name}","${person.subject || ''}","${person.email || ''}","${person.room || ''}"`;
           }
         }).join('\\n');
         
