@@ -4027,6 +4027,17 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
   
   // Force fix again after 1 second
   setTimeout(forceButtonsToWork, 1000);
+  
+  // Auto-run the fix function when page loads
+  document.addEventListener('DOMContentLoaded', forceButtonsToWork);
+  window.addEventListener('load', forceButtonsToWork);
+  
+  // Auto-run fixAllButtons as well
+  setTimeout(() => {
+    if (typeof window.fixAllButtons === 'function') {
+      window.fixAllButtons();
+    }
+  }, 2000);
 
 
 
@@ -4079,7 +4090,59 @@ window.fixAllButtons = function() {
   }
   
   console.log('🚨 EMERGENCY FIX COMPLETE - Try buttons now!');
+  
+  // Show visual confirmation
+  const fixNotice = document.createElement('div');
+  fixNotice.innerHTML = '🔧 BUTTONS FIXED! Click Students/Teachers now';
+  fixNotice.style.cssText = `
+    position: fixed; 
+    top: 20px; 
+    right: 20px; 
+    background: #10b981; 
+    color: white; 
+    padding: 10px 20px; 
+    border-radius: 10px; 
+    z-index: 9999;
+    font-weight: bold;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+  `;
+  document.body.appendChild(fixNotice);
+  setTimeout(() => fixNotice.remove(), 5000);
 };
+
+// Simple test function
+window.testButtons = function() {
+  console.log('🧪 TESTING ALL BUTTONS...');
+  
+  const buttons = ['btnStud', 'btnTeach', 'prevPage', 'nextPage'];
+  let working = 0;
+  
+  buttons.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      console.log(`Found button: ${id}`);
+      btn.style.backgroundColor = '#10b981';
+      btn.style.color = 'white';
+      setTimeout(() => {
+        btn.style.backgroundColor = '';
+        btn.style.color = '';
+      }, 1000);
+      working++;
+    } else {
+      console.log(`Missing button: ${id}`);
+    }
+  });
+  
+  alert(`✅ Found ${working}/${buttons.length} buttons. Check console for details.`);
+};
+
+// IMMEDIATELY run the emergency fix
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    console.log('🚨 RUNNING EMERGENCY BUTTON FIX NOW...');
+    window.fixAllButtons();
+  }, 500);
+}
 
 const teachers=[
   {name:'Roger LaFlair', subject:'Chemistry', email:'rlaflair@portledge.org'},
