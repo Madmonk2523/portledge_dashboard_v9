@@ -2267,9 +2267,15 @@ body.theme-dark .modal .close-btn:hover{
 }
 
 /* Enhanced glow effects on interactive elements */
-.btn.primary:hover, .gbtn:hover {
+.btn.primary:hover {
   box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.2);
   transform: translateY(-3px) scale(1.02);
+}
+
+/* Grade buttons should not scale on hover */
+.gbtn:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
 }
 
 /* Do not scale the New Chat button on hover */
@@ -2486,10 +2492,17 @@ button:active, .btn:active, .tab:active {
 }
 
 /* Enhanced button hover with neon glow */
-.btn.primary:hover, .gbtn:hover {
+.btn.primary:hover {
   box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 30px var(--accent), 0 8px 24px rgba(59, 130, 246, 0.4);
   transform: translateY(-4px) scale(1.05);
   text-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
+
+/* Grade buttons have simpler hover effect */
+.gbtn:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  text-shadow: none;
 }
 
 /* Override: do not scale the New Chat button on hover (keep consistent size) */
@@ -3811,6 +3824,17 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     console.log('Directory render elements:', {dirGrid, pageInfo});
     if (!dirGrid || !pageInfo) return;
     
+    // Update tab active states
+    if (btnStud && btnTeach) {
+      if (window.directoryKind === 'students') {
+        btnStud.classList.add('active');
+        btnTeach.classList.remove('active');
+      } else {
+        btnTeach.classList.add('active');
+        btnStud.classList.remove('active');
+      }
+    }
+    
     const searchTerm = dirSearch ? dirSearch.value.toLowerCase().trim() : '';
     const selectedGrade = dirGrade ? dirGrade.value : '';
     
@@ -3871,6 +3895,11 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
         console.log('Students button clicked');
         window.directoryKind = 'students';
         window.directoryPage = 1;
+        
+        // Update active state
+        btnStud.classList.add('active');
+        if (btnTeach) btnTeach.classList.remove('active');
+        
         window.renderDirectory();
       };
     }
@@ -3880,6 +3909,11 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
         console.log('Teachers button clicked');
         window.directoryKind = 'teachers';
         window.directoryPage = 1;
+        
+        // Update active state
+        btnTeach.classList.add('active');
+        if (btnStud) btnStud.classList.remove('active');
+        
         window.renderDirectory();
       };
     }
@@ -3924,6 +3958,16 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
   
   // Initialize directory when ready
   setTimeout(window.initDirectoryButtons, 100);
+  
+  // Backup initialization on page load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      if (typeof window.initDirectoryButtons === 'function') {
+        console.log('Backup directory initialization');
+        window.initDirectoryButtons();
+      }
+    }, 200);
+  });
 
 
 
