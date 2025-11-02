@@ -1297,8 +1297,11 @@ body.theme-dark .theme-toggle{
   box-shadow: 0 4px 12px rgba(100, 116, 139, 0.4);
 }
 
-.btn-icon {
+.action-btn .btn-icon {
   font-size: 1rem;
+  display: inline-block;
+  position: relative;
+  transition: transform 0.5s ease;
 }
 
 .grades-grid {
@@ -4900,21 +4903,23 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     if (refreshBtn) {
       refreshBtn.addEventListener('click', () => {
         // Add refresh animation and feedback
-        refreshBtn.style.transform = 'rotate(360deg)';
+        const icon = refreshBtn.querySelector('.btn-icon');
+        if (icon) {
+          icon.style.transform = 'rotate(360deg)';
+          icon.style.transition = 'transform 0.5s ease';
+        }
         refreshBtn.disabled = true;
         refreshBtn.innerHTML = '<span class="btn-icon">🔄</span>Refreshing...';
         
         setTimeout(() => {
-          refreshBtn.style.transform = 'rotate(0deg)';
           refreshBtn.disabled = false;
           refreshBtn.innerHTML = '<span class="btn-icon">🔄</span>Refresh';
           renderGrades();
           
           // Show success message briefly
-          const originalText = refreshBtn.innerHTML;
           refreshBtn.innerHTML = '<span class="btn-icon">✅</span>Updated!';
           setTimeout(() => {
-            refreshBtn.innerHTML = originalText;
+            refreshBtn.innerHTML = '<span class="btn-icon">🔄</span>Refresh';
           }, 1000);
         }, 500);
       });
