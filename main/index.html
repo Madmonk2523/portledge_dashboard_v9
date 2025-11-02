@@ -1609,11 +1609,7 @@ body.theme-dark .theme-toggle{
   border-color: #3b82f6;
 }
 
-.filter-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-left: auto;
-}
+
 
 .filter-btn {
   padding: 0.75rem 1.25rem;
@@ -1882,10 +1878,7 @@ body.theme-dark .theme-toggle{
     align-items: stretch;
   }
   
-  .filter-actions {
-    margin-left: 0;
-    justify-content: center;
-  }
+
   
   .results-header {
     flex-direction: column;
@@ -3572,10 +3565,6 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
             <span class="btn-icon">🔄</span>
             Refresh
           </button>
-          <button id="exportGrades" class="action-btn secondary">
-            <span class="btn-icon">📊</span>
-            Export
-          </button>
         </div>
       </div>
 
@@ -3635,16 +3624,7 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
         
 
 
-        <div class="filter-actions">
-          <button id="resetFilters" class="filter-btn secondary">
-            <span class="btn-icon">🔄</span>
-            Reset
-          </button>
-          <button id="exportDirectory" class="filter-btn">
-            <span class="btn-icon">📋</span>
-            Export
-          </button>
-        </div>
+
       </div>
 
       <!-- Directory Results -->
@@ -4902,7 +4882,6 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     const gradeFilter = $('#gradeFilter');
     const sortGrades = $('#sortGrades');
     const refreshBtn = $('#refreshGrades');
-    const exportBtn = $('#exportGrades');
 
     if (gradeFilter) {
       gradeFilter.addEventListener('change', (e) => {
@@ -4941,22 +4920,7 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
       });
     }
 
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        const csvContent = 'Course,Grade,Letter,GPA\\n' + 
-          grades.map(g => `${g.course},${g.grade}%,${getLetterGrade(g.grade)},${toGpa(g.grade)}`).join('\\n');
-        
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'grades_export.csv';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      });
-    }
+
   }
 
   // Initialize grades system
@@ -5318,49 +5282,7 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
       };
     }
 
-    // Reset filters button
-    const resetFilters = $('#resetFilters');
-    if (resetFilters) {
-      resetFilters.onclick = () => {
-        directoryState.search = '';
-        directoryState.grade = '';
-        directoryState.page = 1;
-        
-        if (dirSearch) dirSearch.value = '';
-        if (dirGrade) dirGrade.value = '';
-        
-        renderDirectory();
-      };
-    }
 
-    // Export button
-    const exportDirectory = $('#exportDirectory');
-    if (exportDirectory) {
-      exportDirectory.onclick = () => {
-        const csvHeaders = directoryState.kind === 'students' 
-          ? 'Name,Grade Level,Email,Advisor\\n'
-          : 'Name,Subject,Email,Room\\n';
-        
-        const csvData = filteredDirectoryData.map(person => {
-          if (directoryState.kind === 'students') {
-            return `"${person.name}",${person.gradeLevel},"${person.email || ''}","${person.advisor || ''}"`;
-          } else {
-            return `"${person.name}","${person.subject || ''}","${person.email || ''}","${person.room || ''}"`;
-          }
-        }).join('\\n');
-        
-        const csvContent = csvHeaders + csvData;
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${directoryState.kind}_directory.csv`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      };
-    }
   }
 
   // Initialize directory system
