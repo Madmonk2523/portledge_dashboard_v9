@@ -932,6 +932,22 @@ body.theme-dark .theme-toggle{
   box-shadow:0 6px 16px rgba(0,0,0,0.1);
   border-color:#cbd5e1;
 }
+
+/* CRITICAL: Ensure all buttons are clickable */
+button, .btn, input[type="button"], input[type="submit"], select {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 10 !important;
+  cursor: pointer !important;
+}
+
+/* Specific fixes for directory elements */
+#btnStud, #btnTeach, #prevPage, #nextPage, #dirSearch, #dirGrade {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
 .btn.primary{
   background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color:#fff;
@@ -3939,8 +3955,78 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     renderDirectory();
   }; // End of setupDirectory function
   
+  // CRITICAL: Force button functionality with multiple attempts
+  function forceButtonsToWork() {
+    console.log('🔧 FORCE FIXING ALL BUTTONS');
+    
+    // Force directory buttons
+    const btnStud = document.getElementById('btnStud');
+    const btnTeach = document.getElementById('btnTeach');
+    const dirSearch = document.getElementById('dirSearch');
+    const dirGrade = document.getElementById('dirGrade');
+    const prevPage = document.getElementById('prevPage');
+    const nextPage = document.getElementById('nextPage');
+    
+    if (btnStud) {
+      btnStud.style.pointerEvents = 'auto';
+      btnStud.style.cursor = 'pointer';
+      btnStud.style.zIndex = '100';
+      // Force click handler with multiple methods
+      btnStud.onclick = null; // Clear any existing
+      btnStud.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🎯 Students button FORCED click');
+        window.setupDirectory && window.setupDirectory();
+      });
+      btnStud.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🎯 Students button onclick fallback');
+        window.setupDirectory && window.setupDirectory();
+      };
+    }
+    
+    if (btnTeach) {
+      btnTeach.style.pointerEvents = 'auto';
+      btnTeach.style.cursor = 'pointer';
+      btnTeach.style.zIndex = '100';
+      btnTeach.onclick = null;
+      btnTeach.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🎯 Teachers button FORCED click');
+        window.setupDirectory && window.setupDirectory();
+      });
+      btnTeach.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🎯 Teachers button onclick fallback');
+        window.setupDirectory && window.setupDirectory();
+      };
+    }
+    
+    // Force all other page buttons
+    document.querySelectorAll('button, .btn, select, input[type="button"]').forEach(el => {
+      if (el) {
+        el.style.pointerEvents = 'auto';
+        el.style.cursor = 'pointer';
+        el.style.zIndex = '10';
+        el.style.position = 'relative';
+      }
+    });
+    
+    console.log('🔧 BUTTON FORCE FIX COMPLETE');
+  }
+  
   // Try to set up immediately and on directory tab activation
-  setTimeout(window.setupDirectory, 100);
+  setTimeout(() => {
+    window.setupDirectory();
+    forceButtonsToWork();
+  }, 100);
+  
+  // Force fix again after 1 second
+  setTimeout(forceButtonsToWork, 1000);
 
 
 
@@ -3955,6 +4041,44 @@ window.reinitDirectory = function() {
   if (typeof window.setupDirectory === 'function') {
     window.setupDirectory();
   }
+};
+
+// Global function to force fix all buttons
+window.fixAllButtons = function() {
+  console.log('🚨 EMERGENCY BUTTON FIX');
+  
+  document.querySelectorAll('button, .btn, select, input[type="button"], input[type="submit"]').forEach(el => {
+    el.style.pointerEvents = 'auto';
+    el.style.cursor = 'pointer';
+    el.style.zIndex = '100';
+    el.style.position = 'relative';
+    
+    // Remove any disabled attributes
+    el.removeAttribute('disabled');
+    el.classList.remove('disabled');
+  });
+  
+  // Specifically fix directory buttons
+  const btnStud = document.getElementById('btnStud');
+  const btnTeach = document.getElementById('btnTeach');
+  
+  if (btnStud) {
+    console.log('Fixing Students button...');
+    btnStud.onclick = () => {
+      console.log('Students clicked via emergency fix');
+      alert('Students button is working!');
+    };
+  }
+  
+  if (btnTeach) {
+    console.log('Fixing Teachers button...');
+    btnTeach.onclick = () => {
+      console.log('Teachers clicked via emergency fix');
+      alert('Teachers button is working!');
+    };
+  }
+  
+  console.log('🚨 EMERGENCY FIX COMPLETE - Try buttons now!');
 };
 
 const teachers=[
@@ -4262,73 +4386,7 @@ const studentsAll = [
   {name:"Niko Zografos", gradeLevel:12, email:"NZografos.2026@portledge.org"}
 ];
 
-function initDirectory(inpSel, gridSel, infoSel, prevSel, nextSel, gradeSel){
-  const inp=$(inpSel), grid=$(gridSel), info=$(infoSel), prev=$(prevSel), next=$(nextSel);
-  const gradeEl = gradeSel ? $(gradeSel) : null;
-  let kind='students', page=1, perPage=8;
 
-  // Local buttons (resolve by container id prefix)
-  const isTeacher = gridSel.startsWith('#t_');
-  const tabTeach = isTeacher ? $('#t_btnTeach') : $('#btnTeach');
-  const tabStud  = isTeacher ? $('#t_btnStud')  : $('#btnStud');
-  
-  console.log('Directory buttons found:', {
-    tabTeach: !!tabTeach,
-    tabStud: !!tabStud,
-    inp: !!inp,
-    grid: !!grid,
-    prev: !!prev,
-    next: !!next
-  });
-
-  function syncTabs(){ 
-    if(tabTeach) tabTeach.classList.toggle('active', kind==='teachers'); 
-    if(tabStud) tabStud.classList.toggle('active', kind==='students'); 
-  }
-  function render(){
-    console.log('Directory render called:', {kind, page, hasGrid: !!grid, hasInfo: !!info});
-    
-    if (!grid || !info) {
-      console.error('Missing grid or info elements');
-      return;
-    }
-    
-    const q=(inp ? inp.value : '').toLowerCase().trim();
-    const hasTeach = typeof teachers !== 'undefined' && Array.isArray(teachers);
-    const hasStud = typeof studentsAll !== 'undefined' && Array.isArray(studentsAll);
-    const src= kind==='teachers' ? (hasTeach?teachers:[]) : (hasStud?studentsAll:[]);
-    
-    console.log('Directory data:', {kind, hasTeach, hasStud, srcLength: src.length});
-    
-    // For students, always show all grades if no specific filter is selected
-    const list=src.filter(x=> (x.name+' '+(x.subject||'')+' '+(x.email||'')+(x.gradeLevel?' Grade '+x.gradeLevel:'')).toLowerCase().includes(q));
-    const filtered = (kind==='students' && gradeEl && gradeEl.value && gradeEl.value !== '')
-      ? list.filter(x=> x.gradeLevel===Number(gradeEl.value))
-      : list;
-      
-    const total=filtered.length, maxPage=Math.max(1,Math.ceil(total/perPage)); 
-    if(page>maxPage) page=maxPage;
-    const slice=filtered.slice((page-1)*perPage,(page-1)*perPage+perPage);
-    
-    grid.innerHTML = slice.map(x=>`
-      <div class="person">
-        <div><div class="name">${x.name}</div><div class="meta">${kind==='teachers'?(x.subject||''):`Grade ${x.gradeLevel}`}</div></div>
-        <div>${x.email?`<a class="mail" href="mailto:${x.email}">Email</a>`:''}</div>
-      </div>`).join('');
-    info.textContent = `Page ${page} of ${maxPage} • ${total} ${kind}`;
-    
-    console.log('Directory rendered:', {total, slice: slice.length});
-  }
-  if(tabTeach) tabTeach.onclick=()=>{ console.log('Teachers tab clicked'); kind='teachers'; page=1; syncTabs(); render(); };
-  if(tabStud) tabStud.onclick =()=>{ console.log('Students tab clicked'); kind='students'; page=1; syncTabs(); render(); };
-  if(inp) inp.oninput = ()=>{ page=1; render(); };
-  if(gradeEl) gradeEl.onchange = ()=>{ page=1; render(); };
-  if(prev) prev.onclick = ()=>{ page=Math.max(1,page-1); render(); };
-  if(next) next.onclick = ()=>{ page=page+1; render(); };
-  syncTabs(); render();
-  // If data not yet loaded (due to script order), try a delayed re-render once
-  setTimeout(()=>{ render(); }, 50);
-}
 
 /* ===== Simple modal reuse ===== */
 function openModal(){ 
