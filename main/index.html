@@ -3603,8 +3603,8 @@ function initStudent(){
     // Initialize directory when directory tab is clicked
     if (id === 's-directory') {
       setTimeout(() => {
-        if (typeof initDirectoryButtons === 'function') {
-          initDirectoryButtons();
+        if (typeof window.initDirectoryButtons === 'function') {
+          window.initDirectoryButtons();
         }
       }, 50);
     }
@@ -3794,11 +3794,11 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
   renderGrades();
 
   // Directory (student) - Clean initialization
-  let directoryKind = 'students';
-  let directoryPage = 1;
-  const directoryPerPage = 8;
+  window.directoryKind = 'students';
+  window.directoryPage = 1;
+  window.directoryPerPage = 8;
   
-  function renderDirectory() {
+  window.renderDirectory = function() {
     const dirGrid = document.getElementById('dirGrid');
     const pageInfo = document.getElementById('pageInfo');
     const dirSearch = document.getElementById('dirSearch');
@@ -3811,7 +3811,7 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     const searchTerm = dirSearch ? dirSearch.value.toLowerCase().trim() : '';
     const selectedGrade = dirGrade ? dirGrade.value : '';
     
-    let data = directoryKind === 'students' ? studentsAll : teachers;
+    let data = window.directoryKind === 'students' ? studentsAll : teachers;
     if (!data) data = [];
     
     // Filter by search
@@ -3823,36 +3823,36 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     }
     
     // Filter by grade for students
-    if (directoryKind === 'students' && selectedGrade) {
+    if (window.directoryKind === 'students' && selectedGrade) {
       data = data.filter(item => item.gradeLevel === parseInt(selectedGrade));
     }
     
     // Pagination
     const total = data.length;
-    const maxPage = Math.max(1, Math.ceil(total / directoryPerPage));
-    if (directoryPage > maxPage) directoryPage = maxPage;
+    const maxPage = Math.max(1, Math.ceil(total / window.directoryPerPage));
+    if (window.directoryPage > maxPage) window.directoryPage = maxPage;
     
-    const start = (directoryPage - 1) * directoryPerPage;
-    const pageData = data.slice(start, start + directoryPerPage);
+    const start = (window.directoryPage - 1) * window.directoryPerPage;
+    const pageData = data.slice(start, start + window.directoryPerPage);
     
     // Render grid
     dirGrid.innerHTML = pageData.map(item => `
       <div class="person">
         <div>
           <div class="name">${item.name}</div>
-          <div class="meta">${directoryKind === 'teachers' ? (item.subject || '') : `Grade ${item.gradeLevel}`}</div>
+          <div class="meta">${window.directoryKind === 'teachers' ? (item.subject || '') : `Grade ${item.gradeLevel}`}</div>
         </div>
         <div>${item.email ? `<a class="mail" href="mailto:${item.email}">Email</a>` : ''}</div>
       </div>
     `).join('');
     
     // Update page info and tab states
-    pageInfo.textContent = `Page ${directoryPage} of ${maxPage} • ${total} ${directoryKind}`;
-    if (btnStud) btnStud.classList.toggle('active', directoryKind === 'students');
-    if (btnTeach) btnTeach.classList.toggle('active', directoryKind === 'teachers');
-  }
+    pageInfo.textContent = `Page ${window.directoryPage} of ${maxPage} • ${total} ${window.directoryKind}`;
+    if (btnStud) btnStud.classList.toggle('active', window.directoryKind === 'students');
+    if (btnTeach) btnTeach.classList.toggle('active', window.directoryKind === 'teachers');
+  };
   
-  function initDirectoryButtons() {
+  window.initDirectoryButtons = function() {
     const btnStud = document.getElementById('btnStud');
     const btnTeach = document.getElementById('btnTeach');
     const dirSearch = document.getElementById('dirSearch');
@@ -3862,60 +3862,60 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     
     if (btnStud) {
       btnStud.onclick = () => {
-        directoryKind = 'students';
-        directoryPage = 1;
-        renderDirectory();
+        window.directoryKind = 'students';
+        window.directoryPage = 1;
+        window.renderDirectory();
       };
     }
     
     if (btnTeach) {
       btnTeach.onclick = () => {
-        directoryKind = 'teachers';
-        directoryPage = 1;
-        renderDirectory();
+        window.directoryKind = 'teachers';
+        window.directoryPage = 1;
+        window.renderDirectory();
       };
     }
     
     if (dirSearch) {
       dirSearch.oninput = () => {
-        directoryPage = 1;
-        renderDirectory();
+        window.directoryPage = 1;
+        window.renderDirectory();
       };
     }
     
     if (dirGrade) {
       dirGrade.onchange = () => {
-        directoryPage = 1;
-        renderDirectory();
+        window.directoryPage = 1;
+        window.renderDirectory();
       };
     }
     
     if (prevPage) {
       prevPage.onclick = () => {
-        if (directoryPage > 1) {
-          directoryPage--;
-          renderDirectory();
+        if (window.directoryPage > 1) {
+          window.directoryPage--;
+          window.renderDirectory();
         }
       };
     }
     
     if (nextPage) {
       nextPage.onclick = () => {
-        const data = directoryKind === 'students' ? studentsAll : teachers;
-        const maxPage = Math.ceil((data || []).length / directoryPerPage);
-        if (directoryPage < maxPage) {
-          directoryPage++;
-          renderDirectory();
+        const data = window.directoryKind === 'students' ? studentsAll : teachers;
+        const maxPage = Math.ceil((data || []).length / window.directoryPerPage);
+        if (window.directoryPage < maxPage) {
+          window.directoryPage++;
+          window.renderDirectory();
         }
       };
     }
     
     // Initial render
-    renderDirectory();
-  }
+    window.renderDirectory();
+  };
   
   // Initialize directory when ready
-  setTimeout(initDirectoryButtons, 100);
+  setTimeout(window.initDirectoryButtons, 100);
 
 
 
