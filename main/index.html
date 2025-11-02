@@ -1143,6 +1143,766 @@ body.theme-dark .theme-toggle{
 .dir-tools{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px}
 .dir-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
 @media(max-width:900px){.dir-grid{grid-template-columns:1fr}}
+
+/* ===== Modern Grades Section ===== */
+.grades-summary {
+  margin-bottom: 2rem;
+}
+
+.gpa-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 2rem;
+  color: white;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.gpa-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+}
+
+.gpa-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.gpa-icon {
+  font-size: 2.5rem;
+  margin-right: 1rem;
+}
+
+.gpa-value {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.gpa-label {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-top: 0.25rem;
+}
+
+.gpa-progress {
+  background: rgba(255,255,255,0.2);
+  height: 8px;
+  border-radius: 4px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+
+.gpa-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00f5ff, #00d4ff);
+  border-radius: 4px;
+  transition: width 1s ease;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+}
+
+.gpa-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.grades-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.controls-left {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.controls-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.modern-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.modern-select:hover {
+  border-color: #cbd5e1;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.action-btn {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.action-btn.secondary {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+}
+
+.action-btn.secondary:hover {
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.4);
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
+
+.grades-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.grade-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.grade-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--grade-color, linear-gradient(90deg, #10b981, #059669));
+}
+
+.grade-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.grade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.grade-subject {
+  flex: 1;
+}
+
+.subject-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.subject-teacher {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.grade-score {
+  text-align: right;
+}
+
+.grade-letter {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.grade-percent {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.grade-progress {
+  background: #f1f5f9;
+  height: 8px;
+  border-radius: 4px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+
+.grade-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.grade-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.grade-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.grade-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.grade-btn.primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.grade-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Grade Color Variants */
+.grade-card.grade-a { --grade-color: linear-gradient(90deg, #10b981, #059669); }
+.grade-card.grade-b { --grade-color: linear-gradient(90deg, #3b82f6, #2563eb); }
+.grade-card.grade-c { --grade-color: linear-gradient(90deg, #f59e0b, #d97706); }
+.grade-card.grade-d { --grade-color: linear-gradient(90deg, #ef4444, #dc2626); }
+.grade-card.grade-f { --grade-color: linear-gradient(90deg, #991b1b, #7f1d1d); }
+
+.grade-a .grade-letter { color: #059669; }
+.grade-b .grade-letter { color: #2563eb; }
+.grade-c .grade-letter { color: #d97706; }
+.grade-d .grade-letter { color: #dc2626; }
+.grade-f .grade-letter { color: #991b1b; }
+
+/* ===== Modern Directory Section ===== */
+.directory-header {
+  margin-bottom: 2rem;
+}
+
+.dir-tabs-modern {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.dir-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  color: #64748b;
+  position: relative;
+  overflow: hidden;
+}
+
+.dir-tab:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.dir-tab.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+.tab-icon {
+  font-size: 1.25rem;
+}
+
+.tab-text {
+  font-size: 0.95rem;
+}
+
+.tab-count {
+  background: rgba(255,255,255,0.2);
+  color: currentColor;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: center;
+}
+
+.dir-tab:not(.active) .tab-count {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.directory-search {
+  position: relative;
+}
+
+.search-input-wrapper {
+  position: relative;
+  max-width: 500px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 1rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.25rem;
+  color: #94a3b8;
+}
+
+.clear-search {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.search-input:not(:placeholder-shown) ~ .clear-search {
+  opacity: 1;
+}
+
+.clear-search:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.directory-filters {
+  display: flex;
+  gap: 1.5rem;
+  align-items: end;
+  flex-wrap: wrap;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 160px;
+}
+
+.filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.filter-select {
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.filter-btn {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.filter-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.filter-btn.secondary {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+}
+
+.directory-results {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.results-count {
+  font-weight: 600;
+  color: #475569;
+}
+
+.view-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.view-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.view-icon {
+  font-size: 1rem;
+}
+
+.directory-grid {
+  padding: 1.5rem;
+  min-height: 400px;
+}
+
+.directory-grid.cards-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.directory-grid.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.directory-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.directory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  border-color: #cbd5e1;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.person-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: white;
+  font-weight: 700;
+}
+
+.person-info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.person-role {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-icon {
+  font-size: 1rem;
+  width: 16px;
+}
+
+/* List view specific styles */
+.directory-grid.list-view .directory-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.directory-grid.list-view .card-header {
+  margin: 0;
+  flex: 1;
+}
+
+.directory-grid.list-view .card-details {
+  flex-direction: row;
+  gap: 2rem;
+  margin: 0;
+}
+
+.directory-pagination {
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.pagination-info {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.page-number {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  min-width: 36px;
+  text-align: center;
+}
+
+.page-number.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.page-number:hover:not(.active) {
+  background: #f8fafc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .grades-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .controls-left {
+    flex-direction: column;
+  }
+  
+  .controls-right {
+    justify-content: center;
+  }
+  
+  .directory-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-actions {
+    margin-left: 0;
+    justify-content: center;
+  }
+  
+  .results-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .pagination-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .page-numbers {
+    justify-content: center;
+  }
+}
+
 .person{
   border:2px solid #e2e8f0;
   background:#ffffff;
@@ -2756,48 +3516,204 @@ button:focus-visible, .btn:focus-visible, .tab:focus-visible {
   <section id="page-s-grades" class="page">
     <div class="hero container">
       <div>
-        <h2>Grades</h2>
-        <div class="meta">Quarter snapshot & trends</div>
+        <h2>📊 Academic Performance</h2>
+        <div class="meta">Track your progress across all subjects</div>
       </div>
     </div>
     <div class="container">
-      <div class="gpa">
-        <div class="gpa-badge" id="gpaBadge">GPA —</div>
-        <div class="gpa-track"><div class="gpa-fill" id="gpaFill"></div></div>
-        <div class="gpa-meta" id="gpaMeta">Across 0 courses</div>
+      <!-- Enhanced GPA Section -->
+      <div class="grades-summary">
+        <div class="gpa-card">
+          <div class="gpa-header">
+            <div class="gpa-icon">🎯</div>
+            <div class="gpa-info">
+              <div class="gpa-value" id="gpaValue">4.0</div>
+              <div class="gpa-label">Cumulative GPA</div>
+            </div>
+          </div>
+          <div class="gpa-progress">
+            <div class="gpa-bar" id="gpaBar"></div>
+          </div>
+          <div class="gpa-stats">
+            <div class="stat-item">
+              <span class="stat-number" id="avgPercent">95</span>
+              <span class="stat-label">Average %</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="courseCount">6</span>
+              <span class="stat-label">Courses</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="trendIndicator">+0.2</span>
+              <span class="stat-label">Trend</span>
+            </div>
+          </div>
+        </div>
       </div>
-  <div class="grid3" id="gradesGrid"></div>
-  </div>
-</section>
+
+      <!-- Grades Controls -->
+      <div class="grades-controls">
+        <div class="controls-left">
+          <select id="gradeFilter" class="modern-select">
+            <option value="all">All Subjects</option>
+            <option value="high">High Performance (A)</option>
+            <option value="good">Good Performance (B)</option>
+            <option value="needs-attention">Needs Attention (C or below)</option>
+          </select>
+          <select id="sortGrades" class="modern-select">
+            <option value="grade-desc">Grade (High to Low)</option>
+            <option value="grade-asc">Grade (Low to High)</option>
+            <option value="name">Subject Name</option>
+            <option value="recent">Recent Activity</option>
+          </select>
+        </div>
+        <div class="controls-right">
+          <button id="refreshGrades" class="action-btn">
+            <span class="btn-icon">🔄</span>
+            Refresh
+          </button>
+          <button id="exportGrades" class="action-btn secondary">
+            <span class="btn-icon">📊</span>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Modern Grades Grid -->
+      <div class="grades-grid" id="gradesGrid">
+        <!-- Grade cards will be populated here -->
+      </div>
+    </div>
+  </section>
 
   <!-- DIRECTORY -->
   <section id="page-s-directory" class="page">
     <div class="hero container">
       <div>
-        <h2>Directory</h2>
-        <div class="meta">Search & browse</div>
+        <h2>👥 School Directory</h2>
+        <div class="meta">Connect with students, teachers, and staff</div>
       </div>
     </div>
     <div class="container">
-      <div class="dir-tabs">
-        <button id="btnStud" class="btn active" data-kind="students">Students</button>
-        <button id="btnTeach" class="btn" data-kind="teachers">Teachers</button>
+      <!-- Directory Navigation -->
+      <div class="directory-header">
+        <div class="dir-tabs-modern">
+          <button id="btnStud" class="dir-tab active" data-kind="students">
+            <span class="tab-icon">🎓</span>
+            <span class="tab-text">Students</span>
+            <span class="tab-count" id="studCount">0</span>
+          </button>
+          <button id="btnTeach" class="dir-tab" data-kind="teachers">
+            <span class="tab-icon">👨‍🏫</span>
+            <span class="tab-text">Teachers</span>
+            <span class="tab-count" id="teachCount">0</span>
+          </button>
+        </div>
+        
+        <!-- Advanced Search & Filters -->
+        <div class="directory-search">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input id="dirSearch" class="search-input" placeholder="Search by name, email, subject, or grade..." />
+            <button id="clearSearch" class="clear-search" title="Clear search">✕</button>
+          </div>
+        </div>
       </div>
-      <div class="dir-tools">
-        <input id="dirSearch" class="input" placeholder="Search name, subject, email…"/>
-        <select id="dirGrade" class="input">
-          <option value="" selected>All Grades</option>
-          <option value="9">Grade 9</option>
-          <option value="10">Grade 10</option>
-          <option value="11">Grade 11</option>
-          <option value="12">Grade 12</option>
-        </select>
+
+      <!-- Filter Controls -->
+      <div class="directory-filters">
+        <div class="filter-group">
+          <label class="filter-label">Grade Level</label>
+          <select id="dirGrade" class="filter-select">
+            <option value="" selected>All Grades</option>
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Department</label>
+          <select id="dirDepartment" class="filter-select">
+            <option value="" selected>All Departments</option>
+            <option value="English">English</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Science">Science</option>
+            <option value="History">History</option>
+            <option value="Arts">Arts</option>
+            <option value="Physical Education">Physical Education</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Sort By</label>
+          <select id="dirSort" class="filter-select">
+            <option value="name">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="grade">Grade Level</option>
+            <option value="department">Department</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <button id="resetFilters" class="filter-btn secondary">
+            <span class="btn-icon">🔄</span>
+            Reset
+          </button>
+          <button id="exportDirectory" class="filter-btn">
+            <span class="btn-icon">📋</span>
+            Export
+          </button>
+        </div>
       </div>
-      <div id="dirGrid" class="dir-grid"></div>
-      <div class="pager">
-        <button id="prevPage" class="btn">Prev</button>
-        <span id="pageInfo" class="meta"></span>
-        <button id="nextPage" class="btn">Next</button>
+
+      <!-- Directory Results -->
+      <div class="directory-results">
+        <div class="results-header">
+          <div class="results-count" id="resultsCount">Loading...</div>
+          <div class="view-options">
+            <button id="cardView" class="view-btn active" data-view="cards">
+              <span class="view-icon">⊞</span>
+              Cards
+            </button>
+            <button id="listView" class="view-btn" data-view="list">
+              <span class="view-icon">☰</span>
+              List
+            </button>
+          </div>
+        </div>
+
+        <!-- Directory Grid -->
+        <div id="dirGrid" class="directory-grid cards-view">
+          <!-- Directory cards will be populated here -->
+        </div>
+
+        <!-- Enhanced Pagination -->
+        <div class="directory-pagination">
+          <div class="pagination-info">
+            <span id="pageInfo">Page 1 of 1 (0 results)</span>
+          </div>
+          <div class="pagination-controls">
+            <button id="firstPage" class="page-btn" disabled>
+              <span class="btn-icon">⟪</span>
+            </button>
+            <button id="prevPage" class="page-btn" disabled>
+              <span class="btn-icon">⟨</span>
+              Previous
+            </button>
+            <div class="page-numbers" id="pageNumbers">
+              <!-- Page numbers will be generated here -->
+            </div>
+            <button id="nextPage" class="page-btn" disabled>
+              Next
+              <span class="btn-icon">⟩</span>
+            </button>
+            <button id="lastPage" class="page-btn" disabled>
+              <span class="btn-icon">⟫</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -3781,193 +4697,734 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     if(letter.startsWith('C')) return 'linear-gradient(90deg,#efb400,#ffd35a)';
     return 'linear-gradient(90deg,#cc3d3d,#ff7878)';
   }
-  function toGpa(p){ if(p>=93)return 4; if(p>=90)return 3.7; if(p>=87)return 3.3; if(p>=83)return 3; if(p>=80)return 2.7; if(p>=77)return 2.3; if(p>=73)return 2; if(p>=70)return 1.7; if(p>=67)return 1.3; if(p>=65)return 1; return 0;}
-  function renderGrades(){
-    const avgPct=Math.round(grades.reduce((s,g)=>s+g.grade,0)/grades.length);
-    const avgGPA=(grades.reduce((s,g)=>s+toGpa(g.grade),0)/grades.length).toFixed(2);
-    $('#gpaBadge').textContent=`GPA ${avgGPA}`;
-    $('#gpaFill').style.width=`${avgPct}%`;
-    $('#gpaMeta').textContent=`Average ${avgPct}% across ${grades.length} courses`;
-    $('#gradesGrid').innerHTML=grades.map((g,i)=>`
-      <div class="gcard">
-        <div class="gheader">
-          <h3 class="gtitle">${g.course}</h3>
-          <div class="ggrade">${g.letter} • ${g.grade}%</div>
+  // ===== Modern Grades System =====
+  
+  // Enhanced grade calculation and utilities
+  function toGpa(percent) {
+    if (percent >= 97) return 4.0;
+    if (percent >= 93) return 3.7;
+    if (percent >= 90) return 3.3;
+    if (percent >= 87) return 3.0;
+    if (percent >= 83) return 2.7;
+    if (percent >= 80) return 2.3;
+    if (percent >= 77) return 2.0;
+    if (percent >= 73) return 1.7;
+    if (percent >= 70) return 1.3;
+    if (percent >= 67) return 1.0;
+    if (percent >= 65) return 0.7;
+    return 0.0;
+  }
+
+  function getLetterGrade(percent) {
+    if (percent >= 97) return 'A+';
+    if (percent >= 93) return 'A';
+    if (percent >= 90) return 'A-';
+    if (percent >= 87) return 'B+';
+    if (percent >= 83) return 'B';
+    if (percent >= 80) return 'B-';
+    if (percent >= 77) return 'C+';
+    if (percent >= 73) return 'C';
+    if (percent >= 70) return 'C-';
+    if (percent >= 67) return 'D+';
+    if (percent >= 65) return 'D';
+    return 'F';
+  }
+
+  function getGradeClass(letter) {
+    if (letter.startsWith('A')) return 'grade-a';
+    if (letter.startsWith('B')) return 'grade-b';
+    if (letter.startsWith('C')) return 'grade-c';
+    if (letter.startsWith('D')) return 'grade-d';
+    return 'grade-f';
+  }
+
+  function getProgressColor(percent) {
+    if (percent >= 90) return 'linear-gradient(90deg, #10b981, #059669)';
+    if (percent >= 80) return 'linear-gradient(90deg, #3b82f6, #2563eb)';
+    if (percent >= 70) return 'linear-gradient(90deg, #f59e0b, #d97706)';
+    if (percent >= 60) return 'linear-gradient(90deg, #ef4444, #dc2626)';
+    return 'linear-gradient(90deg, #991b1b, #7f1d1d)';
+  }
+
+  // Grades state management
+  let currentGradesFilter = 'all';
+  let currentGradesSort = 'grade-desc';
+  let filteredGrades = [...grades];
+
+  // Enhanced render functions
+  function renderGradeSummary() {
+    const avgPercent = Math.round(grades.reduce((sum, g) => sum + g.grade, 0) / grades.length);
+    const avgGPA = (grades.reduce((sum, g) => sum + toGpa(g.grade), 0) / grades.length).toFixed(2);
+    const trend = Math.random() > 0.5 ? '+0.2' : '-0.1'; // Simulated trend
+    
+    $('#gpaValue').textContent = avgGPA;
+    $('#avgPercent').textContent = avgPercent;
+    $('#courseCount').textContent = grades.length;
+    $('#trendIndicator').textContent = trend;
+    
+    // Animate GPA bar
+    setTimeout(() => {
+      $('#gpaBar').style.width = `${(avgGPA / 4) * 100}%`;
+    }, 300);
+  }
+
+  function renderGradeCard(grade, index) {
+    const letter = getLetterGrade(grade.grade);
+    const gradeClass = getGradeClass(letter);
+    const recentAssignments = grade.details ? grade.details.slice(0, 3).join(' • ') : 'No recent assignments';
+    
+    return `
+      <div class="grade-card ${gradeClass}" data-course="${grade.course}">
+        <div class="grade-header">
+          <div class="grade-subject">
+            <h3 class="subject-name">${grade.course}</h3>
+            <div class="subject-teacher">Mr. ${grade.teacher || 'Smith'}</div>
+          </div>
+          <div class="grade-score">
+            <div class="grade-letter">${letter}</div>
+            <div class="grade-percent">${grade.grade}%</div>
+          </div>
         </div>
-        <div class="bar-wrap"><div class="bar" id="bar-${i}" data-letter="${g.letter}"></div></div>
-        <div class="gsub">Recent: ${g.details.slice(0,2).join(' • ')}</div>
-        <button class="gbtn" data-course="${g.course}">View details</button>
-      </div>`).join('');
-    grades.forEach((g,i)=> { const el = $('#bar-'+i); if(el) { el.style.width=`${g.grade}%`; el.style.background = letterGrad(g.letter); } });
-    $$('.gbtn').forEach(btn=> btn.onclick=()=>{
-      $('#mTitle').textContent=`${btn.dataset.course} — Details`;
-      $('#mBody').innerHTML=`<div><b>Current:</b> ${grades.find(x=>x.course===btn.dataset.course).grade}%</div>`;
-      openModal();
+        
+        <div class="grade-progress">
+          <div class="progress-bar" id="progress-${index}" style="background: ${getProgressColor(grade.grade)}"></div>
+        </div>
+        
+        <div class="grade-details">
+          <span>📚 ${grade.assignments || 12} assignments</span>
+          <span>📈 ${grade.trend || '+2%'} trend</span>
+        </div>
+        
+        <div class="grade-actions">
+          <button class="grade-btn" onclick="viewGradeBreakdown('${grade.course}')">
+            Breakdown
+          </button>
+          <button class="grade-btn primary" onclick="viewGradeDetails('${grade.course}')">
+            View Details
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function filterGrades() {
+    filteredGrades = grades.filter(grade => {
+      switch (currentGradesFilter) {
+        case 'high':
+          return grade.grade >= 90;
+        case 'good':
+          return grade.grade >= 80 && grade.grade < 90;
+        case 'needs-attention':
+          return grade.grade < 80;
+        default:
+          return true;
+      }
     });
   }
+
+  function sortGrades() {
+    filteredGrades.sort((a, b) => {
+      switch (currentGradesSort) {
+        case 'grade-desc':
+          return b.grade - a.grade;
+        case 'grade-asc':
+          return a.grade - b.grade;
+        case 'name':
+          return a.course.localeCompare(b.course);
+        case 'recent':
+          return (b.lastActivity || 0) - (a.lastActivity || 0);
+        default:
+          return 0;
+      }
+    });
+  }
+
+  function renderGrades() {
+    filterGrades();
+    sortGrades();
+    
+    renderGradeSummary();
+    
+    const gradesGrid = $('#gradesGrid');
+    if (!gradesGrid) return;
+    
+    gradesGrid.innerHTML = filteredGrades.map((grade, index) => renderGradeCard(grade, index)).join('');
+    
+    // Animate progress bars
+    setTimeout(() => {
+      filteredGrades.forEach((grade, index) => {
+        const progressBar = $(`#progress-${index}`);
+        if (progressBar) {
+          progressBar.style.width = `${grade.grade}%`;
+        }
+      });
+    }, 100);
+  }
+
+  // Grade interaction functions
+  function viewGradeDetails(course) {
+    const grade = grades.find(g => g.course === course);
+    if (!grade) return;
+    
+    $('#mTitle').textContent = `${course} - Detailed Breakdown`;
+    $('#mBody').innerHTML = `
+      <div style="text-align: left;">
+        <p><strong>Current Grade:</strong> ${grade.grade}% (${getLetterGrade(grade.grade)})</p>
+        <p><strong>GPA Points:</strong> ${toGpa(grade.grade).toFixed(1)}</p>
+        <p><strong>Class Average:</strong> ${grade.classAvg || '85%'}</p>
+        <p><strong>Rank:</strong> ${grade.rank || '12/28'}</p>
+        <hr style="margin: 1rem 0;">
+        <p><strong>Recent Assignments:</strong></p>
+        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+          ${grade.details ? grade.details.map(detail => `<li>${detail}</li>`).join('') : '<li>No assignments recorded</li>'}
+        </ul>
+        <p><strong>Next Assignment:</strong> ${grade.upcoming || 'Unit Test - Nov 15'}</p>
+      </div>
+    `;
+    openModal();
+  }
+
+  function viewGradeBreakdown(course) {
+    const grade = grades.find(g => g.course === course);
+    if (!grade) return;
+    
+    $('#mTitle').textContent = `${course} - Grade Breakdown`;
+    $('#mBody').innerHTML = `
+      <div style="text-align: left;">
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Tests (40%)</span>
+            <span style="font-weight: 600;">${grade.tests || '92%'}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Quizzes (25%)</span>
+            <span style="font-weight: 600;">${grade.quizzes || '88%'}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Homework (20%)</span>
+            <span style="font-weight: 600;">${grade.homework || '95%'}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Participation (15%)</span>
+            <span style="font-weight: 600;">${grade.participation || '98%'}</span>
+          </div>
+        </div>
+        <hr style="margin: 1rem 0;">
+        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 1.1rem;">
+          <span>Overall Grade</span>
+          <span>${grade.grade}%</span>
+        </div>
+      </div>
+    `;
+    openModal();
+  }
+
+  // Initialize grades controls
+  function initGradesControls() {
+    const gradeFilter = $('#gradeFilter');
+    const sortGrades = $('#sortGrades');
+    const refreshBtn = $('#refreshGrades');
+    const exportBtn = $('#exportGrades');
+
+    if (gradeFilter) {
+      gradeFilter.addEventListener('change', (e) => {
+        currentGradesFilter = e.target.value;
+        renderGrades();
+      });
+    }
+
+    if (sortGrades) {
+      sortGrades.addEventListener('change', (e) => {
+        currentGradesSort = e.target.value;
+        renderGrades();
+      });
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        // Add refresh animation
+        refreshBtn.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+          refreshBtn.style.transform = 'rotate(0deg)';
+          renderGrades();
+        }, 500);
+      });
+    }
+
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const csvContent = 'Course,Grade,Letter,GPA\\n' + 
+          grades.map(g => `${g.course},${g.grade}%,${getLetterGrade(g.grade)},${toGpa(g.grade)}`).join('\\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'grades_export.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      });
+    }
+  }
+
+  // Initialize grades system
+  initGradesControls();
   renderGrades();
 
-  // Directory (student) - Clean initialization
-  window.directoryKind = 'students';
-  window.directoryPage = 1;
-  window.directoryPerPage = 8;
+  // ===== Modern Directory System =====
   
-  window.renderDirectory = function() {
-    console.log('renderDirectory called, directoryKind:', window.directoryKind);
-    const dirGrid = document.getElementById('dirGrid');
-    const pageInfo = document.getElementById('pageInfo');
-    const dirSearch = document.getElementById('dirSearch');
-    const dirGrade = document.getElementById('dirGrade');
-    const btnStud = document.getElementById('btnStud');
-    const btnTeach = document.getElementById('btnTeach');
+  // Directory state management
+  let directoryState = {
+    kind: 'students',
+    page: 1,
+    perPage: 12,
+    search: '',
+    grade: '',
+    department: '',
+    sort: 'name',
+    view: 'cards' // 'cards' or 'list'
+  };
+
+  let filteredDirectoryData = [];
+
+  // Directory utility functions
+  function getPersonInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
+  function formatPersonRole(person, kind) {
+    if (kind === 'teachers') {
+      return person.subject || 'Teacher';
+    } else {
+      return `Grade ${person.gradeLevel} Student`;
+    }
+  }
+
+  function filterDirectoryData() {
+    let data = directoryState.kind === 'students' ? studentsAll : teachers;
+    if (!data) data = [];
+
+    // Apply search filter
+    if (directoryState.search) {
+      const searchTerm = directoryState.search.toLowerCase();
+      data = data.filter(person => {
+        const searchText = [
+          person.name,
+          person.email,
+          person.subject,
+          person.gradeLevel ? `Grade ${person.gradeLevel}` : '',
+          person.department
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        return searchText.includes(searchTerm);
+      });
+    }
+
+    // Apply grade filter (for students)
+    if (directoryState.kind === 'students' && directoryState.grade) {
+      data = data.filter(person => 
+        person.gradeLevel === parseInt(directoryState.grade)
+      );
+    }
+
+    // Apply department filter (for teachers)
+    if (directoryState.kind === 'teachers' && directoryState.department) {
+      data = data.filter(person => 
+        person.subject === directoryState.department
+      );
+    }
+
+    // Apply sorting
+    data.sort((a, b) => {
+      switch (directoryState.sort) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'grade':
+          if (directoryState.kind === 'students') {
+            return (a.gradeLevel || 0) - (b.gradeLevel || 0);
+          }
+          return a.name.localeCompare(b.name);
+        case 'department':
+          return (a.subject || '').localeCompare(b.subject || '');
+        default:
+          return 0;
+      }
+    });
+
+    filteredDirectoryData = data;
+  }
+
+  function renderDirectoryCard(person, index) {
+    const initials = getPersonInitials(person.name);
+    const role = formatPersonRole(person, directoryState.kind);
     
-    console.log('Directory render elements:', {dirGrid, pageInfo});
-    if (!dirGrid || !pageInfo) return;
+    return `
+      <div class="directory-card" onclick="showPersonDetails('${person.name.replace(/'/g, "\\'")}')">
+        <div class="card-header">
+          <div class="person-avatar">${initials}</div>
+          <div class="person-info">
+            <h3>${person.name}</h3>
+            <div class="person-role">${role}</div>
+          </div>
+        </div>
+        <div class="card-details">
+          ${person.email ? `
+            <div class="detail-item">
+              <span class="detail-icon">📧</span>
+              <span>${person.email}</span>
+            </div>
+          ` : ''}
+          ${person.phone ? `
+            <div class="detail-item">
+              <span class="detail-icon">📞</span>
+              <span>${person.phone}</span>
+            </div>
+          ` : ''}
+          ${directoryState.kind === 'teachers' && person.room ? `
+            <div class="detail-item">
+              <span class="detail-icon">🚪</span>
+              <span>Room ${person.room}</span>
+            </div>
+          ` : ''}
+          ${directoryState.kind === 'students' && person.advisor ? `
+            <div class="detail-item">
+              <span class="detail-icon">👨‍🏫</span>
+              <span>Advisor: ${person.advisor}</span>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDirectoryPagination() {
+    const total = filteredDirectoryData.length;
+    const maxPage = Math.max(1, Math.ceil(total / directoryState.perPage));
     
-    // Update tab active states
-    if (btnStud && btnTeach) {
-      if (window.directoryKind === 'students') {
+    // Update page info
+    const pageInfo = $('#pageInfo');
+    if (pageInfo) {
+      const start = (directoryState.page - 1) * directoryState.perPage + 1;
+      const end = Math.min(start + directoryState.perPage - 1, total);
+      pageInfo.textContent = `Showing ${start}-${end} of ${total} results`;
+    }
+
+    // Update pagination buttons
+    const firstBtn = $('#firstPage');
+    const prevBtn = $('#prevPage');
+    const nextBtn = $('#nextPage');
+    const lastBtn = $('#lastPage');
+    
+    if (firstBtn) {
+      firstBtn.disabled = directoryState.page === 1;
+      firstBtn.onclick = () => changePage(1);
+    }
+    
+    if (prevBtn) {
+      prevBtn.disabled = directoryState.page === 1;
+      prevBtn.onclick = () => changePage(directoryState.page - 1);
+    }
+    
+    if (nextBtn) {
+      nextBtn.disabled = directoryState.page === maxPage;
+      nextBtn.onclick = () => changePage(directoryState.page + 1);
+    }
+    
+    if (lastBtn) {
+      lastBtn.disabled = directoryState.page === maxPage;
+      lastBtn.onclick = () => changePage(maxPage);
+    }
+
+    // Render page numbers
+    const pageNumbers = $('#pageNumbers');
+    if (pageNumbers) {
+      let pages = [];
+      const showPages = 5;
+      let start = Math.max(1, directoryState.page - Math.floor(showPages / 2));
+      let end = Math.min(maxPage, start + showPages - 1);
+      
+      if (end - start < showPages - 1) {
+        start = Math.max(1, end - showPages + 1);
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(`
+          <button class="page-number ${i === directoryState.page ? 'active' : ''}" 
+                  onclick="changePage(${i})">${i}</button>
+        `);
+      }
+      
+      pageNumbers.innerHTML = pages.join('');
+    }
+  }
+
+  function changePage(newPage) {
+    const total = filteredDirectoryData.length;
+    const maxPage = Math.max(1, Math.ceil(total / directoryState.perPage));
+    
+    if (newPage >= 1 && newPage <= maxPage) {
+      directoryState.page = newPage;
+      renderDirectory();
+    }
+  }
+
+  function renderDirectory() {
+    filterDirectoryData();
+    
+    const dirGrid = $('#dirGrid');
+    if (!dirGrid) return;
+
+    // Update counts
+    const studCount = $('#studCount');
+    const teachCount = $('#teachCount');
+    
+    if (studCount) studCount.textContent = studentsAll ? studentsAll.length : 0;
+    if (teachCount) teachCount.textContent = teachers ? teachers.length : 0;
+
+    // Update results count
+    const resultsCount = $('#resultsCount');
+    if (resultsCount) {
+      const total = filteredDirectoryData.length;
+      const typeLabel = directoryState.kind === 'students' ? 'students' : 'teachers';
+      resultsCount.textContent = `${total} ${typeLabel} found`;
+    }
+
+    // Get paginated data
+    const start = (directoryState.page - 1) * directoryState.perPage;
+    const pageData = filteredDirectoryData.slice(start, start + directoryState.perPage);
+
+    // Update view class
+    dirGrid.className = `directory-grid ${directoryState.view}-view`;
+
+    // Render cards
+    if (pageData.length === 0) {
+      dirGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #64748b;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+          <h3 style="margin: 0 0 0.5rem 0;">No results found</h3>
+          <p style="margin: 0;">Try adjusting your search or filters</p>
+        </div>
+      `;
+    } else {
+      dirGrid.innerHTML = pageData.map((person, index) => renderDirectoryCard(person, index)).join('');
+    }
+
+    // Update pagination
+    renderDirectoryPagination();
+    
+    // Update tab states
+    updateTabStates();
+  }
+
+  function updateTabStates() {
+    const btnStud = $('#btnStud');
+    const btnTeach = $('#btnTeach');
+    
+    if (btnStud) {
+      if (directoryState.kind === 'students') {
         btnStud.classList.add('active');
-        btnTeach.classList.remove('active');
       } else {
-        btnTeach.classList.add('active');
         btnStud.classList.remove('active');
       }
     }
     
-    const searchTerm = dirSearch ? dirSearch.value.toLowerCase().trim() : '';
-    const selectedGrade = dirGrade ? dirGrade.value : '';
+    if (btnTeach) {
+      if (directoryState.kind === 'teachers') {
+        btnTeach.classList.add('active');
+      } else {
+        btnTeach.classList.remove('active');
+      }
+    }
+  }
+
+  function showPersonDetails(name) {
+    const person = filteredDirectoryData.find(p => p.name === name);
+    if (!person) return;
+
+    $('#mTitle').textContent = person.name;
     
-    let data = window.directoryKind === 'students' ? studentsAll : teachers;
-    if (!data) data = [];
+    let details = `<div style="text-align: left;">`;
     
-    // Filter by search
-    if (searchTerm) {
-      data = data.filter(item => {
-        const text = (item.name + ' ' + (item.email || '') + ' ' + (item.subject || '') + ' Grade ' + (item.gradeLevel || '')).toLowerCase();
-        return text.includes(searchTerm);
-      });
+    if (person.email) {
+      details += `<p><strong>Email:</strong> <a href="mailto:${person.email}">${person.email}</a></p>`;
     }
     
-    // Filter by grade for students
-    if (window.directoryKind === 'students' && selectedGrade) {
-      data = data.filter(item => item.gradeLevel === parseInt(selectedGrade));
+    if (person.phone) {
+      details += `<p><strong>Phone:</strong> ${person.phone}</p>`;
     }
     
-    // Pagination
-    const total = data.length;
-    const maxPage = Math.max(1, Math.ceil(total / window.directoryPerPage));
-    if (window.directoryPage > maxPage) window.directoryPage = maxPage;
+    if (directoryState.kind === 'students') {
+      details += `<p><strong>Grade Level:</strong> ${person.gradeLevel}</p>`;
+      if (person.advisor) details += `<p><strong>Advisor:</strong> ${person.advisor}</p>`;
+      if (person.courses) details += `<p><strong>Courses:</strong> ${person.courses.join(', ')}</p>`;
+    } else {
+      if (person.subject) details += `<p><strong>Subject:</strong> ${person.subject}</p>`;
+      if (person.department) details += `<p><strong>Department:</strong> ${person.department}</p>`;
+      if (person.room) details += `<p><strong>Room:</strong> ${person.room}</p>`;
+      if (person.officeHours) details += `<p><strong>Office Hours:</strong> ${person.officeHours}</p>`;
+    }
     
-    const start = (window.directoryPage - 1) * window.directoryPerPage;
-    const pageData = data.slice(start, start + window.directoryPerPage);
+    details += `</div>`;
     
-    // Render grid
-    dirGrid.innerHTML = pageData.map(item => `
-      <div class="person">
-        <div>
-          <div class="name">${item.name}</div>
-          <div class="meta">${window.directoryKind === 'teachers' ? (item.subject || '') : `Grade ${item.gradeLevel}`}</div>
-        </div>
-        <div>${item.email ? `<a class="mail" href="mailto:${item.email}">Email</a>` : ''}</div>
-      </div>
-    `).join('');
-    
-    // Update page info and tab states
-    pageInfo.textContent = `Page ${window.directoryPage} of ${maxPage} • ${total} ${window.directoryKind}`;
-    if (btnStud) btnStud.classList.toggle('active', window.directoryKind === 'students');
-    if (btnTeach) btnTeach.classList.toggle('active', window.directoryKind === 'teachers');
-  };
-  
-  window.initDirectoryButtons = function() {
-    console.log('initDirectoryButtons called');
-    const btnStud = document.getElementById('btnStud');
-    const btnTeach = document.getElementById('btnTeach');
-    const dirSearch = document.getElementById('dirSearch');
-    const dirGrade = document.getElementById('dirGrade');
-    const prevPage = document.getElementById('prevPage');
-    const nextPage = document.getElementById('nextPage');
-    
-    console.log('Directory elements found:', {btnStud, btnTeach, dirSearch, dirGrade, prevPage, nextPage});
+    $('#mBody').innerHTML = details;
+    openModal();
+  }
+
+  function initDirectoryControls() {
+    // Tab buttons
+    const btnStud = $('#btnStud');
+    const btnTeach = $('#btnTeach');
     
     if (btnStud) {
       btnStud.onclick = () => {
-        console.log('Students button clicked');
-        window.directoryKind = 'students';
-        window.directoryPage = 1;
-        
-        // Update active state
-        btnStud.classList.add('active');
-        if (btnTeach) btnTeach.classList.remove('active');
-        
-        window.renderDirectory();
+        directoryState.kind = 'students';
+        directoryState.page = 1;
+        renderDirectory();
       };
     }
     
     if (btnTeach) {
       btnTeach.onclick = () => {
-        console.log('Teachers button clicked');
-        window.directoryKind = 'teachers';
-        window.directoryPage = 1;
-        
-        // Update active state
-        btnTeach.classList.add('active');
-        if (btnStud) btnStud.classList.remove('active');
-        
-        window.renderDirectory();
+        directoryState.kind = 'teachers';
+        directoryState.page = 1;
+        renderDirectory();
       };
     }
-    
+
+    // Search input
+    const dirSearch = $('#dirSearch');
     if (dirSearch) {
-      dirSearch.oninput = () => {
-        window.directoryPage = 1;
-        window.renderDirectory();
+      dirSearch.oninput = (e) => {
+        directoryState.search = e.target.value;
+        directoryState.page = 1;
+        renderDirectory();
       };
     }
-    
+
+    // Clear search button
+    const clearSearch = $('#clearSearch');
+    if (clearSearch) {
+      clearSearch.onclick = () => {
+        if (dirSearch) dirSearch.value = '';
+        directoryState.search = '';
+        directoryState.page = 1;
+        renderDirectory();
+      };
+    }
+
+    // Filter controls
+    const dirGrade = $('#dirGrade');
     if (dirGrade) {
-      dirGrade.onchange = () => {
-        window.directoryPage = 1;
-        window.renderDirectory();
+      dirGrade.onchange = (e) => {
+        directoryState.grade = e.target.value;
+        directoryState.page = 1;
+        renderDirectory();
+      };
+    }
+
+    const dirDepartment = $('#dirDepartment');
+    if (dirDepartment) {
+      dirDepartment.onchange = (e) => {
+        directoryState.department = e.target.value;
+        directoryState.page = 1;
+        renderDirectory();
+      };
+    }
+
+    const dirSort = $('#dirSort');
+    if (dirSort) {
+      dirSort.onchange = (e) => {
+        directoryState.sort = e.target.value;
+        renderDirectory();
+      };
+    }
+
+    // View toggle buttons
+    const cardView = $('#cardView');
+    const listView = $('#listView');
+    
+    if (cardView) {
+      cardView.onclick = () => {
+        directoryState.view = 'cards';
+        cardView.classList.add('active');
+        if (listView) listView.classList.remove('active');
+        renderDirectory();
       };
     }
     
-    if (prevPage) {
-      prevPage.onclick = () => {
-        if (window.directoryPage > 1) {
-          window.directoryPage--;
-          window.renderDirectory();
-        }
+    if (listView) {
+      listView.onclick = () => {
+        directoryState.view = 'list';
+        listView.classList.add('active');
+        if (cardView) cardView.classList.remove('active');
+        renderDirectory();
       };
     }
-    
-    if (nextPage) {
-      nextPage.onclick = () => {
-        const data = window.directoryKind === 'students' ? studentsAll : teachers;
-        const maxPage = Math.ceil((data || []).length / window.directoryPerPage);
-        if (window.directoryPage < maxPage) {
-          window.directoryPage++;
-          window.renderDirectory();
-        }
+
+    // Reset filters button
+    const resetFilters = $('#resetFilters');
+    if (resetFilters) {
+      resetFilters.onclick = () => {
+        directoryState.search = '';
+        directoryState.grade = '';
+        directoryState.department = '';
+        directoryState.sort = 'name';
+        directoryState.page = 1;
+        
+        if (dirSearch) dirSearch.value = '';
+        if (dirGrade) dirGrade.value = '';
+        if (dirDepartment) dirDepartment.value = '';
+        if (dirSort) dirSort.value = 'name';
+        
+        renderDirectory();
       };
     }
-    
-    // Initial render
-    window.renderDirectory();
-  };
+
+    // Export button
+    const exportDirectory = $('#exportDirectory');
+    if (exportDirectory) {
+      exportDirectory.onclick = () => {
+        const csvHeaders = directoryState.kind === 'students' 
+          ? 'Name,Grade Level,Email,Advisor\\n'
+          : 'Name,Subject,Email,Room,Department\\n';
+        
+        const csvData = filteredDirectoryData.map(person => {
+          if (directoryState.kind === 'students') {
+            return `"${person.name}",${person.gradeLevel},"${person.email || ''}","${person.advisor || ''}"`;
+          } else {
+            return `"${person.name}","${person.subject || ''}","${person.email || ''}","${person.room || ''}","${person.department || ''}"`;
+          }
+        }).join('\\n');
+        
+        const csvContent = csvHeaders + csvData;
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${directoryState.kind}_directory.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      };
+    }
+  }
+
+  // Initialize directory system
+  function initDirectory() {
+    initDirectoryControls();
+    renderDirectory();
+  }
+
+  // Auto-initialize when directory tab is accessed
+  window.initDirectoryButtons = initDirectory;
   
-  // Initialize directory when ready
-  setTimeout(window.initDirectoryButtons, 100);
-  
-  // Backup initialization on page load
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      if (typeof window.initDirectoryButtons === 'function') {
-        console.log('Backup directory initialization');
-        window.initDirectoryButtons();
-      }
-    }, 200);
-  });
+  // Initialize immediately
+  setTimeout(initDirectory, 100);
 
 
 
