@@ -933,21 +933,7 @@ body.theme-dark .theme-toggle{
   border-color:#cbd5e1;
 }
 
-/* CRITICAL: Ensure all buttons are clickable */
-button, .btn, input[type="button"], input[type="submit"], select {
-  pointer-events: auto !important;
-  position: relative !important;
-  z-index: 10 !important;
-  cursor: pointer !important;
-}
 
-/* Specific fixes for directory elements */
-#btnStud, #btnTeach, #prevPage, #nextPage, #dirSearch, #dirGrade {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  position: relative !important;
-  z-index: 10 !important;
-}
 .btn.primary{
   background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color:#fff;
@@ -3617,9 +3603,8 @@ function initStudent(){
     // Initialize directory when directory tab is clicked
     if (id === 's-directory') {
       setTimeout(() => {
-        console.log('Directory tab activated, setting up...');
-        if (typeof window.setupDirectory === 'function') {
-          window.setupDirectory();
+        if (typeof initDirectoryButtons === 'function') {
+          initDirectoryButtons();
         }
       }, 50);
     }
@@ -3808,158 +3793,66 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
   }
   renderGrades();
 
-  // Directory (student) - Simple initialization
-  console.log('Setting up directory...');
+  // Directory (student) - Clean initialization
+  let directoryKind = 'students';
+  let directoryPage = 1;
+  const directoryPerPage = 8;
   
-  // Set up directory functionality immediately
-  window.directoryInitialized = false;
-  
-  window.setupDirectory = function() {
-    if (window.directoryInitialized) return;
-    
-    console.log('Initializing directory with data:', {
-      students: studentsAll ? studentsAll.length : 0,
-      teachers: teachers ? teachers.length : 0
-    });
-    
-    const btnStud = document.getElementById('btnStud');
-    const btnTeach = document.getElementById('btnTeach');
-    const dirSearch = document.getElementById('dirSearch');
-    const dirGrade = document.getElementById('dirGrade');
+  function renderDirectory() {
     const dirGrid = document.getElementById('dirGrid');
     const pageInfo = document.getElementById('pageInfo');
-    const prevPage = document.getElementById('prevPage');
-    const nextPage = document.getElementById('nextPage');
+    const dirSearch = document.getElementById('dirSearch');
+    const dirGrade = document.getElementById('dirGrade');
+    const btnStud = document.getElementById('btnStud');
+    const btnTeach = document.getElementById('btnTeach');
     
-    if (!btnStud || !btnTeach || !dirGrid) {
-      console.log('Directory elements not ready, retrying...');
-      setTimeout(setupDirectory, 100);
-      return;
+    if (!dirGrid || !pageInfo) return;
+    
+    const searchTerm = dirSearch ? dirSearch.value.toLowerCase().trim() : '';
+    const selectedGrade = dirGrade ? dirGrade.value : '';
+    
+    let data = directoryKind === 'students' ? studentsAll : teachers;
+    if (!data) data = [];
+    
+    // Filter by search
+    if (searchTerm) {
+      data = data.filter(item => {
+        const text = (item.name + ' ' + (item.email || '') + ' ' + (item.subject || '') + ' Grade ' + (item.gradeLevel || '')).toLowerCase();
+        return text.includes(searchTerm);
+      });
     }
     
-    console.log('All directory elements found, setting up...');
-    window.directoryInitialized = true;
+    // Filter by grade for students
+    if (directoryKind === 'students' && selectedGrade) {
+      data = data.filter(item => item.gradeLevel === parseInt(selectedGrade));
+    }
     
-    let currentKind = 'students';
-    let currentPage = 1;
-    const perPage = 8;
+    // Pagination
+    const total = data.length;
+    const maxPage = Math.max(1, Math.ceil(total / directoryPerPage));
+    if (directoryPage > maxPage) directoryPage = maxPage;
     
-    function renderDirectory() {
-      console.log('Rendering directory:', currentKind);
-      
-      const searchTerm = dirSearch ? dirSearch.value.toLowerCase().trim() : '';
-      const selectedGrade = dirGrade ? dirGrade.value : '';
-      
-      let data = [];
-      if (currentKind === 'students' && studentsAll) {
-        data = studentsAll.slice();
-      } else if (currentKind === 'teachers' && teachers) {
-        data = teachers.slice();
-      }
-      
-      // Filter by search term
-      if (searchTerm) {
-        data = data.filter(item => {
-          const searchText = (item.name + ' ' + (item.email || '') + ' ' + (item.subject || '') + ' Grade ' + (item.gradeLevel || '')).toLowerCase();
-          return searchText.includes(searchTerm);
-        });
-      }
-      
-      // Filter by grade for students
-      if (currentKind === 'students' && selectedGrade) {
-        data = data.filter(item => item.gradeLevel === parseInt(selectedGrade));
-      }
-      
-      // Pagination
-      const total = data.length;
-      const maxPage = Math.max(1, Math.ceil(total / perPage));
-      if (currentPage > maxPage) currentPage = maxPage;
-      
-      const start = (currentPage - 1) * perPage;
-      const end = start + perPage;
-      const pageData = data.slice(start, end);
-      
-      // Update grid
-      dirGrid.innerHTML = pageData.map(item => `
-        <div class="person">
-          <div>
-            <div class="name">${item.name}</div>
-            <div class="meta">${currentKind === 'teachers' ? (item.subject || '') : `Grade ${item.gradeLevel}`}</div>
-          </div>
-          <div>${item.email ? `<a class="mail" href="mailto:${item.email}">Email</a>` : ''}</div>
+    const start = (directoryPage - 1) * directoryPerPage;
+    const pageData = data.slice(start, start + directoryPerPage);
+    
+    // Render grid
+    dirGrid.innerHTML = pageData.map(item => `
+      <div class="person">
+        <div>
+          <div class="name">${item.name}</div>
+          <div class="meta">${directoryKind === 'teachers' ? (item.subject || '') : `Grade ${item.gradeLevel}`}</div>
         </div>
-      `).join('');
-      
-      // Update page info
-      if (pageInfo) {
-        pageInfo.textContent = `Page ${currentPage} of ${maxPage} • ${total} ${currentKind}`;
-      }
-      
-      // Update tab states
-      btnStud.classList.toggle('active', currentKind === 'students');
-      btnTeach.classList.toggle('active', currentKind === 'teachers');
-      
-      console.log('Directory rendered:', { total, pageData: pageData.length, currentKind, currentPage });
-    }
+        <div>${item.email ? `<a class="mail" href="mailto:${item.email}">Email</a>` : ''}</div>
+      </div>
+    `).join('');
     
-    // Event listeners
-    btnStud.onclick = () => {
-      console.log('Students button clicked');
-      currentKind = 'students';
-      currentPage = 1;
-      renderDirectory();
-    };
-    
-    btnTeach.onclick = () => {
-      console.log('Teachers button clicked');
-      currentKind = 'teachers';
-      currentPage = 1;
-      renderDirectory();
-    };
-    
-    if (dirSearch) {
-      dirSearch.oninput = () => {
-        currentPage = 1;
-        renderDirectory();
-      };
-    }
-    
-    if (dirGrade) {
-      dirGrade.onchange = () => {
-        currentPage = 1;
-        renderDirectory();
-      };
-    }
-    
-    if (prevPage) {
-      prevPage.onclick = () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderDirectory();
-        }
-      };
-    }
-    
-    if (nextPage) {
-      nextPage.onclick = () => {
-        const total = currentKind === 'students' ? studentsAll.length : teachers.length;
-        const maxPage = Math.ceil(total / perPage);
-        if (currentPage < maxPage) {
-          currentPage++;
-          renderDirectory();
-        }
-      };
-    }
-    
-    // Initial render
-    renderDirectory();
-  }; // End of setupDirectory function
+    // Update page info and tab states
+    pageInfo.textContent = `Page ${directoryPage} of ${maxPage} • ${total} ${directoryKind}`;
+    if (btnStud) btnStud.classList.toggle('active', directoryKind === 'students');
+    if (btnTeach) btnTeach.classList.toggle('active', directoryKind === 'teachers');
+  }
   
-  // CRITICAL: Force button functionality with multiple attempts
-  function forceButtonsToWork() {
-    console.log('🔧 FORCE FIXING ALL BUTTONS');
-    
-    // Force directory buttons
+  function initDirectoryButtons() {
     const btnStud = document.getElementById('btnStud');
     const btnTeach = document.getElementById('btnTeach');
     const dirSearch = document.getElementById('dirSearch');
@@ -3968,76 +3861,61 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
     const nextPage = document.getElementById('nextPage');
     
     if (btnStud) {
-      btnStud.style.pointerEvents = 'auto';
-      btnStud.style.cursor = 'pointer';
-      btnStud.style.zIndex = '100';
-      // Force click handler with multiple methods
-      btnStud.onclick = null; // Clear any existing
-      btnStud.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('🎯 Students button FORCED click');
-        window.setupDirectory && window.setupDirectory();
-      });
-      btnStud.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('🎯 Students button onclick fallback');
-        window.setupDirectory && window.setupDirectory();
+      btnStud.onclick = () => {
+        directoryKind = 'students';
+        directoryPage = 1;
+        renderDirectory();
       };
     }
     
     if (btnTeach) {
-      btnTeach.style.pointerEvents = 'auto';
-      btnTeach.style.cursor = 'pointer';
-      btnTeach.style.zIndex = '100';
-      btnTeach.onclick = null;
-      btnTeach.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('🎯 Teachers button FORCED click');
-        window.setupDirectory && window.setupDirectory();
-      });
-      btnTeach.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('🎯 Teachers button onclick fallback');
-        window.setupDirectory && window.setupDirectory();
+      btnTeach.onclick = () => {
+        directoryKind = 'teachers';
+        directoryPage = 1;
+        renderDirectory();
       };
     }
     
-    // Force all other page buttons
-    document.querySelectorAll('button, .btn, select, input[type="button"]').forEach(el => {
-      if (el) {
-        el.style.pointerEvents = 'auto';
-        el.style.cursor = 'pointer';
-        el.style.zIndex = '10';
-        el.style.position = 'relative';
-      }
-    });
+    if (dirSearch) {
+      dirSearch.oninput = () => {
+        directoryPage = 1;
+        renderDirectory();
+      };
+    }
     
-    console.log('🔧 BUTTON FORCE FIX COMPLETE');
+    if (dirGrade) {
+      dirGrade.onchange = () => {
+        directoryPage = 1;
+        renderDirectory();
+      };
+    }
+    
+    if (prevPage) {
+      prevPage.onclick = () => {
+        if (directoryPage > 1) {
+          directoryPage--;
+          renderDirectory();
+        }
+      };
+    }
+    
+    if (nextPage) {
+      nextPage.onclick = () => {
+        const data = directoryKind === 'students' ? studentsAll : teachers;
+        const maxPage = Math.ceil((data || []).length / directoryPerPage);
+        if (directoryPage < maxPage) {
+          directoryPage++;
+          renderDirectory();
+        }
+      };
+    }
+    
+    // Initial render
+    renderDirectory();
   }
   
-  // Try to set up immediately and on directory tab activation
-  setTimeout(() => {
-    window.setupDirectory();
-    forceButtonsToWork();
-  }, 100);
-  
-  // Force fix again after 1 second
-  setTimeout(forceButtonsToWork, 1000);
-  
-  // Auto-run the fix function when page loads
-  document.addEventListener('DOMContentLoaded', forceButtonsToWork);
-  window.addEventListener('load', forceButtonsToWork);
-  
-  // Auto-run fixAllButtons as well
-  setTimeout(() => {
-    if (typeof window.fixAllButtons === 'function') {
-      window.fixAllButtons();
-    }
-  }, 2000);
+  // Initialize directory when ready
+  setTimeout(initDirectoryButtons, 100);
 
 
 
@@ -4045,104 +3923,7 @@ function weekend(d){const n=d.getDay(); return n===0||n===6;}
 
 /* ===== Directory (shared impl) ===== */
 
-// Global function to reinitialize directory for debugging
-window.reinitDirectory = function() {
-  console.log('Manual directory reinitialization...');
-  window.directoryInitialized = false;
-  if (typeof window.setupDirectory === 'function') {
-    window.setupDirectory();
-  }
-};
 
-// Global function to force fix all buttons
-window.fixAllButtons = function() {
-  console.log('🚨 EMERGENCY BUTTON FIX');
-  
-  document.querySelectorAll('button, .btn, select, input[type="button"], input[type="submit"]').forEach(el => {
-    el.style.pointerEvents = 'auto';
-    el.style.cursor = 'pointer';
-    el.style.zIndex = '100';
-    el.style.position = 'relative';
-    
-    // Remove any disabled attributes
-    el.removeAttribute('disabled');
-    el.classList.remove('disabled');
-  });
-  
-  // Specifically fix directory buttons
-  const btnStud = document.getElementById('btnStud');
-  const btnTeach = document.getElementById('btnTeach');
-  
-  if (btnStud) {
-    console.log('Fixing Students button...');
-    btnStud.onclick = () => {
-      console.log('Students clicked via emergency fix');
-      alert('Students button is working!');
-    };
-  }
-  
-  if (btnTeach) {
-    console.log('Fixing Teachers button...');
-    btnTeach.onclick = () => {
-      console.log('Teachers clicked via emergency fix');
-      alert('Teachers button is working!');
-    };
-  }
-  
-  console.log('🚨 EMERGENCY FIX COMPLETE - Try buttons now!');
-  
-  // Show visual confirmation
-  const fixNotice = document.createElement('div');
-  fixNotice.innerHTML = '🔧 BUTTONS FIXED! Click Students/Teachers now';
-  fixNotice.style.cssText = `
-    position: fixed; 
-    top: 20px; 
-    right: 20px; 
-    background: #10b981; 
-    color: white; 
-    padding: 10px 20px; 
-    border-radius: 10px; 
-    z-index: 9999;
-    font-weight: bold;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-  `;
-  document.body.appendChild(fixNotice);
-  setTimeout(() => fixNotice.remove(), 5000);
-};
-
-// Simple test function
-window.testButtons = function() {
-  console.log('🧪 TESTING ALL BUTTONS...');
-  
-  const buttons = ['btnStud', 'btnTeach', 'prevPage', 'nextPage'];
-  let working = 0;
-  
-  buttons.forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      console.log(`Found button: ${id}`);
-      btn.style.backgroundColor = '#10b981';
-      btn.style.color = 'white';
-      setTimeout(() => {
-        btn.style.backgroundColor = '';
-        btn.style.color = '';
-      }, 1000);
-      working++;
-    } else {
-      console.log(`Missing button: ${id}`);
-    }
-  });
-  
-  alert(`✅ Found ${working}/${buttons.length} buttons. Check console for details.`);
-};
-
-// IMMEDIATELY run the emergency fix
-if (typeof window !== 'undefined') {
-  setTimeout(() => {
-    console.log('🚨 RUNNING EMERGENCY BUTTON FIX NOW...');
-    window.fixAllButtons();
-  }, 500);
-}
 
 const teachers=[
   {name:'Roger LaFlair', subject:'Chemistry', email:'rlaflair@portledge.org'},
